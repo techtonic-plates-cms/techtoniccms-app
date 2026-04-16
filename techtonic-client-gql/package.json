@@ -1,0 +1,26 @@
+{
+	"name": "techtonic-client-gql",
+	"version": "0.1.0",
+	"type": "module",
+	"main": "./mod.ts",
+	"exports": {
+		".": "./mod.ts",
+		"./*": "./src/*"
+	},
+	"dependencies": {
+		"@graphql-codegen/client-preset": "^5.3.0",
+		"@graphql-typed-document-node/core": "^3.2.0",
+
+		"graphql": "^16.13.2"
+	},
+	"devDependencies": {
+		"@graphql-codegen/cli": "^6.3.0",
+		"svelte2tsx": "^0.7.53"
+	},
+	"scripts": {
+		"codegen": "graphql-codegen"
+	},
+	"engines": {
+		"node": ">=22"
+	}
+}

@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+	"exports": "./mod.ts",
+	"imports": {
+		"@graphql-typed-document-node/core": "npm:@graphql-typed-document-node/core@3.2.0"
+	}
+}
