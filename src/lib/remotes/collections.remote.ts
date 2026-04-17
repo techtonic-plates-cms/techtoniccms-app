@@ -65,7 +65,6 @@ const COLLECTION_QUERY = `
 				fields {
 					id name label dataType isRequired isUnique
 					defaultValue description helpText relatedCollectionId
-					relatedCollection { id name slug }
 				}
 			}
 		}

@@ -38,11 +38,7 @@
 			<div>
 				<div class="flex items-center gap-2">
 					{#if collection?.icon}
-						{#if collection.icon.url.startsWith('http')}
-							<img src={collection.icon.url} alt="" class="size-7 rounded-md object-cover" />
-						{:else}
-							<span class="text-xl">{collection.icon}</span>
-						{/if}
+						<img src={collection.icon.url} alt={collection.icon.filename} class="size-7 rounded-md object-cover" />
 					{/if}
 					<h1 class="text-2xl font-bold">{collection?.name ?? 'Entries'}</h1>
 				</div>

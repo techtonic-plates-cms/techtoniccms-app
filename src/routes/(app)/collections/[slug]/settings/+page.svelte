@@ -70,10 +70,10 @@
 					</div>
 					<div class="space-y-1.5">
 						<Label>Icon (asset)</Label>
-						<input type="hidden" name="icon" value={iconOverride ?? collection.icon ?? ''} />
+						<input type="hidden" name="icon" value={iconOverride ?? collection.icon?.id ?? ''} />
 						<AssetCombobox
-							value={iconOverride ?? collection.icon ?? ''}
-							onValueChange={(_id, url) => { iconOverride = url; }}
+							value={iconOverride ?? collection.icon?.id ?? ''}
+							onValueChange={(id) => { iconOverride = id; }}
 						/>
 					</div>
 				</div>
