@@ -3,6 +3,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import PencilIcon from '@lucide/svelte/icons/pencil';
+	import DownloadIcon from '@lucide/svelte/icons/download';
 	import UploadIcon from '@lucide/svelte/icons/upload';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -79,6 +80,14 @@
 						<p class="text-muted-foreground text-xs">{formatSize(asset.fileSize)}</p>
 					</div>
 					<div class="absolute top-1 right-1 hidden gap-1 group-hover:flex">
+						<a
+							href={asset.url}
+							download={asset.filename}
+							class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-background"
+							title="Download"
+						>
+							<DownloadIcon class="size-3" />
+						</a>
 						<button
 							type="button"
 							class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-background"
