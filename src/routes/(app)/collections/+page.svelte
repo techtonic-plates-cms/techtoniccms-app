@@ -42,7 +42,7 @@
 						<div class="mb-3 flex items-start justify-between gap-2">
 							<div class="flex min-w-0 items-center gap-2">
 								{#if collection.icon}
-									<img src={collection.icon.url} alt={collection.icon.filename} class="size-9 rounded-md object-cover" />
+									<img src="/assets/_api/{collection.icon.id}" alt={collection.icon.filename} class="size-9 rounded-md object-cover" />
 								{:else}
 									<div
 										class="flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"

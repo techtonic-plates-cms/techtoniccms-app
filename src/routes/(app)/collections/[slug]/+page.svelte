@@ -38,7 +38,7 @@
 			<div>
 				<div class="flex items-center gap-2">
 					{#if collection?.icon}
-						<img src={collection.icon.url} alt={collection.icon.filename} class="size-7 rounded-md object-cover" />
+						<img src="/assets/_api/{collection.icon.id}" alt={collection.icon.filename} class="size-7 rounded-md object-cover" />
 					{/if}
 					<h1 class="text-2xl font-bold">{collection?.name ?? 'Entries'}</h1>
 				</div>

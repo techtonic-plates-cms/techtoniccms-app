@@ -61,7 +61,7 @@
 					<div class="bg-muted flex aspect-square items-center justify-center">
 						{#if isImage(asset.mimeType)}
 							<img
-								src={asset.url}
+								src="/assets/_api/{asset.id}"
 								alt={asset.alt ?? asset.filename}
 								class="h-full w-full object-cover"
 								loading="lazy"
@@ -81,7 +81,7 @@
 					</div>
 					<div class="absolute top-1 right-1 hidden gap-1 group-hover:flex">
 						<a
-							href={asset.url}
+							href="/assets/_api/{asset.id}"
 							download={asset.filename}
 							class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-background"
 							title="Download"

@@ -212,7 +212,7 @@
 					<input type="hidden" name="icon" value={iconInput} />
 					<AssetCombobox
 						value={iconInput}
-						onValueChange={(_id, url) => { iconInput = url; }}
+						onValueChange={(id) => { iconInput = id; }}
 					/>
 				</div>
 

@@ -7,7 +7,7 @@
 
 	interface Props {
 		value: string;
-		onValueChange: (id: string, url: string) => void;
+		onValueChange: (id: string) => void;
 		class?: string;
 	}
 
@@ -33,7 +33,7 @@
 	function handleSelect(assetId: string) {
 		const asset = assets.find((a) => a.id === assetId);
 		if (asset) {
-			onValueChange(asset.id, asset.url);
+			onValueChange(asset.id);
 			search = '';
 			open = false;
 		}

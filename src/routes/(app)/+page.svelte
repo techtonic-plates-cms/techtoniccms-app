@@ -79,7 +79,7 @@
 						class="hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-colors"
 					>
 						{#if collection.icon}
-							<img src={collection.icon.url} alt={collection.icon.filename} class="size-8 rounded-md object-cover" />
+							<img src="/assets/_api/{collection.icon.id}" alt={collection.icon.filename} class="size-8 rounded-md object-cover" />
 						{:else}
 							<div
 								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
