@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EntryEditor from '$lib/components/EntryEditor.svelte';
+	import EntryEditor from '@/components/entry-editor.svelte';
 	import { getCollection } from '$lib/remotes/collections.remote';
 	import { getEntry } from '$lib/remotes/entries.remote';
 	import type { PageProps } from './$types';

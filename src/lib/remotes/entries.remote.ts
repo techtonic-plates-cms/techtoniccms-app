@@ -141,11 +141,34 @@ type EntriesResult = {
 	};
 };
 
-type EntryResult = {
-	collections: {
-		entries: Record<string, { nodes: EntryNode[] }>;
-	};
-};
+
+function buildEntriesComboboxQuery(slug: string): string {
+	const field = slugToFieldName(slug);
+	return `
+		query GetEntriesCombobox {
+			collections {
+				entries {
+					${field}(first: 50) {
+						nodes { id name slug }
+					}
+				}
+			}
+		}
+	`;
+}
+
+export const getEntriesForCombobox = query(
+	v.object({ slug: v.pipe(v.string(), v.nonEmpty()) }),
+	async ({ slug }) => {
+		const { locals } = getRequestEvent();
+		const result = await gqlFetch<
+			{ collections: { entries: Record<string, { nodes: Array<{ id: string; name: string; slug: string | null }> }> } },
+			Record<string, never>
+		>(buildEntriesComboboxQuery(slug), {}, { token: locals.accessToken?.tokenValue });
+		const field = slugToFieldName(slug);
+		return result.collections.entries[field]?.nodes ?? [];
+	}
+);
 
 export const getEntries = query(
 	v.object({

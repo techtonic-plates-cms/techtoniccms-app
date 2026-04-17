@@ -15,6 +15,7 @@
 	import * as v from 'valibot';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createCollection, getCollections } from '$lib/remotes/collections.remote';
+	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 
 	const [, allCollections] = await Promise.all([requireAuth(), getCollections()]);
 
@@ -207,13 +208,11 @@
 			<!-- Icon & Color -->
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div class="space-y-1.5">
-					<Label for="col-icon">Icon (emoji or text)</Label>
-					<Input
-						id="col-icon"
-						name="icon"
-						placeholder="📝"
-						bind:value={iconInput}
-						maxlength={4}
+					<Label>Icon (asset)</Label>
+					<input type="hidden" name="icon" value={iconInput} />
+					<AssetCombobox
+						value={iconInput}
+						onValueChange={(_id, url) => { iconInput = url; }}
 					/>
 				</div>
 
@@ -235,7 +234,7 @@
 									style={`background-color: ${preset}`}
 									title={preset}
 									onclick={() => (colorInput = preset)}
-								/>
+								></button>
 							{/each}
 						</div>
 					</div>

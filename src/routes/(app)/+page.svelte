@@ -79,7 +79,11 @@
 						class="hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-colors"
 					>
 						{#if collection.icon}
-							<span class="text-xl">{collection.icon}</span>
+							{#if collection.icon.startsWith('http')}
+								<img src={collection.icon} alt="" class="size-8 rounded-md object-cover" />
+							{:else}
+								<span class="text-xl">{collection.icon}</span>
+							{/if}
 						{:else}
 							<div
 								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"

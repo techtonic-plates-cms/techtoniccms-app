@@ -17,11 +17,17 @@ export type CollectionField = {
 	relatedCollection: { id: string; name: string; slug: string } | null;
 };
 
+export type IconAsset = {
+	id: string;
+	url: string;
+	filename: string;
+};
+
 export type Collection = {
 	id: string;
 	name: string;
 	slug: string;
-	icon: string | null;
+	icon: IconAsset | null;
 	color: string | null;
 	description: string | null;
 	entryCount: number;
@@ -33,13 +39,15 @@ export type Collection = {
 	fields: CollectionField[];
 };
 
+
 const COLLECTIONS_QUERY = `
 	query Collections {
 		collections {
 			collectionsData {
 				nodes {
-					id name slug icon color description entryCount
+					id name slug color description entryCount
 					isLocalized defaultLocale createdAt
+					icon { id url filename }
 					fields { id }
 				}
 			}
@@ -51,8 +59,9 @@ const COLLECTION_QUERY = `
 	query Collection($slug: String) {
 		collections {
 			collectionData(slug: $slug) {
-				id name slug icon color description entryCount
+				id name slug color description entryCount
 				isLocalized defaultLocale supportedLocales createdAt updatedAt
+				icon { id url filename }
 				fields {
 					id name label dataType isRequired isUnique
 					defaultValue description helpText relatedCollectionId
@@ -89,10 +98,11 @@ const UPDATE_COLLECTION_MUTATION = `
 
 export const getCollections = query(async () => {
 	const { locals } = getRequestEvent();
+	const token = locals.accessToken?.tokenValue;
 	const result = await gqlFetch<
 		{ collections: { collectionsData: { nodes: Array<Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & { fields: Array<{ id: string }> }> } } },
 		Record<string, never>
-	>(COLLECTIONS_QUERY, {}, { token: locals.accessToken?.tokenValue });
+	>(COLLECTIONS_QUERY, {}, { token });
 	return result.collections.collectionsData?.nodes ?? [];
 });
 
@@ -102,10 +112,11 @@ export const getCollection = query(
 	}),
 	async ({ slug }) => {
 		const { locals } = getRequestEvent();
+		const token = locals.accessToken?.tokenValue;
 		const result = await gqlFetch<
 			{ collections: { collectionData: Collection | null } },
 			{ slug: string }
-		>(COLLECTION_QUERY, { slug }, { token: locals.accessToken?.tokenValue });
+		>(COLLECTION_QUERY, { slug }, { token });
 		return result.collections.collectionData;
 	}
 );

@@ -89,7 +89,7 @@ export const login = form(
 			const redirectTo = url.searchParams.get('redirectTo') ?? '/';
 			redirect(303, redirectTo.startsWith('/') ? redirectTo : '/');
 		} catch (err) {
-			//console.log(err);
+			console.log(err);
 			// Re-throw SvelteKit redirects
 			if (err instanceof Response || (err as { status?: number }).status !== undefined) {
 				throw err;

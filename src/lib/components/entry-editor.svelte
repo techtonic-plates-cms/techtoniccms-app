@@ -8,6 +8,8 @@
 	import type { Collection } from '$lib/remotes/collections.remote';
 	import type { EntryNode } from '$lib/remotes/entries.remote';
 	import { createEntry, updateEntry, publishEntry, deleteEntry } from '$lib/remotes/entries.remote';
+	import AssetCombobox from '$lib/components/asset-combobox.svelte';
+	import CollectionCombobox from '$lib/components/collection-combobox.svelte';
 
 	interface Props {
 		collection: Collection;
@@ -194,38 +196,34 @@
 									oninput={(e) => setFieldValue(field.name, (e.target as HTMLInputElement).value)}
 								/>
 							{:else if field.dataType === 'ASSET'}
-								<div class="space-y-1">
-									<Input
-										id="field-{field.name}"
-										type="text"
-										placeholder="Asset ID"
-										required={isNew && field.isRequired}
-										value={getFieldValue(field.name)}
-										oninput={(e) =>
-											setFieldValue(field.name, (e.target as HTMLInputElement).value)}
-									/>
-									<p class="text-muted-foreground text-xs">
-										Find asset IDs in the <a href="/assets" class="hover:underline">media library</a>
-									</p>
-								</div>
+								<AssetCombobox
+									value={getFieldValue(field.name)}
+									onValueChange={(id) => setFieldValue(field.name, id)}
+								/>
 							{:else if field.dataType === 'RELATION'}
 								<div class="space-y-1">
-									<Input
-										id="field-{field.name}"
-										type="text"
-										placeholder="Entry ID"
-										required={isNew && field.isRequired}
-										value={getFieldValue(field.name)}
-										oninput={(e) =>
-											setFieldValue(field.name, (e.target as HTMLInputElement).value)}
-									/>
 									{#if field.relatedCollection}
+										<CollectionCombobox
+											value={getFieldValue(field.name)}
+											collectionSlug={field.relatedCollection.slug}
+											onValueChange={(id) => setFieldValue(field.name, id)}
+										/>
 										<p class="text-muted-foreground text-xs">
 											Relates to: <a
 												href="/collections/{field.relatedCollection.slug}"
 												class="hover:underline">{field.relatedCollection.name}</a
 											>
 										</p>
+									{:else}
+										<Input
+											id="field-{field.name}"
+											type="text"
+											placeholder="Entry ID"
+											required={isNew && field.isRequired}
+											value={getFieldValue(field.name)}
+											oninput={(e) =>
+												setFieldValue(field.name, (e.target as HTMLInputElement).value)}
+										/>
 									{/if}
 								</div>
 							{:else}

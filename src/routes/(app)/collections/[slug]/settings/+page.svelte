@@ -11,6 +11,7 @@
 		addCollectionField,
 		deleteCollectionField
 	} from '$lib/remotes/collections.remote';
+	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
@@ -29,6 +30,7 @@
 	];
 
 	let newFieldType = $state('TEXT');
+	let iconOverride = $state<string | null>(null);
 
 	function confirmDeleteField(fieldName: string): boolean {
 		return confirm(`Delete field "${fieldName}"? All data in this field will be lost.`);
@@ -67,8 +69,12 @@
 						<Input id="meta-name" name="name" value={collection.name} required />
 					</div>
 					<div class="space-y-1.5">
-						<Label for="meta-icon">Icon (emoji)</Label>
-						<Input id="meta-icon" name="icon" value={collection.icon ?? ''} placeholder="📝" />
+						<Label>Icon (asset)</Label>
+						<input type="hidden" name="icon" value={iconOverride ?? collection.icon ?? ''} />
+						<AssetCombobox
+							value={iconOverride ?? collection.icon ?? ''}
+							onValueChange={(_id, url) => { iconOverride = url; }}
+						/>
 					</div>
 				</div>
 

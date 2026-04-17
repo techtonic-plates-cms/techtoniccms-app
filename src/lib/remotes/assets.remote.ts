@@ -57,6 +57,15 @@ export const getAssets = query(
 	}
 );
 
+export const getAssetsForCombobox = query(async () => {
+	const { locals } = getRequestEvent();
+	const result = await gqlFetch<
+		{ assets: { assets: Asset[] } },
+		{ limit: number; offset: number }
+	>(ASSETS_QUERY, { limit: 50, offset: 0 }, { token: locals.accessToken?.tokenValue });
+	return result.assets.assets ?? [];
+});
+
 export const updateAsset = form(
 	v.object({
 		id: v.pipe(v.string(), v.nonEmpty()),

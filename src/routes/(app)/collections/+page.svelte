@@ -42,7 +42,11 @@
 						<div class="mb-3 flex items-start justify-between gap-2">
 							<div class="flex min-w-0 items-center gap-2">
 								{#if collection.icon}
-									<span class="text-2xl leading-none">{collection.icon}</span>
+									{#if collection.icon.startsWith('http')}
+										<img src={collection.icon} alt="" class="size-9 rounded-md object-cover" />
+									{:else}
+										<span class="text-2xl leading-none">{collection.icon}</span>
+									{/if}
 								{:else}
 									<div
 										class="flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
