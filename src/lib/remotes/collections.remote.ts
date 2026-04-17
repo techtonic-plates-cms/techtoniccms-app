@@ -118,11 +118,35 @@ export const createCollection = form(
 		icon: v.optional(v.string()),
 		color: v.optional(v.string()),
 		isLocalized: v.optional(v.string()),
-		defaultLocale: v.optional(v.string())
+		defaultLocale: v.optional(v.string()),
+		fields: v.optional(v.string()),
+		supportedLocales: v.optional(v.string())
 	}),
-	async ({ name, slug, description, icon, color, isLocalized, defaultLocale }) => {
+	async ({ name, slug, description, icon, color, isLocalized, defaultLocale, fields, supportedLocales }) => {
 		const { locals } = getRequestEvent();
 		try {
+			let parsedFields: Array<Record<string, unknown>> = [];
+			if (fields) {
+				try {
+					const draftFields = JSON.parse(fields) as Array<{ dataType: string; relatedCollectionId?: string; [key: string]: unknown }>;
+					parsedFields = draftFields.map(f => ({
+						name: f.name,
+						label: f.label || undefined,
+						isRequired: f.isRequired,
+						isUnique: f.isUnique,
+						defaultValue: f.defaultValue || undefined,
+						description: f.description || undefined,
+						helpText: f.helpText || undefined,
+						validationRules: f.validationRules || undefined,
+						config: f.dataType === 'RELATION'
+							? { relation: { relatedCollectionId: f.relatedCollectionId } }
+							: { simple: { dataType: f.dataType } }
+					}));
+				} catch {
+					// Silently ignore malformed JSON — collection still created without fields
+				}
+			}
+
 			const result = await gqlFetch<
 				{ collections: { create: { id: string; slug: string } } },
 				{ input: Record<string, unknown> }
@@ -134,7 +158,9 @@ export const createCollection = form(
 					icon: icon || undefined,
 					color: color || undefined,
 					isLocalized: isLocalized === 'on',
-					defaultLocale: defaultLocale || 'EN'
+					defaultLocale: defaultLocale || 'EN',
+					supportedLocales: supportedLocales ? supportedLocales.split(',').filter(Boolean) : undefined,
+					fields: parsedFields.length > 0 ? parsedFields : undefined
 				}
 			}, { token: locals.accessToken?.tokenValue });
 			redirect(303, `/collections/${result.collections.create.slug}`);

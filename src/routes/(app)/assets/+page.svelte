@@ -3,6 +3,7 @@
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import PencilIcon from '@lucide/svelte/icons/pencil';
+	import UploadIcon from '@lucide/svelte/icons/upload';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -36,13 +37,21 @@
 			<h1 class="text-2xl font-bold">Media Library</h1>
 			<p class="text-muted-foreground text-sm">Manage uploaded assets</p>
 		</div>
+		<Button href="/assets/create">
+			<UploadIcon class="mr-2 size-4" />
+			Upload
+		</Button>
 	</div>
 
 	{#if assets.length === 0}
 		<div class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
 			<ImageIcon class="text-muted-foreground mb-4 size-12" />
 			<h3 class="text-lg font-semibold">No assets yet</h3>
-			<p class="text-muted-foreground mt-1 text-sm">Assets uploaded via the API will appear here</p>
+			<p class="text-muted-foreground mt-1 text-sm">Upload your first file to get started</p>
+			<Button href="/assets/create" class="mt-4">
+				<UploadIcon class="mr-2 size-4" />
+				Upload asset
+			</Button>
 		</div>
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">

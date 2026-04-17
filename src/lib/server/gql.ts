@@ -1,10 +1,10 @@
 import { GraphQLClient } from 'graphql-request';
-import { GRAPHQL_API_URL } from '$env/static/private';
+import { API_URL } from '$env/static/private';
 
 export { ClientError } from 'graphql-request';
 
 export function createClient(token?: string | null): GraphQLClient {
-	return new GraphQLClient(GRAPHQL_API_URL, {
+	return new GraphQLClient(API_URL + '/graphql', {
 		headers: token ? { Authorization: `Bearer ${token}` } : {}
 	});
 }
