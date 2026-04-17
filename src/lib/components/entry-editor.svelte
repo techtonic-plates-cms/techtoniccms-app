@@ -9,7 +9,7 @@
 	import type { EntryNode } from '$lib/remotes/entries.remote';
 	import { createEntry, updateEntry, publishEntry, deleteEntry } from '$lib/remotes/entries.remote';
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
-	import CollectionCombobox from '$lib/components/collection-combobox.svelte';
+	import EntriesCombobox from '$lib/components/entries-combobox.svelte';
 
 	interface Props {
 		collection: Collection;
@@ -203,7 +203,7 @@
 							{:else if field.dataType === 'RELATION'}
 								<div class="space-y-1">
 									{#if field.relatedCollection}
-										<CollectionCombobox
+										<EntriesCombobox
 											value={getFieldValue(field.name)}
 											collectionSlug={field.relatedCollection.slug}
 											onValueChange={(id) => setFieldValue(field.name, id)}
