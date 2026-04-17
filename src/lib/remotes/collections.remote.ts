@@ -173,6 +173,8 @@ export const createCollection = form(
 					fields: parsedFields.length > 0 ? parsedFields : undefined
 				}
 			}, { token: locals.accessToken?.tokenValue });
+
+			getCollections().refresh();
 			redirect(303, `/collections/${result.collections.create.slug}`);
 		} catch (err) {
 			if ((err as { status?: number }).status) throw err;
@@ -190,6 +192,7 @@ export const deleteCollection = form(
 			{ id },
 			{ token: locals.accessToken?.tokenValue }
 		);
+		getCollections().refresh();
 		redirect(303, '/collections');
 	}
 );
@@ -210,6 +213,7 @@ export const updateCollectionMeta = form(
 		>(UPDATE_COLLECTION_MUTATION, {
 			input: { id, name: name || undefined, description: description || undefined, icon: icon || undefined, color: color || undefined }
 		}, { token: locals.accessToken?.tokenValue });
+		getCollection({slug: result.collections.update.slug}).refresh();
 		redirect(303, `/collections/${result.collections.update.slug}/settings`);
 	}
 );
@@ -255,6 +259,8 @@ export const addCollectionField = form(
 			},
 			{ token: locals.accessToken?.tokenValue }
 		);
+
+		getCollection({slug: collectionSlug}).refresh();
 		redirect(303, `/collections/${collectionSlug}/settings`);
 	}
 );
@@ -272,6 +278,7 @@ export const deleteCollectionField = form(
 			{ input: { id: collectionId, deleteFieldIds: [fieldId] } },
 			{ token: locals.accessToken?.tokenValue }
 		);
+		getCollection({slug: collectionSlug}).refresh();
 		redirect(303, `/collections/${collectionSlug}/settings`);
 	}
 );
