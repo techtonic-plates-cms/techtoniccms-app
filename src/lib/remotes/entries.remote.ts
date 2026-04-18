@@ -167,7 +167,7 @@ export const getEntriesForCombobox = query(
 		const result = await gqlFetch<
 			{ collections: { entries: Record<string, { nodes: Array<{ id: string; name: string; slug: string | null }> }> } },
 			{ search?: string }
-		>(buildEntriesComboboxQuery(slug), { search: search || undefined }, { token: locals.accessToken?.tokenValue });
+		>(buildEntriesComboboxQuery(slug), { search: search ?? '' }, { token: locals.accessToken?.tokenValue });
 		const field = slugToFieldName(slug);
 		return result.collections.entries[field]?.nodes ?? [];
 	}

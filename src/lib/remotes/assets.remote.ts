@@ -79,7 +79,7 @@ export const getAssetsForCombobox = query(
 		const result = await gqlFetch<
 			{ assets: { assets: Array<{ id: string; filename: string; caption: string | null }> } },
 			{ search?: string; limit: number }
-		>(ASSETS_COMBOBOX_QUERY, { search: search || undefined, limit: 20 }, { token: locals.accessToken?.tokenValue });
+		>(ASSETS_COMBOBOX_QUERY, { search: search ?? '', limit: 20 }, { token: locals.accessToken?.tokenValue });
 		return result.assets.assets ?? [];
 	}
 );

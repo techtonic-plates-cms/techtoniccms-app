@@ -113,7 +113,7 @@ export const getCollectionsForCombobox = query(
 		const result = await gqlFetch<
 			{ collections: { collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> } } },
 			{ search?: string }
-		>(COLLECTIONS_COMBOBOX_QUERY, { search: search || undefined }, { token });
+		>(COLLECTIONS_COMBOBOX_QUERY, { search: search ?? '' }, { token });
 		return result.collections.collectionsData?.nodes ?? [];
 	}
 );
@@ -188,7 +188,7 @@ export const createCollection = form(
 					name,
 					slug,
 					description: description || undefined,
-					icon: icon || undefined,
+					iconId: icon || undefined,
 					color: color || undefined,
 					isLocalized: isLocalized === 'on',
 					defaultLocale: defaultLocale || 'EN',

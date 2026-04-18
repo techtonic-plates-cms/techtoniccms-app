@@ -215,7 +215,7 @@
 			<div class="grid gap-4 sm:grid-cols-2">
 				<div class="space-y-1.5">
 					<Label>Icon (asset)</Label>
-					<input type="hidden" name="icon" value={iconInput} />
+					<input type="hidden" name="iconId" value={iconInput} />
 					<AssetCombobox
 						value={iconInput}
 						onValueChange={(id) => { iconInput = id; }}
