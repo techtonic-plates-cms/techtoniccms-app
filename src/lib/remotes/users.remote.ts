@@ -131,15 +131,21 @@ export const createUser = form(
 	v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		_password: v.pipe(v.string(), v.nonEmpty('Password is required')),
-		status: v.optional(v.string())
+		status: v.optional(v.string()),
+		roleIds: v.optional(v.string())
 	}),
-	async ({ name, _password, status }) => {
+	async ({ name, _password, status, roleIds }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
 			{ users: { create: { id: string } } },
 			{ input: Record<string, unknown> }
 		>(CREATE_USER_MUTATION, {
-			input: { name, password: _password, status: status || 'ACTIVE' }
+			input: {
+				name,
+				password: _password,
+				status: status || 'ACTIVE',
+				roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined
+			}
 		}, { token: locals.accessToken?.tokenValue });
 		redirect(303, `/settings/users/${result.users.create.id}`);
 	}
