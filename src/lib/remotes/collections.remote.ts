@@ -170,7 +170,6 @@ export const createCollection = form(
 						defaultValue: f.defaultValue || undefined,
 						description: f.description || undefined,
 						helpText: f.helpText || undefined,
-						validationRules: f.validationRules || undefined,
 						config: f.dataType === 'RELATION'
 							? { relation: { relatedCollectionId: f.relatedCollectionId } }
 							: { simple: { dataType: f.dataType } }
@@ -196,7 +195,7 @@ export const createCollection = form(
 					fields: parsedFields.length > 0 ? parsedFields : undefined
 				}
 			}, { token: locals.accessToken?.tokenValue });
-			
+
 			getCollections().refresh();
 
 			redirect(303, `/collections/${result.collections.create.slug}`);

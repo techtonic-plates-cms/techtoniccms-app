@@ -57,7 +57,6 @@
 		defaultValue: string;
 		description: string;
 		helpText: string;
-		validationRules: string;
 		relatedCollectionId: string;
 		advancedOpen: boolean;
 	};
@@ -75,7 +74,6 @@
 			defaultValue: '',
 			description: '',
 			helpText: '',
-			validationRules: '',
 			relatedCollectionId: '',
 			advancedOpen: false
 		});
@@ -439,16 +437,6 @@
 											bind:value={field.helpText}
 											onchange={() => updateField(field.id, { helpText: field.helpText })}
 											class="resize-none"
-											rows={2}
-										/>
-									</div>
-									<div class="space-y-1.5">
-										<Label class="text-xs">Validation Rules (JSON)</Label>
-										<Textarea
-											placeholder={`{"pattern": "^[a-z]+$"}`}
-											bind:value={field.validationRules}
-											onchange={() => updateField(field.id, { validationRules: field.validationRules })}
-											class="resize-none font-mono text-xs"
 											rows={2}
 										/>
 									</div>
