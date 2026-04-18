@@ -196,8 +196,9 @@ export const createCollection = form(
 					fields: parsedFields.length > 0 ? parsedFields : undefined
 				}
 			}, { token: locals.accessToken?.tokenValue });
-
+			
 			getCollections().refresh();
+
 			redirect(303, `/collections/${result.collections.create.slug}`);
 		} catch (err) {
 			if ((err as { status?: number }).status) throw err;

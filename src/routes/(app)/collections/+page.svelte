@@ -12,6 +12,7 @@
 	function confirmDelete(collectionName: string): boolean {
 		return confirm(`Delete collection "${collectionName}"? This cannot be undone.`);
 	}
+	
 </script>
 
 <div class="space-y-6">
@@ -37,6 +38,8 @@
 	{:else}
 		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each collections as collection (collection.id)}
+				{console.log(collection)} <!-- for debugging, to check if collection.icon is present -->
+
 				<Card.Root class="group relative transition-shadow hover:shadow-md">
 					<Card.Content class="p-5">
 						<div class="mb-3 flex items-start justify-between gap-2">

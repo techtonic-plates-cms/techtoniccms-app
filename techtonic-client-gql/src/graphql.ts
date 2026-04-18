@@ -67,6 +67,133 @@ export enum ApplyPolicy {
   Validation = 'VALIDATION'
 }
 
+/** Input type for creating entries in the 'asdsad' collection */
+export type AsdsadCreateEntryDataInput = {
+  /** Field 'asddsa' */
+  asddsa?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Dynamic entry type for the 'asdsad' collection */
+export type AsdsadEntry = {
+  __typename?: 'AsdsadEntry';
+  /** Creation timestamp */
+  createdAt: Scalars['DateTime']['output'];
+  /** Dynamic data for the 'asdsad' collection */
+  data: AsdsadEntryData;
+  /** Unique identifier */
+  id: Scalars['ID']['output'];
+  /** Entry name */
+  name: Scalars['String']['output'];
+  /** Publication timestamp */
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** URL-friendly identifier */
+  slug?: Maybe<Scalars['String']['output']>;
+  /** Entry status */
+  status: EntryStatus;
+  /** Last update timestamp */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** A connection to a list of items. */
+export type AsdsadEntryConnection = {
+  __typename?: 'AsdsadEntryConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<AsdsadEntryEdge>>;
+  /** A flattened list of the nodes. */
+  nodes?: Maybe<Array<Maybe<AsdsadEntry>>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+};
+
+/** Dynamic data type for the 'asdsad' collection */
+export type AsdsadEntryData = {
+  __typename?: 'AsdsadEntryData';
+  asddsa?: Maybe<Scalars['String']['output']>;
+};
+
+/** An edge in a connection. */
+export type AsdsadEntryEdge = {
+  __typename?: 'AsdsadEntryEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of the edge. */
+  node?: Maybe<AsdsadEntry>;
+};
+
+export type AsdsadEntryFilterInput = {
+  and?: InputMaybe<Array<AsdsadEntryFilterInput>>;
+  asddsa?: InputMaybe<StringOperationFilterInput>;
+  createdAt?: InputMaybe<DateTimeOperationFilterInput>;
+  name?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<AsdsadEntryFilterInput>>;
+  publishedAt?: InputMaybe<DateTimeOperationFilterInput>;
+  slug?: InputMaybe<StringOperationFilterInput>;
+  status?: InputMaybe<EntryStatusOperationFilterInput>;
+  updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
+};
+
+export type AsdsadEntrySortInput = {
+  asddsa?: InputMaybe<SortEnumType>;
+  createdAt?: InputMaybe<SortEnumType>;
+  name?: InputMaybe<SortEnumType>;
+  publishedAt?: InputMaybe<SortEnumType>;
+  slug?: InputMaybe<SortEnumType>;
+  status?: InputMaybe<SortEnumType>;
+  updatedAt?: InputMaybe<SortEnumType>;
+};
+
+/** Mutations for the 'asdsad' collection */
+export type AsdsadMutations = {
+  __typename?: 'AsdsadMutations';
+  /** Create a new entry in the 'asdsad' collection */
+  create: AsdsadEntry;
+  /** Soft-delete an entry in the 'asdsad' collection */
+  delete: AsdsadEntry;
+  /** Publish an entry in the 'asdsad' collection */
+  publish: AsdsadEntry;
+  /** Update an existing entry in the 'asdsad' collection */
+  update: AsdsadEntry;
+};
+
+
+/** Mutations for the 'asdsad' collection */
+export type AsdsadMutationsCreateArgs = {
+  data: AsdsadCreateEntryDataInput;
+  locale?: InputMaybe<Locale>;
+  name: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<EntryStatus>;
+};
+
+
+/** Mutations for the 'asdsad' collection */
+export type AsdsadMutationsDeleteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Mutations for the 'asdsad' collection */
+export type AsdsadMutationsPublishArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** Mutations for the 'asdsad' collection */
+export type AsdsadMutationsUpdateArgs = {
+  data?: InputMaybe<AsdsadUpdateEntryDataInput>;
+  id: Scalars['ID']['input'];
+  locale?: InputMaybe<Locale>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<EntryStatus>;
+};
+
+/** Input type for updating entries in the 'asdsad' collection (all fields optional) */
+export type AsdsadUpdateEntryDataInput = {
+  /** Field 'asddsa' */
+  asddsa?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Asset = {
   __typename?: 'Asset';
   alt?: Maybe<Scalars['String']['output']>;
@@ -292,6 +419,8 @@ export type CollectionMutation = {
   __typename?: 'CollectionMutation';
   create: Collection;
   delete: Scalars['Boolean']['output'];
+  /** Mutations for all entries */
+  entries: EntriesMutations;
   update: Collection;
 };
 
@@ -314,6 +443,8 @@ export type CollectionQuery = {
   __typename?: 'CollectionQuery';
   collectionData?: Maybe<Collection>;
   collectionsData?: Maybe<CollectionsDataConnection>;
+  /** List of all entries for collections */
+  entries: Entries;
 };
 
 
@@ -432,6 +563,31 @@ export type DateTimeOperationFilterInput = {
   nlte?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
+/** Root type for all entries */
+export type Entries = {
+  __typename?: 'Entries';
+  /** Access entries from the 'asdsad' collection */
+  asdsad?: Maybe<AsdsadEntryConnection>;
+};
+
+
+/** Root type for all entries */
+export type EntriesAsdsadArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<AsdsadEntrySortInput>>;
+  where?: InputMaybe<AsdsadEntryFilterInput>;
+};
+
+/** Root type for all entry mutations */
+export type EntriesMutations = {
+  __typename?: 'EntriesMutations';
+  /** Mutations for the 'asdsad' collection */
+  asdsad: AsdsadMutations;
+};
+
 export type Entry = {
   __typename?: 'Entry';
   collection?: Maybe<Collection>;
@@ -449,36 +605,15 @@ export type Entry = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type EntryFilterInput = {
-  and?: InputMaybe<Array<EntryFilterInput>>;
-  collection?: InputMaybe<CollectionFilterInput>;
-  collectionId?: InputMaybe<UuidOperationFilterInput>;
-  createdAt?: InputMaybe<DateTimeOperationFilterInput>;
-  createdBy?: InputMaybe<UuidOperationFilterInput>;
-  createdByUser?: InputMaybe<UserFilterInput>;
-  data?: InputMaybe<JsonDocumentFilterInput>;
-  defaultLocale?: InputMaybe<LocaleOperationFilterInput>;
-  fromRelations?: InputMaybe<ListFilterInputTypeOfEntryRelationFilterInput>;
-  id?: InputMaybe<UuidOperationFilterInput>;
-  locale?: InputMaybe<LocaleOperationFilterInput>;
-  name?: InputMaybe<StringOperationFilterInput>;
-  or?: InputMaybe<Array<EntryFilterInput>>;
-  publishedAt?: InputMaybe<DateTimeOperationFilterInput>;
-  slug?: InputMaybe<StringOperationFilterInput>;
-  status?: InputMaybe<EntryStatusOperationFilterInput>;
-  toRelations?: InputMaybe<ListFilterInputTypeOfEntryRelationFilterInput>;
-  updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
-};
-
 export type EntryRelationFilterInput = {
   and?: InputMaybe<Array<EntryRelationFilterInput>>;
-  entry?: InputMaybe<EntryFilterInput>;
+  entry?: InputMaybe<AsdsadEntryFilterInput>;
   entryId?: InputMaybe<UuidOperationFilterInput>;
   field?: InputMaybe<FieldFilterInput>;
   fieldId?: InputMaybe<UuidOperationFilterInput>;
   id?: InputMaybe<UuidOperationFilterInput>;
   or?: InputMaybe<Array<EntryRelationFilterInput>>;
-  targetEntry?: InputMaybe<EntryFilterInput>;
+  targetEntry?: InputMaybe<AsdsadEntryFilterInput>;
   targetEntryId?: InputMaybe<UuidOperationFilterInput>;
 };
 
@@ -603,36 +738,6 @@ export type IntOperationFilterInput = {
   nlte?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type JsonDocumentFilterInput = {
-  and?: InputMaybe<Array<JsonDocumentFilterInput>>;
-  or?: InputMaybe<Array<JsonDocumentFilterInput>>;
-  rootElement?: InputMaybe<JsonElementFilterInput>;
-};
-
-export type JsonElementFilterInput = {
-  and?: InputMaybe<Array<JsonElementFilterInput>>;
-  or?: InputMaybe<Array<JsonElementFilterInput>>;
-  valueKind?: InputMaybe<JsonValueKindOperationFilterInput>;
-};
-
-export enum JsonValueKind {
-  Array = 'ARRAY',
-  False = 'FALSE',
-  Null = 'NULL',
-  Number = 'NUMBER',
-  Object = 'OBJECT',
-  String = 'STRING',
-  True = 'TRUE',
-  Undefined = 'UNDEFINED'
-}
-
-export type JsonValueKindOperationFilterInput = {
-  eq?: InputMaybe<JsonValueKind>;
-  in?: InputMaybe<Array<JsonValueKind>>;
-  neq?: InputMaybe<JsonValueKind>;
-  nin?: InputMaybe<Array<JsonValueKind>>;
-};
-
 export type ListFilterInputTypeOfAbacPolicyRuleFilterInput = {
   all?: InputMaybe<AbacPolicyRuleFilterInput>;
   any?: InputMaybe<Scalars['Boolean']['input']>;
@@ -641,10 +746,10 @@ export type ListFilterInputTypeOfAbacPolicyRuleFilterInput = {
 };
 
 export type ListFilterInputTypeOfEntryFilterInput = {
-  all?: InputMaybe<EntryFilterInput>;
+  all?: InputMaybe<AsdsadEntryFilterInput>;
   any?: InputMaybe<Scalars['Boolean']['input']>;
-  none?: InputMaybe<EntryFilterInput>;
-  some?: InputMaybe<EntryFilterInput>;
+  none?: InputMaybe<AsdsadEntryFilterInput>;
+  some?: InputMaybe<AsdsadEntryFilterInput>;
 };
 
 export type ListFilterInputTypeOfEntryRelationFilterInput = {
