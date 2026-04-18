@@ -3,6 +3,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import { cn } from '$lib/utils.js';
+	import { onMount } from 'svelte';
 	import { getAssetsForCombobox } from '$lib/remotes/assets.remote';
 
 	interface Props {
@@ -13,31 +14,35 @@
 
 	let { value, onValueChange, class: className }: Props = $props();
 
-	const assets = await getAssetsForCombobox();
+	let results = $state<Array<{ id: string; filename: string; caption: string | null }>>([]);
+	let selectedItem = $state<{ id: string; filename: string; caption: string | null } | undefined>(undefined);
 
 	let search = $state('');
 	let open = $state(false);
 
-	const filtered = $derived(
-		search.trim()
-			? assets.filter(
-					(a) =>
-						a.filename.toLowerCase().includes(search.toLowerCase()) ||
-						(a.caption?.toLowerCase().includes(search.toLowerCase()) ?? false)
-				)
-			: assets
-	);
+	onMount(async () => {
+		results = await getAssetsForCombobox({});
+		selectedItem = results.find((a) => a.id === value);
+	});
 
-	const selectedAsset = $derived(assets.find((a) => a.id === value));
+	let debounceTimer: ReturnType<typeof setTimeout>;
+	$effect(() => {
+		const q = search;
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(async () => {
+			results = await getAssetsForCombobox({ search: q || undefined });
+		}, 300);
+		return () => clearTimeout(debounceTimer);
+	});
 
 	function handleSelect(assetId: string) {
-		const asset = assets.find((a) => a.id === assetId);
-		if (asset) {
-			onValueChange(asset.id);
-			search = '';
-			open = false;
-		}
+		selectedItem = results.find((a) => a.id === assetId);
+		onValueChange(assetId);
+		search = '';
+		open = false;
 	}
+
+	$inspect(results);
 </script>
 
 <Combobox.Root
@@ -45,7 +50,7 @@
 	{value}
 	onValueChange={handleSelect}
 	bind:open
-	inputValue={open ? search : (selectedAsset?.filename ?? '')}
+	inputValue={open ? search : (selectedItem?.filename ?? '')}
 >
 	<div class={cn('relative', className)}>
 		<Combobox.Input
@@ -65,7 +70,7 @@
 		class="bg-popover text-popover-foreground z-50 mt-1 max-h-60 min-w-48 overflow-y-auto rounded-md border shadow-md"
 		sideOffset={4}
 	>
-		{#each filtered as asset (asset.id)}
+		{#each results as asset (asset.id)}
 			<Combobox.Item
 				value={asset.id}
 				label={asset.filename}
@@ -80,7 +85,7 @@
 				{/snippet}
 			</Combobox.Item>
 		{/each}
-		{#if filtered.length === 0}
+		{#if results.length === 0}
 			<div class="text-muted-foreground px-3 py-2 text-sm">No assets found.</div>
 		{/if}
 	</Combobox.Content>

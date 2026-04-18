@@ -55,6 +55,16 @@ const COLLECTIONS_QUERY = `
 	}
 `;
 
+const COLLECTIONS_COMBOBOX_QUERY = `
+	query CollectionsCombobox($search: String) {
+		collections {
+			collectionsData(search: $search) {
+				nodes { id name slug }
+			}
+		}
+	}
+`;
+
 const COLLECTION_QUERY = `
 	query Collection($slug: String) {
 		collections {
@@ -94,6 +104,19 @@ const UPDATE_COLLECTION_MUTATION = `
 		}
 	}
 `;
+
+export const getCollectionsForCombobox = query(
+	v.object({ search: v.optional(v.string()) }),
+	async ({ search }) => {
+		const { locals } = getRequestEvent();
+		const token = locals.accessToken?.tokenValue;
+		const result = await gqlFetch<
+			{ collections: { collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> } } },
+			{ search?: string }
+		>(COLLECTIONS_COMBOBOX_QUERY, { search: search || undefined }, { token });
+		return result.collections.collectionsData?.nodes ?? [];
+	}
+);
 
 export const getCollections = query(async () => {
 	const { locals } = getRequestEvent();

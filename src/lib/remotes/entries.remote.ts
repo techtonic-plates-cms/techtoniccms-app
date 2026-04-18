@@ -145,10 +145,10 @@ type EntriesResult = {
 function buildEntriesComboboxQuery(slug: string): string {
 	const field = slugToFieldName(slug);
 	return `
-		query GetEntriesCombobox {
+		query GetEntriesCombobox($search: String) {
 			collections {
 				entries {
-					${field}(first: 50) {
+					${field}(first: 20, where: { name: { contains: $search } }) {
 						nodes { id name slug }
 					}
 				}
@@ -158,13 +158,16 @@ function buildEntriesComboboxQuery(slug: string): string {
 }
 
 export const getEntriesForCombobox = query(
-	v.object({ slug: v.pipe(v.string(), v.nonEmpty()) }),
-	async ({ slug }) => {
+	v.object({
+		slug: v.pipe(v.string(), v.nonEmpty()),
+		search: v.optional(v.string())
+	}),
+	async ({ slug, search }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
 			{ collections: { entries: Record<string, { nodes: Array<{ id: string; name: string; slug: string | null }> }> } },
-			Record<string, never>
-		>(buildEntriesComboboxQuery(slug), {}, { token: locals.accessToken?.tokenValue });
+			{ search?: string }
+		>(buildEntriesComboboxQuery(slug), { search: search || undefined }, { token: locals.accessToken?.tokenValue });
 		const field = slugToFieldName(slug);
 		return result.collections.entries[field]?.nodes ?? [];
 	}

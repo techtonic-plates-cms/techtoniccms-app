@@ -14,14 +14,17 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as v from 'valibot';
 	import { requireAuth } from '$lib/remotes/auth.remote';
-	import { createCollection, getCollections } from '$lib/remotes/collections.remote';
+	import { createCollection } from '$lib/remotes/collections.remote';
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
+	import CollectionCombobox from '$lib/components/collection-combobox.svelte';
 
-	const [, allCollections] = await Promise.all([requireAuth(), getCollections()]);
+	await requireAuth();
 
 	// --- General ---
-	let nameInput = $state('');
-	let slugInput = $state('');
+	const nameField = createCollection.fields.name.as('text');
+	const slugField = createCollection.fields.slug.as('text');
+	let nameInput = $state(String(nameField.value ?? ''));
+	let slugInput = $state(String(slugField.value ?? ''));
 	let slugOverridden = $state(false);
 	let descriptionInput = $state('');
 	let iconInput = $state('');
@@ -119,6 +122,7 @@
 		'#14b8a6',
 		'#0ea5e9'
 	];
+
 </script>
 
 <div class="mx-auto max-w-3xl space-y-8 py-8 px-4">
@@ -163,7 +167,8 @@
 					{/each}
 					<Input
 						id="col-name"
-						{...createCollection.fields.name.as('text')}
+						name={nameField.name}
+						aria-invalid={nameField['aria-invalid']}
 						bind:value={nameInput}
 						placeholder="Blog Posts"
 					/>
@@ -186,7 +191,8 @@
 					{/each}
 					<Input
 						id="col-slug"
-						{...createCollection.fields.slug.as('text')}
+						name={slugField.name}
+						aria-invalid={slugField['aria-invalid']}
 						bind:value={slugInput}
 						oninput={() => (slugOverridden = true)}
 						placeholder="blog-posts"
@@ -254,7 +260,7 @@
 				<div class="space-y-4 animate-in fade-in">
 					<div class="space-y-1.5">
 						<Label for="locale-default">Default Locale</Label>
-						<Select.Root type="single" value={[defaultLocale] as unknown as string} onValueChange={(v: any) => (defaultLocale = v[0])}>
+						<Select.Root type="single" value={defaultLocale} onValueChange={(v: string) => (defaultLocale = v)}>
 							<Select.Trigger id="locale-default">
 								<span>{defaultLocale}</span>
 							</Select.Trigger>
@@ -314,6 +320,7 @@
 			{:else}
 				<div class="space-y-3">
 					{#each fields as field (field.id)}
+					{console.log(field.dataType)}
 						<div class="rounded-md border p-4 space-y-3">
 							<!-- Row 1: name, label, dataType, remove -->
 							<div class="grid grid-cols-12 gap-2 items-end">
@@ -337,12 +344,11 @@
 									<Label class="text-xs">Type</Label>
 									<Select.Root
 										type="single"
-										value={[field.dataType] as unknown as string}
-										onValueChange={(v: any) => {
-											const dt = v[0];
+										value={field.dataType}
+										onValueChange={(v: string) => {
 											updateField(field.id, {
-												dataType: dt,
-												relatedCollectionId: dt !== 'RELATION' ? '' : field.relatedCollectionId
+												dataType: v,
+												relatedCollectionId: v !== 'RELATION' ? '' : field.relatedCollectionId
 											});
 										}}
 									>
@@ -373,20 +379,10 @@
 							{#if field.dataType === 'RELATION'}
 								<div class="space-y-1.5">
 									<Label class="text-xs">Related Collection</Label>
-									<Select.Root
-										type="single"
-										value={(field.relatedCollectionId ? [field.relatedCollectionId] : []) as unknown as string}
-										onValueChange={(v: any) => updateField(field.id, { relatedCollectionId: v[0] || '' })}
-									>
-										<Select.Trigger class="h-9">
-											<span>{allCollections.find((c) => c.id === field.relatedCollectionId)?.name || 'Choose...'}</span>
-										</Select.Trigger>
-										<Select.Content>
-											{#each allCollections as col}
-												<Select.Item value={col.id}>{col.name}</Select.Item>
-											{/each}
-										</Select.Content>
-									</Select.Root>
+									<CollectionCombobox
+										value={field.relatedCollectionId}
+										onValueChange={(id) => updateField(field.id, { relatedCollectionId: id })}
+									/>
 								</div>
 							{/if}
 

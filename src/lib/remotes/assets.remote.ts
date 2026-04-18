@@ -27,6 +27,21 @@ const ASSETS_QUERY = `
 	}
 `;
 
+const ASSETS_COMBOBOX_QUERY = `
+	query AssetsCombobox($search: String, $limit: Int) {
+		assets {
+			assets(limit: $limit, where: {
+				or: [
+					{ filename: { contains: $search } }
+					{ caption: { contains: $search } }
+				]
+			}) {
+				id filename caption
+			}
+		}
+	}
+`;
+
 const UPDATE_ASSET_MUTATION = `
 	mutation UpdateAsset($input: UpdateAssetInput!) {
 		assets {
@@ -57,14 +72,17 @@ export const getAssets = query(
 	}
 );
 
-export const getAssetsForCombobox = query(async () => {
-	const { locals } = getRequestEvent();
-	const result = await gqlFetch<
-		{ assets: { assets: Asset[] } },
-		{ limit: number; offset: number }
-	>(ASSETS_QUERY, { limit: 50, offset: 0 }, { token: locals.accessToken?.tokenValue });
-	return result.assets.assets ?? [];
-});
+export const getAssetsForCombobox = query(
+	v.object({ search: v.optional(v.string()) }),
+	async ({ search }) => {
+		const { locals } = getRequestEvent();
+		const result = await gqlFetch<
+			{ assets: { assets: Array<{ id: string; filename: string; caption: string | null }> } },
+			{ search?: string; limit: number }
+		>(ASSETS_COMBOBOX_QUERY, { search: search || undefined, limit: 20 }, { token: locals.accessToken?.tokenValue });
+		return result.assets.assets ?? [];
+	}
+);
 
 export const updateAsset = form(
 	v.object({
