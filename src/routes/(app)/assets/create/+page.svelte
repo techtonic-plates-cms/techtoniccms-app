@@ -48,7 +48,7 @@
 	</div>
 
 	<form
-		action="/api/assets/upload"
+		action="/assets/_api/upload"
 		method="post"
 		enctype="multipart/form-data"
 		class="space-y-5"
