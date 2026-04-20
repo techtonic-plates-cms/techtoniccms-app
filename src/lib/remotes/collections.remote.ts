@@ -74,7 +74,20 @@ const COLLECTION_QUERY = `
 				icon { id url filename }
 				fields {
 					id name label dataType isRequired isUnique
-					defaultValue description helpText relatedCollectionId
+					defaultValue description helpText relatedCollectionId 
+					relatedCollection {
+						color
+						createdAt
+						defaultLocale
+						description
+						entryCount
+						id
+						isLocalized
+						name
+						slug
+						supportedLocales
+						updatedAt
+					}
 				}
 			}
 		}
