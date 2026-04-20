@@ -121,15 +121,17 @@ export const getRole = query(
 export const createRole = form(
 	v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
-		description: v.optional(v.string())
+		description: v.optional(v.string()),
+		policyIds: v.optional(v.string())
 	}),
-	async ({ name, description }) => {
+	async ({ name, description, policyIds }) => {
 		const { locals } = getRequestEvent();
+		const ids = policyIds ? policyIds.split(',').filter(Boolean) : [];
 		const result = await gqlFetch<
 			{ roles: { create: { id: string } } },
 			{ input: Record<string, unknown> }
 		>(CREATE_ROLE_MUTATION, {
-			input: { name, description: description || undefined }
+			input: { name, description: description || undefined, policyIds: ids.length ? ids : undefined }
 		}, { token: locals.accessToken?.tokenValue });
 		redirect(303, `/settings/roles/${result.roles.create.id}`);
 	}

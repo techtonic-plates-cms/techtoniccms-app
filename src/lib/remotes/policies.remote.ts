@@ -80,12 +80,6 @@ const DELETE_POLICY_MUTATION = `
 	}
 `;
 
-const ASSIGN_POLICY_TO_USER_MUTATION = `
-	mutation AssignPolicyToUser($input: AssignPolicyToUserInput!) {
-		policy { assignToUser(input: $input) }
-	}
-`;
-
 export const getPolicies = query(
 	v.object({
 		search: v.optional(v.string()),
@@ -135,10 +129,12 @@ export const createPolicy = form(
 		resourceType: v.pipe(v.string(), v.nonEmpty('Resource type is required')),
 		isActive: v.optional(v.string()),
 		priority: v.optional(v.string()),
-		ruleConnector: v.optional(v.string())
+		ruleConnector: v.optional(v.string()),
+		rulesJson: v.optional(v.string())
 	}),
-	async ({ name, description, actionType, effect, resourceType, isActive, priority, ruleConnector }) => {
+	async ({ name, description, actionType, effect, resourceType, isActive, priority, ruleConnector, rulesJson }) => {
 		const { locals } = getRequestEvent();
+		const rules = rulesJson ? JSON.parse(rulesJson) : [];
 		const result = await gqlFetch<
 			{ policy: { create: { id: string } } },
 			{ input: Record<string, unknown> }
@@ -152,7 +148,7 @@ export const createPolicy = form(
 				isActive: isActive === 'on',
 				priority: priority ? parseInt(priority, 10) : 0,
 				ruleConnector: ruleConnector || 'AND',
-				rules: []
+				rules
 			}
 		}, { token: locals.accessToken?.tokenValue });
 		redirect(303, `/settings/policies/${result.policy.create.id}`);

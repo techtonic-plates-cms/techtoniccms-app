@@ -10,6 +10,14 @@ export type UserRole = {
 	expiresAt?: string | null;
 };
 
+export type UserPolicy = {
+	id: string;
+	name: string;
+	effect: string;
+	actionType: string;
+	resourceType: string;
+};
+
 export type User = {
 	id: string;
 	name: string;
@@ -97,6 +105,18 @@ const CHANGE_PASSWORD_MUTATION = `
 	}
 `;
 
+const ASSIGN_POLICY_MUTATION = `
+	mutation AssignPolicyToUser($input: AssignPolicyToUserInput!) {
+		users { assignPolicy(input: $input) }
+	}
+`;
+
+const UNASSIGN_POLICY_MUTATION = `
+	mutation UnassignPolicyFromUser($policyId: UUID!, $userId: UUID!) {
+		users { unassignPolicy(policyId: $policyId, userId: $userId) }
+	}
+`;
+
 export const getUsers = query(
 	v.object({
 		search: v.optional(v.string()),
@@ -132,9 +152,10 @@ export const createUser = form(
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		_password: v.pipe(v.string(), v.nonEmpty('Password is required')),
 		status: v.optional(v.string()),
-		roleIds: v.optional(v.string())
+		roleIds: v.optional(v.string()),
+		policyIds: v.optional(v.string())
 	}),
-	async ({ name, _password, status, roleIds }) => {
+	async ({ name, _password, status, roleIds, policyIds }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
 			{ users: { create: { id: string } } },
@@ -144,7 +165,8 @@ export const createUser = form(
 				name,
 				password: _password,
 				status: status || 'ACTIVE',
-				roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined
+				roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined,
+				policyIds: policyIds ? policyIds.split(',').filter(Boolean) : undefined
 			}
 		}, { token: locals.accessToken?.tokenValue });
 		redirect(303, `/settings/users/${result.users.create.id}`);
@@ -255,6 +277,38 @@ export const changePassword = form(
 		await gqlFetch<unknown, { input: Record<string, unknown> }>(
 			CHANGE_PASSWORD_MUTATION,
 			{ input: { userId, newPassword: _newPassword } },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		redirect(303, `/settings/users/${userId}`);
+	}
+);
+
+export const assignPolicyToUser = form(
+	v.object({
+		userId: v.pipe(v.string(), v.nonEmpty()),
+		policyId: v.pipe(v.string(), v.nonEmpty())
+	}),
+	async ({ userId, policyId }) => {
+		const { locals } = getRequestEvent();
+		await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			ASSIGN_POLICY_MUTATION,
+			{ input: { userId, policyId } },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		redirect(303, `/settings/users/${userId}`);
+	}
+);
+
+export const unassignPolicyFromUser = form(
+	v.object({
+		userId: v.pipe(v.string(), v.nonEmpty()),
+		policyId: v.pipe(v.string(), v.nonEmpty())
+	}),
+	async ({ userId, policyId }) => {
+		const { locals } = getRequestEvent();
+		await gqlFetch<unknown, { policyId: string; userId: string }>(
+			UNASSIGN_POLICY_MUTATION,
+			{ policyId, userId },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/settings/users/${userId}`);

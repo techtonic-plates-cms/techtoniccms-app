@@ -10,6 +10,8 @@
 		deleteUser,
 		assignRole,
 		unassignRole,
+		assignPolicyToUser,
+		unassignPolicyFromUser,
 		activateUser,
 		deactivateUser,
 		banUser,
@@ -124,6 +126,20 @@
 				<input type="hidden" name="userId" value={user.id} />
 				<Input name="roleId" placeholder="Role ID" class="flex-1" />
 				<Button type="submit" variant="outline">Assign Role</Button>
+			</form>
+		</section>
+
+		<section class="space-y-4 rounded-lg border p-6">
+			<h2 class="font-semibold">Policies</h2>
+			<form {...assignPolicyToUser} class="flex gap-2">
+				<input type="hidden" name="userId" value={user.id} />
+				<Input name="policyId" placeholder="Policy ID" class="flex-1" />
+				<Button type="submit" variant="outline">Assign Policy</Button>
+			</form>
+			<form {...unassignPolicyFromUser} class="flex gap-2">
+				<input type="hidden" name="userId" value={user.id} />
+				<Input name="policyId" placeholder="Policy ID" class="flex-1" />
+				<Button type="submit" variant="ghost">Unassign Policy</Button>
 			</form>
 		</section>
 

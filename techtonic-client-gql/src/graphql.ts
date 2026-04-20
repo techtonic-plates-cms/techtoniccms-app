@@ -413,6 +413,7 @@ export type CreateRoleInput = {
 export type CreateUserInput = {
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  policyIds?: InputMaybe<Array<Scalars['UUID']['input']>>;
   roleIds?: InputMaybe<Array<Scalars['UUID']['input']>>;
   status?: InputMaybe<UserStatus>;
 };
@@ -745,6 +746,7 @@ export enum OperatorType {
   Contains = 'CONTAINS',
   EndsWith = 'ENDS_WITH',
   Eq = 'EQ',
+  EqContextRef = 'EQ_CONTEXT_REF',
   Gt = 'GT',
   Gte = 'GTE',
   In = 'IN',
@@ -841,16 +843,9 @@ export type Policy = {
 
 export type PolicyMutation = {
   __typename?: 'PolicyMutation';
-  assignToUser: Scalars['Boolean']['output'];
   create: Policy;
   delete: Scalars['Boolean']['output'];
-  unassignFromUser: Scalars['Boolean']['output'];
   update: Policy;
-};
-
-
-export type PolicyMutationAssignToUserArgs = {
-  input: AssignPolicyToUserInput;
 };
 
 
@@ -861,12 +856,6 @@ export type PolicyMutationCreateArgs = {
 
 export type PolicyMutationDeleteArgs = {
   id: Scalars['UUID']['input'];
-};
-
-
-export type PolicyMutationUnassignFromUserArgs = {
-  policyId: Scalars['UUID']['input'];
-  userId: Scalars['UUID']['input'];
 };
 
 
@@ -1223,12 +1212,14 @@ export type UserFilterInput = {
 export type UserMutation = {
   __typename?: 'UserMutation';
   activate: User;
+  assignPolicy: Scalars['Boolean']['output'];
   assignRole: Scalars['Boolean']['output'];
   ban: User;
   changePassword: Scalars['Boolean']['output'];
   create: User;
   deactivate: User;
   delete: Scalars['Boolean']['output'];
+  unassignPolicy: Scalars['Boolean']['output'];
   unassignRole: Scalars['Boolean']['output'];
   unban: User;
   update: User;
@@ -1237,6 +1228,11 @@ export type UserMutation = {
 
 export type UserMutationActivateArgs = {
   id: Scalars['UUID']['input'];
+};
+
+
+export type UserMutationAssignPolicyArgs = {
+  input: AssignPolicyToUserInput;
 };
 
 
@@ -1267,6 +1263,12 @@ export type UserMutationDeactivateArgs = {
 
 export type UserMutationDeleteArgs = {
   id: Scalars['UUID']['input'];
+};
+
+
+export type UserMutationUnassignPolicyArgs = {
+  policyId: Scalars['UUID']['input'];
+  userId: Scalars['UUID']['input'];
 };
 
 

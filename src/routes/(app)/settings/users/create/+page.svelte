@@ -10,6 +10,7 @@
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createUser } from '$lib/remotes/users.remote';
 	import { getRoles } from '$lib/remotes/roles.remote';
+	import { getPolicies } from '$lib/remotes/policies.remote';
 
 	await requireAuth();
 
@@ -17,9 +18,13 @@
 	const passwordField = createUser.fields._password.as('password');
 
 	const roles = await getRoles({});
+	const policies = await getPolicies({});
 
 	let selectedRoleIds = $state<string[]>([]);
 	const roleIdsStr = $derived(selectedRoleIds.join(','));
+
+	let selectedPolicyIds = $state<string[]>([]);
+	const policyIdsStr = $derived(selectedPolicyIds.join(','));
 
 	const preflight = v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
@@ -42,6 +47,7 @@
 
 	<form {...createUser.preflight(preflight)} class="space-y-6">
 		<input type="hidden" name="roleIds" value={roleIdsStr} />
+		<input type="hidden" name="policyIds" value={policyIdsStr} />
 
 		{#each createUser.fields.allIssues() as issue (issue.message)}
 			<div class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -99,7 +105,41 @@
 			</div>
 		</div>
 
-		<!-- Section 2: Roles -->
+		<!-- Section 2: Policies -->
+		<div class="rounded-lg border p-6 space-y-5">
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg font-semibold">Policies</h2>
+				<span class="text-sm text-muted-foreground">
+					{selectedPolicyIds.length} selected
+				</span>
+			</div>
+			<Separator />
+
+			{#if policies.length === 0}
+				<p class="text-sm text-muted-foreground italic">No policies available</p>
+			{:else}
+				<div class="flex flex-wrap gap-3">
+					{#each policies as policy (policy.id)}
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<Checkbox.Root
+								checked={selectedPolicyIds.includes(policy.id)}
+								onCheckedChange={(c) => {
+									if (c) {
+										selectedPolicyIds = [...selectedPolicyIds, policy.id];
+									} else {
+										selectedPolicyIds = selectedPolicyIds.filter((id) => id !== policy.id);
+									}
+								}}
+							/>
+							<span>{policy.name}</span>
+							<span class="text-muted-foreground text-xs">— {policy.effect.toLowerCase()} · {policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}</span>
+						</label>
+					{/each}
+				</div>
+			{/if}
+		</div>
+
+		<!-- Section 3: Roles -->
 		<div class="rounded-lg border p-6 space-y-5">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Roles</h2>
