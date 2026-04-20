@@ -48,11 +48,11 @@ function buildCreateMutation(slug: string): string {
 	const field = slugToFieldName(slug);
 	const dataType = `${toPascalCase(slug)}CreateEntryDataInput`;
 	return `
-		mutation CreateEntry($name: String!, $slug: String, $status: EntryStatus, $data: ${dataType}!) {
+		mutation CreateEntry($name: String!, $slug: String, $status: EntryStatus, $data: ${dataType}!, $schedulePublishFor: DateTime) {
 			collections {
 				entries {
 					${field} {
-						create(name: $name, slug: $slug, status: $status, data: $data) {
+						create(name: $name, slug: $slug, status: $status, data: $data, schedulePublishFor: $schedulePublishFor) {
 							id name slug status
 						}
 					}
@@ -66,11 +66,11 @@ function buildUpdateMutation(slug: string): string {
 	const field = slugToFieldName(slug);
 	const dataType = `${toPascalCase(slug)}UpdateEntryDataInput`;
 	return `
-		mutation UpdateEntry($id: ID!, $name: String, $slug: String, $status: EntryStatus, $data: ${dataType}) {
+		mutation UpdateEntry($id: ID!, $name: String, $slug: String, $status: EntryStatus, $data: ${dataType}, $schedulePublishFor: DateTime) {
 			collections {
 				entries {
 					${field} {
-						update(id: $id, name: $name, slug: $slug, status: $status, data: $data) {
+						update(id: $id, name: $name, slug: $slug, status: $status, data: $data, schedulePublishFor: $schedulePublishFor) {
 							id name slug status
 						}
 					}
@@ -83,11 +83,56 @@ function buildUpdateMutation(slug: string): string {
 function buildPublishMutation(slug: string): string {
 	const field = slugToFieldName(slug);
 	return `
-		mutation PublishEntry($id: ID!) {
+		mutation PublishEntry($id: ID!, $scheduleFor: DateTime) {
 			collections {
 				entries {
 					${field} {
-						publish(id: $id) { id status }
+						publish(id: $id, scheduleFor: $scheduleFor) { id status }
+					}
+				}
+			}
+		}
+	`;
+}
+
+function buildUnpublishMutation(slug: string): string {
+	const field = slugToFieldName(slug);
+	return `
+		mutation UnpublishEntry($id: ID!, $scheduleFor: DateTime) {
+			collections {
+				entries {
+					${field} {
+						unpublish(id: $id, scheduleFor: $scheduleFor) { id status }
+					}
+				}
+			}
+		}
+	`;
+}
+
+function buildArchiveMutation(slug: string): string {
+	const field = slugToFieldName(slug);
+	return `
+		mutation ArchiveEntry($id: ID!, $scheduleFor: DateTime) {
+			collections {
+				entries {
+					${field} {
+						archive(id: $id, scheduleFor: $scheduleFor) { id status }
+					}
+				}
+			}
+		}
+	`;
+}
+
+function buildRestoreMutation(slug: string): string {
+	const field = slugToFieldName(slug);
+	return `
+		mutation RestoreEntry($id: ID!, $scheduleFor: DateTime) {
+			collections {
+				entries {
+					${field} {
+						restore(id: $id, scheduleFor: $scheduleFor) { id status }
 					}
 				}
 			}
@@ -98,11 +143,11 @@ function buildPublishMutation(slug: string): string {
 function buildDeleteMutation(slug: string): string {
 	const field = slugToFieldName(slug);
 	return `
-		mutation DeleteEntry($id: ID!) {
+		mutation DeleteEntry($id: ID!, $scheduleFor: DateTime) {
 			collections {
 				entries {
 					${field} {
-						delete(id: $id) { id status }
+						delete(id: $id, scheduleFor: $scheduleFor) { id status }
 					}
 				}
 			}
@@ -219,9 +264,10 @@ export const createEntry = form(
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		slug: v.optional(v.string()),
 		status: v.optional(v.string()),
-		data: v.optional(v.string())
+		data: v.optional(v.string()),
+		schedulePublishFor: v.optional(v.string())
 	}),
-	async ({ collectionSlug, name, slug, status, data }) => {
+	async ({ collectionSlug, name, slug, status, data, schedulePublishFor }) => {
 		const { locals } = getRequestEvent();
 		const fieldData = data ? JSON.parse(data) : {};
 		const result = await gqlFetch<
@@ -231,7 +277,8 @@ export const createEntry = form(
 			name,
 			slug: slug || undefined,
 			status: status || 'DRAFT',
-			data: fieldData
+			data: fieldData,
+			schedulePublishFor: schedulePublishFor || undefined
 		}, { token: locals.accessToken?.tokenValue });
 		const field = slugToFieldName(collectionSlug);
 		const entry = result.collections.entries[field].create;
@@ -247,15 +294,16 @@ export const updateEntry = form(
 		name: v.optional(v.string()),
 		slug: v.optional(v.string()),
 		status: v.optional(v.string()),
-		data: v.optional(v.string())
+		data: v.optional(v.string()),
+		schedulePublishFor: v.optional(v.string())
 	}),
-	async ({ collectionSlug, entryId, oldSlug, name, slug, status, data }) => {
+	async ({ collectionSlug, entryId, oldSlug, name, slug, status, data, schedulePublishFor }) => {
 		const { locals } = getRequestEvent();
 		const parsedData = data ? JSON.parse(data) : null;
 		const fieldData = parsedData && Object.keys(parsedData).length > 0 ? parsedData : undefined;
 		await gqlFetch<unknown, Record<string, unknown>>(
 			buildUpdateMutation(collectionSlug),
-			{ id: entryId, name: name || undefined, slug: slug || undefined, status: status || undefined, data: fieldData },
+			{ id: entryId, name: name || undefined, slug: slug || undefined, status: status || undefined, data: fieldData, schedulePublishFor: schedulePublishFor || undefined },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		getEntry({ slug: oldSlug, id: entryId }).refresh();
@@ -266,13 +314,65 @@ export const updateEntry = form(
 export const publishEntry = form(
 	v.object({
 		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
-		entryId: v.pipe(v.string(), v.nonEmpty())
+		entryId: v.pipe(v.string(), v.nonEmpty()),
+		scheduleFor: v.optional(v.string())
 	}),
-	async ({ collectionSlug, entryId }) => {
+	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
+		await gqlFetch<unknown, Record<string, unknown>>(
 			buildPublishMutation(collectionSlug),
-			{ id: entryId },
+			{ id: entryId, scheduleFor: scheduleFor || undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+	}
+);
+
+export const unpublishEntry = form(
+	v.object({
+		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
+		entryId: v.pipe(v.string(), v.nonEmpty()),
+		scheduleFor: v.optional(v.string())
+	}),
+	async ({ collectionSlug, entryId, scheduleFor }) => {
+		const { locals } = getRequestEvent();
+		await gqlFetch<unknown, Record<string, unknown>>(
+			buildUnpublishMutation(collectionSlug),
+			{ id: entryId, scheduleFor: scheduleFor || undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+	}
+);
+
+export const archiveEntry = form(
+	v.object({
+		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
+		entryId: v.pipe(v.string(), v.nonEmpty()),
+		scheduleFor: v.optional(v.string())
+	}),
+	async ({ collectionSlug, entryId, scheduleFor }) => {
+		const { locals } = getRequestEvent();
+		await gqlFetch<unknown, Record<string, unknown>>(
+			buildArchiveMutation(collectionSlug),
+			{ id: entryId, scheduleFor: scheduleFor || undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+	}
+);
+
+export const restoreEntry = form(
+	v.object({
+		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
+		entryId: v.pipe(v.string(), v.nonEmpty()),
+		scheduleFor: v.optional(v.string())
+	}),
+	async ({ collectionSlug, entryId, scheduleFor }) => {
+		const { locals } = getRequestEvent();
+		await gqlFetch<unknown, Record<string, unknown>>(
+			buildRestoreMutation(collectionSlug),
+			{ id: entryId, scheduleFor: scheduleFor || undefined },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
@@ -282,13 +382,14 @@ export const publishEntry = form(
 export const deleteEntry = form(
 	v.object({
 		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
-		entryId: v.pipe(v.string(), v.nonEmpty())
+		entryId: v.pipe(v.string(), v.nonEmpty()),
+		scheduleFor: v.optional(v.string())
 	}),
-	async ({ collectionSlug, entryId }) => {
+	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
+		await gqlFetch<unknown, Record<string, unknown>>(
 			buildDeleteMutation(collectionSlug),
-			{ id: entryId },
+			{ id: entryId, scheduleFor: scheduleFor || undefined },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/collections/${collectionSlug}`);

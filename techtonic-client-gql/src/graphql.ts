@@ -784,18 +784,15 @@ export enum PermissionAction {
   Activate = 'ACTIVATE',
   Archive = 'ARCHIVE',
   Ban = 'BAN',
-  ConfigureFields = 'CONFIGURE_FIELDS',
   Create = 'CREATE',
   Deactivate = 'DEACTIVATE',
   Delete = 'DELETE',
   Download = 'DOWNLOAD',
-  Draft = 'DRAFT',
   ManageSchema = 'MANAGE_SCHEMA',
   Publish = 'PUBLISH',
   Read = 'READ',
   Restore = 'RESTORE',
   Schedule = 'SCHEDULE',
-  Transform = 'TRANSFORM',
   Unban = 'UNBAN',
   Unpublish = 'UNPUBLISH',
   Update = 'UPDATE',
@@ -1076,6 +1073,14 @@ export type RolesEdge = {
   /** The item at the end of the edge. */
   node: Role;
 };
+
+export enum ScheduledAction {
+  Archive = 'ARCHIVE',
+  Delete = 'DELETE',
+  Publish = 'PUBLISH',
+  Restore = 'RESTORE',
+  Unpublish = 'UNPUBLISH'
+}
 
 export enum ScopeType {
   CollectionSpecific = 'COLLECTION_SPECIFIC',

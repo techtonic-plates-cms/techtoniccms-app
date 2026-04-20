@@ -7,7 +7,7 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import type { Collection } from '$lib/remotes/collections.remote';
 	import type { EntryNode } from '$lib/remotes/entries.remote';
-	import { createEntry, updateEntry, publishEntry, deleteEntry } from '$lib/remotes/entries.remote';
+	import { createEntry, updateEntry, publishEntry, unpublishEntry, archiveEntry, restoreEntry, deleteEntry } from '$lib/remotes/entries.remote';
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 	import EntriesCombobox from '$lib/components/entries-combobox.svelte';
 
@@ -59,6 +59,8 @@
 		dirtyFieldNames = new Set([...dirtyFieldNames, fieldName]);
 	}
 
+	let schedulePublishFor = $state('');
+
 	function confirmDelete(): boolean {
 		return confirm(`Delete entry "${entryName}"? This cannot be undone.`);
 	}
@@ -86,27 +88,6 @@
 			</div>
 		</div>
 
-		{#if !isNew && entry}
-			<div class="flex items-center gap-2">
-				{#if entry.status === 'DRAFT'}
-					<form {...publishEntry}>
-						<input type="hidden" name="collectionSlug" value={collectionSlug} />
-						<input type="hidden" name="entryId" value={entry.id} />
-						<Button type="submit" size="sm">Publish</Button>
-					</form>
-				{/if}
-				<form
-					{...deleteEntry}
-					onsubmit={(e) => {
-						if (!confirmDelete()) e.preventDefault();
-					}}
-				>
-					<input type="hidden" name="collectionSlug" value={collectionSlug} />
-					<input type="hidden" name="entryId" value={entry.id} />
-					<Button type="submit" variant="destructive" size="sm">Delete</Button>
-				</form>
-			</div>
-		{/if}
 	</div>
 
 	<div class="grid gap-6 lg:grid-cols-3">
@@ -240,6 +221,7 @@
 				{/if}
 
 				<input type="hidden" name="oldSlug" value={entry?.slug ?? ''} />
+				<input type="hidden" name="schedulePublishFor" value={schedulePublishFor} />
 
 				<div class="pt-2">
 					<Button type="submit">{isNew ? 'Create Entry' : 'Save Changes'}</Button>
@@ -259,6 +241,54 @@
 					<option value="ARCHIVED">Archived</option>
 				</select>
 			</div>
+
+			{#if isNew || entryStatus === 'DRAFT'}
+				<div class="rounded-lg border p-4">
+					<h3 class="mb-3 font-semibold">Schedule publication</h3>
+					<input
+						type="datetime-local"
+						bind:value={schedulePublishFor}
+						class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+					/>
+					<p class="text-muted-foreground mt-1.5 text-xs">Leave blank to publish immediately.</p>
+				</div>
+			{/if}
+
+			{#if !isNew && entry}
+				{@const entryId = entry.id}
+				{#snippet actionForm(formAction: Record<string, unknown>, label: string, variant: 'default' | 'outline' | 'destructive' = 'default', onsubmit?: (e: SubmitEvent) => void)}
+					<form {...formAction} {onsubmit}>
+						<input type="hidden" name="collectionSlug" value={collectionSlug} />
+						<input type="hidden" name="entryId" value={entryId} />
+						<div class="space-y-1.5">
+							<input
+								type="datetime-local"
+								name="scheduleFor"
+								class="border-input bg-background w-full rounded-md border px-3 py-2 text-xs"
+							/>
+							<Button type="submit" {variant} size="sm" class="w-full">{label}</Button>
+						</div>
+					</form>
+				{/snippet}
+				<div class="rounded-lg border p-4">
+					<h3 class="mb-3 font-semibold">Actions</h3>
+					<p class="text-muted-foreground mb-3 text-xs">Set a date to schedule, or leave blank to act immediately.</p>
+					<div class="space-y-3">
+						{#if entry.status === 'DRAFT'}
+							{@render actionForm(publishEntry, 'Publish')}
+							{@render actionForm(archiveEntry, 'Archive', 'outline')}
+						{:else if entry.status === 'PUBLISHED'}
+							{@render actionForm(unpublishEntry, 'Unpublish', 'outline')}
+							{@render actionForm(archiveEntry, 'Archive', 'outline')}
+						{:else if entry.status === 'ARCHIVED' || entry.status === 'DELETED'}
+							{@render actionForm(restoreEntry, 'Restore')}
+						{/if}
+						{#if entry.status !== 'DELETED'}
+							{@render actionForm(deleteEntry, 'Delete', 'destructive', (e) => { if (!confirmDelete()) e.preventDefault(); })}
+						{/if}
+					</div>
+				</div>
+			{/if}
 
 			{#if !isNew && entry}
 				<div class="text-muted-foreground space-y-1.5 rounded-lg border p-4 text-xs">
