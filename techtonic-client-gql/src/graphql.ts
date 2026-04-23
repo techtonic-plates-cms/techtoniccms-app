@@ -57,6 +57,120 @@ export type AbacPolicyRuleFilterInput = {
   valueType?: InputMaybe<ValueTypeOperationFilterInput>;
 };
 
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['DateTime']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  keyPrefix: Scalars['String']['output'];
+  lastUsedAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  user?: Maybe<User>;
+};
+
+export type ApiKeyFilterInput = {
+  and?: InputMaybe<Array<ApiKeyFilterInput>>;
+  createdAt?: InputMaybe<DateTimeOperationFilterInput>;
+  expiresAt?: InputMaybe<DateTimeOperationFilterInput>;
+  id?: InputMaybe<UuidOperationFilterInput>;
+  isActive?: InputMaybe<BooleanOperationFilterInput>;
+  keyHash?: InputMaybe<StringOperationFilterInput>;
+  keyPrefix?: InputMaybe<StringOperationFilterInput>;
+  lastUsedAt?: InputMaybe<DateTimeOperationFilterInput>;
+  name?: InputMaybe<StringOperationFilterInput>;
+  or?: InputMaybe<Array<ApiKeyFilterInput>>;
+  updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
+  userId?: InputMaybe<UuidOperationFilterInput>;
+};
+
+export type ApiKeyMutation = {
+  __typename?: 'ApiKeyMutation';
+  createApiKey: CreateApiKeyPayload;
+  deleteApiKey: Scalars['Boolean']['output'];
+  revokeApiKey: ApiKey;
+  updateApiKey: ApiKey;
+};
+
+
+export type ApiKeyMutationCreateApiKeyArgs = {
+  input: CreateApiKeyInput;
+};
+
+
+export type ApiKeyMutationDeleteApiKeyArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type ApiKeyMutationRevokeApiKeyArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type ApiKeyMutationUpdateApiKeyArgs = {
+  input: UpdateApiKeyInput;
+};
+
+export type ApiKeyQuery = {
+  __typename?: 'ApiKeyQuery';
+  apiKey?: Maybe<ApiKey>;
+  apiKeys?: Maybe<ApiKeysConnection>;
+};
+
+
+export type ApiKeyQueryApiKeyArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type ApiKeyQueryApiKeysArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order?: InputMaybe<Array<ApiKeySortInput>>;
+  userId?: InputMaybe<Scalars['UUID']['input']>;
+  where?: InputMaybe<ApiKeyFilterInput>;
+};
+
+export type ApiKeySortInput = {
+  createdAt?: InputMaybe<SortEnumType>;
+  expiresAt?: InputMaybe<SortEnumType>;
+  id?: InputMaybe<SortEnumType>;
+  isActive?: InputMaybe<SortEnumType>;
+  keyHash?: InputMaybe<SortEnumType>;
+  keyPrefix?: InputMaybe<SortEnumType>;
+  lastUsedAt?: InputMaybe<SortEnumType>;
+  name?: InputMaybe<SortEnumType>;
+  updatedAt?: InputMaybe<SortEnumType>;
+  userId?: InputMaybe<SortEnumType>;
+};
+
+/** A connection to a list of items. */
+export type ApiKeysConnection = {
+  __typename?: 'ApiKeysConnection';
+  /** A list of edges. */
+  edges?: Maybe<Array<ApiKeysEdge>>;
+  /** A flattened list of the nodes. */
+  nodes?: Maybe<Array<ApiKey>>;
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo;
+};
+
+/** An edge in a connection. */
+export type ApiKeysEdge = {
+  __typename?: 'ApiKeysEdge';
+  /** A cursor for use in pagination. */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of the edge. */
+  node: ApiKey;
+};
+
 /** Defines when a policy shall be executed. */
 export enum ApplyPolicy {
   /** After the resolver was executed. */
@@ -174,6 +288,7 @@ export enum AttributePath {
   EnvironmentCurrentTime = 'ENVIRONMENT_CURRENT_TIME',
   EnvironmentIpAddress = 'ENVIRONMENT_IP_ADDRESS',
   EnvironmentUserAgent = 'ENVIRONMENT_USER_AGENT',
+  ResourceApiKeyUserId = 'RESOURCE_API_KEY_USER_ID',
   ResourceAssetFileSize = 'RESOURCE_ASSET_FILE_SIZE',
   ResourceAssetId = 'RESOURCE_ASSET_ID',
   ResourceAssetMimeType = 'RESOURCE_ASSET_MIME_TYPE',
@@ -228,6 +343,7 @@ export type AuthQuery = {
 };
 
 export enum BaseResource {
+  ApiKeys = 'API_KEYS',
   Assets = 'ASSETS',
   Collections = 'COLLECTIONS',
   Entries = 'ENTRIES',
@@ -368,6 +484,18 @@ export type CollectionsDataEdge = {
   cursor: Scalars['String']['output'];
   /** The item at the end of the edge. */
   node: Collection;
+};
+
+export type CreateApiKeyInput = {
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+export type CreateApiKeyPayload = {
+  __typename?: 'CreateApiKeyPayload';
+  apiKey?: Maybe<ApiKey>;
+  key: Scalars['String']['output'];
 };
 
 export type CreateCollectionInput = {
@@ -734,6 +862,7 @@ export type LogoutPayload = {
 export type Mutation = {
   __typename?: 'Mutation';
   _placeholder: Scalars['String']['output'];
+  apiKeys: ApiKeyMutation;
   assets: AssetMutation;
   auth: AuthMutation;
   collections: CollectionMutation;
@@ -911,6 +1040,7 @@ export type PolicyRule = {
 
 export type Query = {
   __typename?: 'Query';
+  apiKeys: ApiKeyQuery;
   assets: AssetQuery;
   auth: AuthQuery;
   collections: CollectionQuery;
@@ -1125,6 +1255,13 @@ export type Token = {
   __typename?: 'Token';
   expiresAt: Scalars['DateTime']['output'];
   tokenValue: Scalars['String']['output'];
+};
+
+export type UpdateApiKeyInput = {
+  expiresAt?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateAssetInput = {

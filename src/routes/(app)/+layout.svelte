@@ -5,6 +5,7 @@
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import KeyIcon from '@lucide/svelte/icons/key';
+	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { requireAuth, refreshAuth, logout } from '$lib/remotes/auth.remote';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
@@ -58,7 +59,8 @@
 			items: [
 				{ title: 'Users', href: '/settings/users', icon: UsersIcon },
 				{ title: 'Roles', href: '/settings/roles', icon: ShieldIcon },
-				{ title: 'Policies', href: '/settings/policies', icon: KeyIcon }
+				{ title: 'Policies', href: '/settings/policies', icon: KeyIcon },
+				{ title: 'API Keys', href: '/settings/api-keys', icon: KeyRoundIcon }
 			]
 		}
 	];
