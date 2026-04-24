@@ -2,6 +2,8 @@
 	import { page } from '$app/state';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import CopyIcon from '@lucide/svelte/icons/copy';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -16,6 +18,7 @@
 	const apiKey = $derived(await getApiKey({ id }));
 
 	let copied = $state(false);
+	let keyAcknowledged = $state(false);
 
 	function copyKey() {
 		if (!newKey) return;
@@ -25,6 +28,46 @@
 		});
 	}
 </script>
+
+{#if newKey && !keyAcknowledged}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+		<div class="mx-4 w-full max-w-lg rounded-xl border bg-card shadow-xl space-y-6 p-8">
+			<div class="flex items-start gap-4">
+				<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+					<TriangleAlertIcon class="size-5 text-amber-600 dark:text-amber-400" />
+				</div>
+				<div class="space-y-1">
+					<h2 class="text-lg font-semibold">Copy your API key now</h2>
+					<p class="text-muted-foreground text-sm">
+						This is the only time your key will be displayed. It is not stored and cannot be recovered.
+					</p>
+				</div>
+			</div>
+
+			<div class="space-y-2">
+				<p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your new API key</p>
+				<div class="flex items-center gap-2">
+					<code class="flex-1 rounded-md border bg-muted px-3 py-2.5 font-mono text-sm break-all select-all">
+						{newKey}
+					</code>
+					<Button variant="outline" size="sm" onclick={copyKey} class="shrink-0">
+						{#if copied}
+							<CheckIcon class="size-4 text-green-600" />
+							Copied
+						{:else}
+							<CopyIcon class="size-4" />
+							Copy
+						{/if}
+					</Button>
+				</div>
+			</div>
+
+			<Button class="w-full" onclick={() => (keyAcknowledged = true)}>
+				I've saved my key — continue
+			</Button>
+		</div>
+	</div>
+{/if}
 
 {#if !apiKey}
 	<p class="text-muted-foreground">API key not found.</p>
@@ -49,23 +92,6 @@
 				</p>
 			</div>
 		</div>
-
-		{#if newKey}
-			<div class="rounded-lg border border-amber-500/50 bg-amber-50 dark:bg-amber-950/20 p-4 space-y-3">
-				<p class="text-sm font-semibold text-amber-800 dark:text-amber-300">
-					Save your API key — it will not be shown again
-				</p>
-				<div class="flex items-center gap-2">
-					<code class="flex-1 rounded bg-amber-100 dark:bg-amber-900/40 px-3 py-2 font-mono text-sm break-all">
-						{newKey}
-					</code>
-					<Button variant="outline" size="sm" onclick={copyKey}>
-						<CopyIcon class="size-4" />
-						{copied ? 'Copied!' : 'Copy'}
-					</Button>
-				</div>
-			</div>
-		{/if}
 
 		<div class="rounded-lg border p-6 space-y-4">
 			<h2 class="text-lg font-semibold">Details</h2>
