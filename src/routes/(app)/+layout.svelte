@@ -1,21 +1,16 @@
 <script lang="ts">
-	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-	import LayersIcon from '@lucide/svelte/icons/layers';
-	import ImageIcon from '@lucide/svelte/icons/image';
-	import UsersIcon from '@lucide/svelte/icons/users';
-	import ShieldIcon from '@lucide/svelte/icons/shield';
-	import KeyIcon from '@lucide/svelte/icons/key';
-	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import { requireAuth, refreshAuth, logout } from '$lib/remotes/auth.remote';
+	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { requireAuth, refreshAuth } from '$lib/remotes/auth.remote';
+	import { getCollections } from '$lib/remotes/collections.remote';
+	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
-	import { page } from '$app/state';
-	import type { Component } from 'svelte';
 
 	let { children } = $props();
 
 	const authData = await requireAuth();
 	const user = authData.user;
+	const collections = await getCollections();
 
 	let accessTokenExpiresAt = $state(authData.accessToken?.expiresAt ?? null);
 
@@ -38,132 +33,34 @@
 
 		return () => clearTimeout(timer);
 	});
-
-	type NavItem = { title: string; href: string; icon: Component };
-	type NavGroup = { label: string; items: NavItem[] };
-
-	const navGroups: NavGroup[] = [
-		{
-			label: 'Overview',
-			items: [{ title: 'Dashboard', href: '/', icon: LayoutDashboardIcon }]
-		},
-		{
-			label: 'Content',
-			items: [
-				{ title: 'Collections', href: '/collections', icon: LayersIcon },
-				{ title: 'Assets', href: '/assets', icon: ImageIcon }
-			]
-		},
-		{
-			label: 'Settings',
-			items: [
-				{ title: 'Users', href: '/settings/users', icon: UsersIcon },
-				{ title: 'Roles', href: '/settings/roles', icon: ShieldIcon },
-				{ title: 'Policies', href: '/settings/policies', icon: KeyIcon },
-				{ title: 'API Keys', href: '/settings/api-keys', icon: KeyRoundIcon }
-			]
-		}
-	];
-
-	function isActive(href: string): boolean {
-		if (href === '/') return page.url.pathname === '/';
-		return page.url.pathname.startsWith(href);
-	}
 </script>
 
-<Sidebar.Provider>
-	<Sidebar.Root collapsible="icon">
-		<Sidebar.Header>
-			<div class="flex items-center gap-2 px-2 py-1">
-				<div
-					class="bg-sidebar-primary text-sidebar-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold"
-				>
-					T
-				</div>
-				<span class="truncate font-semibold group-data-[collapsible=icon]:hidden">
-					Techtonic CMS
-				</span>
-			</div>
-		</Sidebar.Header>
-
-		<Sidebar.Content>
-			{#each navGroups as group (group.label)}
-				<Sidebar.Group>
-					<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden">
-						{group.label}
-					</Sidebar.GroupLabel>
-					<Sidebar.GroupContent>
-						<Sidebar.Menu>
-							{#each group.items as item (item.href)}
-								<Sidebar.MenuItem>
-									<Sidebar.MenuButton isActive={isActive(item.href)}>
-										{#snippet child({ props })}
-											<a href={item.href} {...props}>
-												<item.icon />
-												<span>{item.title}</span>
-											</a>
-										{/snippet}
-									</Sidebar.MenuButton>
-								</Sidebar.MenuItem>
-							{/each}
-						</Sidebar.Menu>
-					</Sidebar.GroupContent>
-				</Sidebar.Group>
-			{/each}
-		</Sidebar.Content>
-
-		<Sidebar.Footer>
-			<div class="flex items-center gap-2 px-2 py-1 group-data-[collapsible=icon]:justify-center">
-				<div
-					class="bg-muted text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold uppercase"
-				>
-					{user.name.slice(0, 2)}
-				</div>
-				<div class="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-					<p class="truncate text-sm font-medium">{user.name}</p>
-					<p class="text-muted-foreground truncate text-xs capitalize">
-						{user.status.toLowerCase()}
-					</p>
-				</div>
-				<div class="flex shrink-0 items-center gap-1 group-data-[collapsible=icon]:hidden">
-					<ModeToggle />
-					<form {...logout}>
-						<button
-							type="submit"
-							class="hover:bg-accent text-muted-foreground rounded-md p-1.5 transition-colors"
-							title="Sign out"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="size-4"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-							>
-								<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-								<polyline points="16 17 21 12 16 7" />
-								<line x1="21" y1="12" x2="9" y2="12" />
-							</svg>
-							<span class="sr-only">Sign out</span>
-						</button>
-					</form>
-				</div>
-			</div>
-		</Sidebar.Footer>
-
-		<Sidebar.Rail />
-	</Sidebar.Root>
+<Sidebar.Provider
+	style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
+>
+	<AppSidebar {user} {collections} />
 
 	<Sidebar.Inset>
-		<header class="border-border/50 flex h-12 shrink-0 items-center gap-2 border-b px-4">
-			<Sidebar.Trigger class="-ml-1" />
+		<header
+			class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
+		>
+			<div class="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+				<Sidebar.Trigger class="-ms-1" />
+				<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
+				<div class="ms-auto flex items-center gap-2">
+					<ModeToggle />
+				</div>
+			</div>
 		</header>
 
-		<div class="flex-1 overflow-y-auto p-6">
-			{@render children()}
+		<div class="flex flex-1 flex-col">
+			<div class="@container/main flex flex-1 flex-col gap-2">
+				<div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+					<div class="px-4 lg:px-6">
+						{@render children()}
+					</div>
+				</div>
+			</div>
 		</div>
 	</Sidebar.Inset>
 </Sidebar.Provider>
