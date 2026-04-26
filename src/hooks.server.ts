@@ -24,10 +24,9 @@ async function tryRefresh(event: RequestEvent): Promise<void> {
 	if (!refreshTokenValue) return;
 
 	try {
-		const result = await gqlFetch<RefreshMutation, RefreshMutationVariables>(
-			REFRESH_MUTATION,
-			{ refreshToken: refreshTokenValue }
-		);
+		const result = await gqlFetch<RefreshMutation, RefreshMutationVariables>(REFRESH_MUTATION, {
+			refreshToken: refreshTokenValue
+		});
 		const { accessToken, refreshToken } = result.auth.refresh;
 		setAuthCookies(event.cookies, {
 			accessToken: accessToken.tokenValue,
@@ -42,8 +41,14 @@ async function tryRefresh(event: RequestEvent): Promise<void> {
 			{ token: accessToken.tokenValue }
 		);
 		event.locals.user = me.auth.me ?? null;
-		event.locals.accessToken = { tokenValue: accessToken.tokenValue, expiresAt: accessToken.expiresAt };
-		event.locals.refreshToken = { tokenValue: refreshToken.tokenValue, expiresAt: refreshToken.expiresAt };
+		event.locals.accessToken = {
+			tokenValue: accessToken.tokenValue,
+			expiresAt: accessToken.expiresAt
+		};
+		event.locals.refreshToken = {
+			tokenValue: refreshToken.tokenValue,
+			expiresAt: refreshToken.expiresAt
+		};
 	} catch (err) {
 		console.error('[auth] tryRefresh failed:', err);
 		clearAuthCookies(event.cookies);
@@ -58,7 +63,12 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	const accessTokenValue = getAccessToken(event.cookies);
 	const refreshTokenValue = getRefreshToken(event.cookies);
 
-	console.log('[auth] cookies present — access:', !!accessTokenValue, 'refresh:', !!refreshTokenValue);
+	console.log(
+		'[auth] cookies present — access:',
+		!!accessTokenValue,
+		'refresh:',
+		!!refreshTokenValue
+	);
 
 	if (accessTokenValue) {
 		try {

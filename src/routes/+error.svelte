@@ -7,38 +7,43 @@
 
 	const errors: Record<number, { title: string; description: string; emoji: string }> = {
 		404: {
-			title: "We lost this page",
-			description: "The page you're looking for doesn't exist or has been moved. Double-check the URL or head back home.",
-			emoji: "🔍"
+			title: 'We lost this page',
+			description:
+				"The page you're looking for doesn't exist or has been moved. Double-check the URL or head back home.",
+			emoji: '🔍'
 		},
 		403: {
-			title: "Access denied",
-			description: "You don't have permission to view this page. If you think this is a mistake, contact your administrator.",
-			emoji: "🔒"
+			title: 'Access denied',
+			description:
+				"You don't have permission to view this page. If you think this is a mistake, contact your administrator.",
+			emoji: '🔒'
 		},
 		500: {
-			title: "Something broke on our end",
-			description: "An unexpected error occurred on the server. Our team has been notified. Please try again in a moment.",
-			emoji: "⚙️"
+			title: 'Something broke on our end',
+			description:
+				'An unexpected error occurred on the server. Our team has been notified. Please try again in a moment.',
+			emoji: '⚙️'
 		},
 		401: {
-			title: "Authentication required",
-			description: "You need to be signed in to access this page.",
-			emoji: "🔑"
+			title: 'Authentication required',
+			description: 'You need to be signed in to access this page.',
+			emoji: '🔑'
 		}
 	};
 
 	const current = errors[page.status] ?? {
-		title: "Something went wrong",
-		description: "An unexpected error occurred. Please try again or return home.",
-		emoji: "💥"
+		title: 'Something went wrong',
+		description: 'An unexpected error occurred. Please try again or return home.',
+		emoji: '💥'
 	};
 </script>
 
-<div class="bg-background text-foreground flex min-h-screen flex-col">
+<div class="flex min-h-screen flex-col bg-background text-foreground">
 	<header class="flex items-center justify-between p-4">
 		<div class="flex items-center gap-2">
-			<div class="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md text-xs font-bold">
+			<div
+				class="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground"
+			>
 				T
 			</div>
 			<span class="text-sm font-semibold">Techtonic CMS</span>
@@ -51,9 +56,9 @@
 			<!-- Hero -->
 			<div class="space-y-4 text-center">
 				<div class="text-6xl">{current.emoji}</div>
-				<Badge variant="secondary" class="text-xs font-mono">{page.status}</Badge>
+				<Badge variant="secondary" class="font-mono text-xs">{page.status}</Badge>
 				<h1 class="text-3xl font-bold tracking-tight">{current.title}</h1>
-				<p class="text-muted-foreground leading-relaxed">
+				<p class="leading-relaxed text-muted-foreground">
 					{current.description}
 				</p>
 			</div>
@@ -62,22 +67,18 @@
 			{#if page.error?.message && page.error.message !== 'Not found' && page.error.message !== current.title}
 				<Card.Root class="border-destructive/30 bg-destructive/5">
 					<Card.Header class="pb-2">
-						<Card.Title class="text-destructive text-sm font-medium">Error details</Card.Title>
+						<Card.Title class="text-sm font-medium text-destructive">Error details</Card.Title>
 					</Card.Header>
 					<Card.Content>
-						<p class="text-muted-foreground font-mono text-xs break-words">{page.error.message}</p>
+						<p class="font-mono text-xs break-words text-muted-foreground">{page.error.message}</p>
 					</Card.Content>
 				</Card.Root>
 			{/if}
 
 			<!-- Actions -->
 			<div class="flex justify-center gap-3">
-				<Button href="/" class="gap-2">
-					Go home
-				</Button>
-				<Button variant="outline" onclick={() => history.back()}>
-					Go back
-				</Button>
+				<Button href="/" class="gap-2">Go home</Button>
+				<Button variant="outline" onclick={() => history.back()}>Go back</Button>
 			</div>
 		</div>
 	</main>

@@ -5,6 +5,8 @@
 	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import KeyIcon from '@lucide/svelte/icons/key';
 	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+	import ClipboardListIcon from '@lucide/svelte/icons/clipboard-list';
+	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppNavUser from '$lib/components/app-nav-user.svelte';
 	import NavCollections from '$lib/components/nav-collections.svelte';
@@ -122,6 +124,32 @@
 								<a href="/settings/api-keys" {...props}>
 									<KeyRoundIcon />
 									<span>API Keys</span>
+								</a>
+							{/snippet}
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/audit')}
+							tooltipContent="Activity Log"
+						>
+							{#snippet child({ props })}
+								<a href="/settings/audit" {...props}>
+									<ClipboardListIcon />
+									<span>Activity Log</span>
+								</a>
+							{/snippet}
+						</Sidebar.MenuButton>
+					</Sidebar.MenuItem>
+					<Sidebar.MenuItem>
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/permissions')}
+							tooltipContent="Permission Check"
+						>
+							{#snippet child({ props })}
+								<a href="/settings/permissions/check" {...props}>
+									<FlaskConicalIcon />
+									<span>Permission Check</span>
 								</a>
 							{/snippet}
 						</Sidebar.MenuButton>

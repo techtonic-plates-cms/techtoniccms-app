@@ -32,11 +32,11 @@
 	});
 </script>
 
-<div class="mx-auto max-w-3xl space-y-8 py-8 px-4">
+<div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
 	<div class="space-y-2">
 		<a
 			href="/settings/users"
-			class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
 			Back to Users
@@ -50,13 +50,15 @@
 		<input type="hidden" name="policyIds" value={policyIdsStr} />
 
 		{#each createUser.fields.allIssues() as issue (issue.message)}
-			<div class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+			<div
+				class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+			>
 				{issue.message}
 			</div>
 		{/each}
 
 		<!-- Section 1: General -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<h2 class="text-lg font-semibold">General</h2>
 			<Separator />
 
@@ -106,7 +108,7 @@
 		</div>
 
 		<!-- Section 2: Policies -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Policies</h2>
 				<span class="text-sm text-muted-foreground">
@@ -120,7 +122,7 @@
 			{:else}
 				<div class="flex flex-wrap gap-3">
 					{#each policies as policy (policy.id)}
-						<label class="flex items-center gap-2 text-sm cursor-pointer">
+						<label class="flex cursor-pointer items-center gap-2 text-sm">
 							<Checkbox.Root
 								checked={selectedPolicyIds.includes(policy.id)}
 								onCheckedChange={(c) => {
@@ -132,7 +134,9 @@
 								}}
 							/>
 							<span>{policy.name}</span>
-							<span class="text-muted-foreground text-xs">— {policy.effect.toLowerCase()} · {policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}</span>
+							<span class="text-xs text-muted-foreground"
+								>— {policy.effect.toLowerCase()} · {policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}</span
+							>
 						</label>
 					{/each}
 				</div>
@@ -140,7 +144,7 @@
 		</div>
 
 		<!-- Section 3: Roles -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Roles</h2>
 				<span class="text-sm text-muted-foreground">
@@ -154,7 +158,7 @@
 			{:else}
 				<div class="flex flex-wrap gap-3">
 					{#each roles.nodes as role (role.id)}
-						<label class="flex items-center gap-2 text-sm cursor-pointer">
+						<label class="flex cursor-pointer items-center gap-2 text-sm">
 							<Checkbox.Root
 								checked={selectedRoleIds.includes(role.id)}
 								onCheckedChange={(c) => {
@@ -167,7 +171,7 @@
 							/>
 							<span>{role.name}</span>
 							{#if role.description}
-								<span class="text-muted-foreground text-xs">— {role.description}</span>
+								<span class="text-xs text-muted-foreground">— {role.description}</span>
 							{/if}
 						</label>
 					{/each}
@@ -176,7 +180,7 @@
 		</div>
 
 		<!-- Form actions -->
-		<div class="flex items-center justify-between pt-4 border-t">
+		<div class="flex items-center justify-between border-t pt-4">
 			<a href="/settings/users">
 				<Button type="button" variant="ghost">Cancel</Button>
 			</a>

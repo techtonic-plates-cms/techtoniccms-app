@@ -24,7 +24,7 @@
 	<div class="w-full max-w-sm space-y-6">
 		<div class="space-y-1 text-center">
 			<div
-				class="bg-primary text-primary-foreground mx-auto mb-4 flex size-10 items-center justify-center rounded-lg text-lg font-bold"
+				class="mx-auto mb-4 flex size-10 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground"
 			>
 				T
 			</div>
@@ -33,7 +33,9 @@
 		</div>
 
 		{#each login.fields.allIssues() as issue}
-			<div class="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+			<div
+				class="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+			>
 				{issue.message}
 			</div>
 		{/each}

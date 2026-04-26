@@ -18,32 +18,32 @@
 <div class="space-y-6">
 	<div>
 		<h1 class="text-2xl font-bold">Welcome, {user.name}</h1>
-		<p class="text-muted-foreground text-sm">Techtonic CMS Dashboard</p>
+		<p class="text-sm text-muted-foreground">Techtonic CMS Dashboard</p>
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
 		<Card.Root>
 			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
 					<LayersIcon class="size-5" />
 				</div>
 				<div>
 					<p class="text-2xl font-bold">{collections.length}</p>
-					<p class="text-muted-foreground text-sm">Collections</p>
-					<p class="text-muted-foreground text-xs">{totalEntries} total entries</p>
+					<p class="text-sm text-muted-foreground">Collections</p>
+					<p class="text-xs text-muted-foreground">{totalEntries} total entries</p>
 				</div>
 			</Card.Content>
 		</Card.Root>
 
 		<Card.Root>
 			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
 					<UsersIcon class="size-5" />
 				</div>
 				<div>
 					<p class="text-2xl font-bold">{usersPage.nodes.length}</p>
-					<p class="text-muted-foreground text-sm">Users</p>
-					<p class="text-muted-foreground text-xs">
+					<p class="text-sm text-muted-foreground">Users</p>
+					<p class="text-xs text-muted-foreground">
 						{usersPage.nodes.filter((u) => u.status === 'ACTIVE').length} active
 					</p>
 				</div>
@@ -52,13 +52,13 @@
 
 		<Card.Root>
 			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
 					<ImageIcon class="size-5" />
 				</div>
 				<div>
 					<p class="text-2xl font-bold">—</p>
-					<p class="text-muted-foreground text-sm">Assets</p>
-					<a href="/assets" class="text-primary text-xs hover:underline">View library</a>
+					<p class="text-sm text-muted-foreground">Assets</p>
+					<a href="/assets" class="text-xs text-primary hover:underline">View library</a>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -68,7 +68,7 @@
 		<div>
 			<div class="mb-3 flex items-center justify-between">
 				<h2 class="font-semibold">Collections</h2>
-				<a href="/collections" class="text-primary flex items-center gap-1 text-sm hover:underline">
+				<a href="/collections" class="flex items-center gap-1 text-sm text-primary hover:underline">
 					View all <ArrowRightIcon class="size-3" />
 				</a>
 			</div>
@@ -76,10 +76,14 @@
 				{#each collections.slice(0, 6) as collection (collection.id)}
 					<a
 						href="/collections/{collection.slug}"
-						class="hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-colors"
+						class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
 					>
 						{#if collection.icon}
-							<img src="/assets/_api/{collection.icon.id}" alt={collection.icon.filename} class="size-8 rounded-md object-cover" />
+							<img
+								src="/assets/_api/{collection.icon.id}"
+								alt={collection.icon.filename}
+								class="size-8 rounded-md object-cover"
+							/>
 						{:else}
 							<div
 								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
@@ -92,8 +96,9 @@
 						{/if}
 						<div class="min-w-0">
 							<p class="truncate font-medium">{collection.name}</p>
-							<p class="text-muted-foreground text-xs">
-								{collection.entryCount} {collection.entryCount === 1 ? 'entry' : 'entries'}
+							<p class="text-xs text-muted-foreground">
+								{collection.entryCount}
+								{collection.entryCount === 1 ? 'entry' : 'entries'}
 							</p>
 						</div>
 					</a>
@@ -102,9 +107,9 @@
 		</div>
 	{:else}
 		<div class="rounded-lg border border-dashed p-8 text-center">
-			<LayersIcon class="text-muted-foreground mx-auto mb-3 size-10" />
+			<LayersIcon class="mx-auto mb-3 size-10 text-muted-foreground" />
 			<p class="font-medium">No collections yet</p>
-			<p class="text-muted-foreground mt-1 text-sm">
+			<p class="mt-1 text-sm text-muted-foreground">
 				<a href="/collections" class="text-primary hover:underline">Create your first collection</a>
 				to start managing content.
 			</p>

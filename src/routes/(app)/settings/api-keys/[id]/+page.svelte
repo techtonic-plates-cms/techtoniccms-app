@@ -8,7 +8,12 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { getApiKey, updateApiKey, revokeApiKey, deleteApiKey } from '$lib/remotes/api-keys.remote';
+	import {
+		getApiKey,
+		updateApiKey,
+		revokeApiKey,
+		deleteApiKey
+	} from '$lib/remotes/api-keys.remote';
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
@@ -30,24 +35,33 @@
 </script>
 
 {#if newKey && !keyAcknowledged}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-		<div class="mx-4 w-full max-w-lg rounded-xl border bg-card shadow-xl space-y-6 p-8">
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+	>
+		<div class="mx-4 w-full max-w-lg space-y-6 rounded-xl border bg-card p-8 shadow-xl">
 			<div class="flex items-start gap-4">
-				<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+				<div
+					class="flex size-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40"
+				>
 					<TriangleAlertIcon class="size-5 text-amber-600 dark:text-amber-400" />
 				</div>
 				<div class="space-y-1">
 					<h2 class="text-lg font-semibold">Copy your API key now</h2>
-					<p class="text-muted-foreground text-sm">
-						This is the only time your key will be displayed. It is not stored and cannot be recovered.
+					<p class="text-sm text-muted-foreground">
+						This is the only time your key will be displayed. It is not stored and cannot be
+						recovered.
 					</p>
 				</div>
 			</div>
 
 			<div class="space-y-2">
-				<p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your new API key</p>
+				<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+					Your new API key
+				</p>
 				<div class="flex items-center gap-2">
-					<code class="flex-1 rounded-md border bg-muted px-3 py-2.5 font-mono text-sm break-all select-all">
+					<code
+						class="flex-1 rounded-md border bg-muted px-3 py-2.5 font-mono text-sm break-all select-all"
+					>
 						{newKey}
 					</code>
 					<Button variant="outline" size="sm" onclick={copyKey} class="shrink-0">
@@ -74,7 +88,10 @@
 {:else}
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
-			<a href="/settings/api-keys" class="text-muted-foreground hover:text-foreground transition-colors">
+			<a
+				href="/settings/api-keys"
+				class="text-muted-foreground transition-colors hover:text-foreground"
+			>
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
@@ -84,7 +101,7 @@
 						{apiKey.isActive ? 'Active' : 'Revoked'}
 					</Badge>
 				</div>
-				<p class="text-muted-foreground text-xs">
+				<p class="text-xs text-muted-foreground">
 					Created: {new Date(apiKey.createdAt).toLocaleDateString()}
 					{#if apiKey.lastUsedAt}
 						· Last used: {new Date(apiKey.lastUsedAt).toLocaleDateString()}
@@ -93,7 +110,7 @@
 			</div>
 		</div>
 
-		<div class="rounded-lg border p-6 space-y-4">
+		<div class="space-y-4 rounded-lg border p-6">
 			<h2 class="text-lg font-semibold">Details</h2>
 			<dl class="grid grid-cols-2 gap-3 text-sm">
 				<dt class="text-muted-foreground">Prefix</dt>
@@ -105,13 +122,15 @@
 			</dl>
 		</div>
 
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<h2 class="text-lg font-semibold">Update</h2>
 			<form {...updateApiKey} class="space-y-4">
 				<input type="hidden" name="id" value={apiKey.id} />
 
 				{#each updateApiKey.fields.allIssues() as issue (issue.message)}
-					<div class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+					<div
+						class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+					>
 						{issue.message}
 					</div>
 				{/each}
@@ -121,7 +140,9 @@
 					<Input id="update-name" name="name" type="text" value={apiKey.name} />
 				</div>
 				<div class="space-y-2">
-					<Label for="update-expires">Expires At <span class="text-muted-foreground font-normal">(optional)</span></Label>
+					<Label for="update-expires"
+						>Expires At <span class="font-normal text-muted-foreground">(optional)</span></Label
+					>
 					<Input
 						id="update-expires"
 						name="expiresAt"
@@ -135,14 +156,16 @@
 			</form>
 		</div>
 
-		<div class="rounded-lg border border-destructive/30 p-6 space-y-4">
+		<div class="space-y-4 rounded-lg border border-destructive/30 p-6">
 			<h2 class="text-lg font-semibold text-destructive">Danger Zone</h2>
 
 			{#if apiKey.isActive}
 				<div class="flex items-center justify-between gap-4">
 					<div>
-						<p class="font-medium text-sm">Revoke API key</p>
-						<p class="text-muted-foreground text-sm">Permanently deactivate this key. It cannot be re-activated.</p>
+						<p class="text-sm font-medium">Revoke API key</p>
+						<p class="text-sm text-muted-foreground">
+							Permanently deactivate this key. It cannot be re-activated.
+						</p>
 					</div>
 					<form
 						{...revokeApiKey}
@@ -159,8 +182,8 @@
 
 			<div class="flex items-center justify-between gap-4">
 				<div>
-					<p class="font-medium text-sm">Delete API key</p>
-					<p class="text-muted-foreground text-sm">Permanently remove this key and all its data.</p>
+					<p class="text-sm font-medium">Delete API key</p>
+					<p class="text-sm text-muted-foreground">Permanently remove this key and all its data.</p>
 				</div>
 				<form
 					{...deleteApiKey}

@@ -162,7 +162,10 @@ function toPascalCase(slug: string): string {
 		.join('');
 }
 
-async function fetchCollectionFieldNames(slug: string, token: string | undefined): Promise<string[]> {
+async function fetchCollectionFieldNames(
+	slug: string,
+	token: string | undefined
+): Promise<string[]> {
 	const result = await gqlFetch<
 		{ collections: { collectionData: { fields: { name: string }[] } | null } },
 		{ slug: string }
@@ -182,10 +185,12 @@ async function fetchCollectionFieldNames(slug: string, token: string | undefined
 
 type EntriesResult = {
 	collections: {
-		entries: Record<string, { nodes: EntryNode[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } }>;
+		entries: Record<
+			string,
+			{ nodes: EntryNode[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } }
+		>;
 	};
 };
-
 
 function buildEntriesComboboxQuery(slug: string): string {
 	const field = slugToFieldName(slug);
@@ -210,9 +215,20 @@ export const getEntriesForCombobox = query(
 	async ({ slug, search }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ collections: { entries: Record<string, { nodes: Array<{ id: string; name: string; slug: string | null }> }> } },
+			{
+				collections: {
+					entries: Record<
+						string,
+						{ nodes: Array<{ id: string; name: string; slug: string | null }> }
+					>;
+				};
+			},
 			{ search?: string }
-		>(buildEntriesComboboxQuery(slug), { search: search ?? '' }, { token: locals.accessToken?.tokenValue });
+		>(
+			buildEntriesComboboxQuery(slug),
+			{ search: search ?? '' },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		const field = slugToFieldName(slug);
 		return result.collections.entries[field]?.nodes ?? [];
 	}
@@ -233,7 +249,12 @@ export const getEntries = query(
 			{ token: locals.accessToken?.tokenValue }
 		);
 		const field = slugToFieldName(slug);
-		return result.collections.entries[field] ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		return (
+			result.collections.entries[field] ?? {
+				nodes: [],
+				pageInfo: { hasNextPage: false, endCursor: null }
+			}
+		);
 	}
 );
 
@@ -273,13 +294,17 @@ export const createEntry = form(
 		const result = await gqlFetch<
 			{ collections: { entries: Record<string, { create: { id: string } }> } },
 			Record<string, unknown>
-		>(buildCreateMutation(collectionSlug), {
-			name,
-			slug: slug || undefined,
-			status: status || 'DRAFT',
-			data: fieldData,
-			schedulePublishFor: schedulePublishFor || undefined
-		}, { token: locals.accessToken?.tokenValue });
+		>(
+			buildCreateMutation(collectionSlug),
+			{
+				name,
+				slug: slug || undefined,
+				status: status || 'DRAFT',
+				data: fieldData,
+				schedulePublishFor: schedulePublishFor || undefined
+			},
+			{ token: locals.accessToken?.tokenValue }
+		);
 		const field = slugToFieldName(collectionSlug);
 		const entry = result.collections.entries[field].create;
 		redirect(303, `/collections/${collectionSlug}/entries/${entry.id}`);
@@ -303,7 +328,14 @@ export const updateEntry = form(
 		const fieldData = parsedData && Object.keys(parsedData).length > 0 ? parsedData : undefined;
 		await gqlFetch<unknown, Record<string, unknown>>(
 			buildUpdateMutation(collectionSlug),
-			{ id: entryId, name: name || undefined, slug: slug || undefined, status: status || undefined, data: fieldData, schedulePublishFor: schedulePublishFor || undefined },
+			{
+				id: entryId,
+				name: name || undefined,
+				slug: slug || undefined,
+				status: status || undefined,
+				data: fieldData,
+				schedulePublishFor: schedulePublishFor || undefined
+			},
 			{ token: locals.accessToken?.tokenValue }
 		);
 		getEntry({ slug: oldSlug, id: entryId }).refresh();

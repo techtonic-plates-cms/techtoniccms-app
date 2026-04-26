@@ -16,7 +16,9 @@
 	let { value, collectionSlug, onValueChange, class: className }: Props = $props();
 
 	let results = $state<Array<{ id: string; name: string; slug: string | null }>>([]);
-	let selectedItem = $state<{ id: string; name: string; slug: string | null } | undefined>(undefined);
+	let selectedItem = $state<{ id: string; name: string; slug: string | null } | undefined>(
+		undefined
+	);
 
 	let search = $state('');
 	let open = $state(false);
@@ -54,38 +56,40 @@
 	<div class={cn('relative', className)}>
 		<Combobox.Input
 			placeholder="Search entries..."
-			class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 pr-8 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
+			class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 pr-8 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 			oninput={(e) => {
 				search = (e.target as HTMLInputElement).value;
 			}}
 		/>
 		<Combobox.Trigger
-			class="text-muted-foreground absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+			class="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-muted-foreground"
 		>
 			<ChevronsUpDownIcon class="size-4" />
 		</Combobox.Trigger>
 	</div>
 	<Combobox.Content
-		class="bg-popover text-popover-foreground z-50 mt-1 max-h-60 min-w-48 overflow-y-auto rounded-md border shadow-md"
+		class="z-50 mt-1 max-h-60 min-w-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md"
 		sideOffset={4}
 	>
 		{#each results as entry (entry.id)}
 			<Combobox.Item
 				value={entry.id}
 				label={entry.name}
-				class="data-highlighted:bg-accent data-highlighted:text-accent-foreground flex cursor-default items-center gap-2 px-3 py-2 text-sm outline-none"
+				class="flex cursor-default items-center gap-2 px-3 py-2 text-sm outline-none data-highlighted:bg-accent data-highlighted:text-accent-foreground"
 			>
 				{#snippet children({ selected })}
 					<CheckIcon class={cn('size-3.5 shrink-0', selected ? 'opacity-100' : 'opacity-0')} />
 					<span class="truncate">{entry.name}</span>
 					{#if entry.slug}
-						<span class="text-muted-foreground ml-auto shrink-0 font-mono text-xs">{entry.slug}</span>
+						<span class="ml-auto shrink-0 font-mono text-xs text-muted-foreground"
+							>{entry.slug}</span
+						>
 					{/if}
 				{/snippet}
 			</Combobox.Item>
 		{/each}
 		{#if results.length === 0}
-			<div class="text-muted-foreground px-3 py-2 text-sm">No entries found.</div>
+			<div class="px-3 py-2 text-sm text-muted-foreground">No entries found.</div>
 		{/if}
 	</Combobox.Content>
 </Combobox.Root>

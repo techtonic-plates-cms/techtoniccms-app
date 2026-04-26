@@ -1,5 +1,5 @@
 {
-  "imports": {
-    "@sami/envey": "jsr:@sami/envey@^3.0.1"
-  }
+	"imports": {
+		"@sami/envey": "jsr:@sami/envey@^3.0.1"
+	}
 }

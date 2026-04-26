@@ -36,7 +36,7 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-bold">Media Library</h1>
-			<p class="text-muted-foreground text-sm">Manage uploaded assets</p>
+			<p class="text-sm text-muted-foreground">Manage uploaded assets</p>
 		</div>
 		<Button href="/assets/create">
 			<UploadIcon class="mr-2 size-4" />
@@ -45,10 +45,12 @@
 	</div>
 
 	{#if assets.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-			<ImageIcon class="text-muted-foreground mb-4 size-12" />
+		<div
+			class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
+		>
+			<ImageIcon class="mb-4 size-12 text-muted-foreground" />
 			<h3 class="text-lg font-semibold">No assets yet</h3>
-			<p class="text-muted-foreground mt-1 text-sm">Upload your first file to get started</p>
+			<p class="mt-1 text-sm text-muted-foreground">Upload your first file to get started</p>
 			<Button href="/assets/create" class="mt-4">
 				<UploadIcon class="mr-2 size-4" />
 				Upload asset
@@ -58,7 +60,7 @@
 		<div class="grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
 			{#each assets as asset (asset.id)}
 				<div class="group relative overflow-hidden rounded-lg border">
-					<div class="bg-muted flex aspect-square items-center justify-center">
+					<div class="flex aspect-square items-center justify-center bg-muted">
 						{#if isImage(asset.mimeType)}
 							<img
 								src="/assets/_api/{asset.id}"
@@ -68,8 +70,8 @@
 							/>
 						{:else}
 							<div class="flex flex-col items-center gap-1 p-2">
-								<ImageIcon class="text-muted-foreground size-8" />
-								<span class="text-muted-foreground w-full truncate text-center text-xs">
+								<ImageIcon class="size-8 text-muted-foreground" />
+								<span class="w-full truncate text-center text-xs text-muted-foreground">
 									{asset.mimeType.split('/')[1] ?? 'file'}
 								</span>
 							</div>
@@ -77,7 +79,7 @@
 					</div>
 					<div class="p-2">
 						<p class="truncate text-xs font-medium" title={asset.filename}>{asset.filename}</p>
-						<p class="text-muted-foreground text-xs">{formatSize(asset.fileSize)}</p>
+						<p class="text-xs text-muted-foreground">{formatSize(asset.fileSize)}</p>
 					</div>
 					<div class="absolute top-1 right-1 hidden gap-1 group-hover:flex">
 						<a
@@ -104,7 +106,7 @@
 							<input type="hidden" name="id" value={asset.id} />
 							<button
 								type="submit"
-								class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
+								class="hover:text-destructive-foreground rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-destructive"
 							>
 								<TrashIcon class="size-3" />
 							</button>
@@ -133,7 +135,12 @@
 
 				<div class="space-y-1.5">
 					<Label for="alt">Alt text</Label>
-					<Input id="alt" name="alt" value={editingAsset.alt ?? ''} placeholder="Describe the image" />
+					<Input
+						id="alt"
+						name="alt"
+						value={editingAsset.alt ?? ''}
+						placeholder="Describe the image"
+					/>
 				</div>
 
 				<div class="space-y-1.5">
@@ -142,8 +149,9 @@
 						id="caption"
 						name="caption"
 						rows="2"
-						class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
-					>{editingAsset.caption ?? ''}</textarea>
+						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						>{editingAsset.caption ?? ''}</textarea
+					>
 				</div>
 
 				<div class="flex items-center gap-2">
@@ -157,8 +165,8 @@
 					<Label for="isPublic">Publicly accessible</Label>
 				</div>
 
-				<div class="text-muted-foreground space-y-1 rounded-md border p-3 text-xs">
-					<p class="break-all font-mono">{editingAsset.id}</p>
+				<div class="space-y-1 rounded-md border p-3 text-xs text-muted-foreground">
+					<p class="font-mono break-all">{editingAsset.id}</p>
 					<p>{formatSize(editingAsset.fileSize)} · {editingAsset.mimeType}</p>
 				</div>
 

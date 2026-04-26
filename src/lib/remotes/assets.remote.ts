@@ -60,7 +60,12 @@ const DELETE_ASSET_MUTATION = `
 
 export const getAssets = query(
 	v.object({
-		offset: v.optional(v.pipe(v.string(), v.transform(s => parseInt(s, 10))))
+		offset: v.optional(
+			v.pipe(
+				v.string(),
+				v.transform((s) => parseInt(s, 10))
+			)
+		)
 	}),
 	async ({ offset }) => {
 		const { locals } = getRequestEvent();
@@ -79,7 +84,11 @@ export const getAssetsForCombobox = query(
 		const result = await gqlFetch<
 			{ assets: { assets: Array<{ id: string; filename: string; caption: string | null }> } },
 			{ search?: string; limit: number }
-		>(ASSETS_COMBOBOX_QUERY, { search: search ?? '', limit: 20 }, { token: locals.accessToken?.tokenValue });
+		>(
+			ASSETS_COMBOBOX_QUERY,
+			{ search: search ?? '', limit: 20 },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.assets.assets ?? [];
 	}
 );
@@ -95,7 +104,14 @@ export const updateAsset = form(
 		const { locals } = getRequestEvent();
 		await gqlFetch<unknown, { input: Record<string, unknown> }>(
 			UPDATE_ASSET_MUTATION,
-			{ input: { id, alt: alt || undefined, caption: caption || undefined, isPublic: isPublic === 'on' } },
+			{
+				input: {
+					id,
+					alt: alt || undefined,
+					caption: caption || undefined,
+					isPublic: isPublic === 'on'
+				}
+			},
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, '/assets');

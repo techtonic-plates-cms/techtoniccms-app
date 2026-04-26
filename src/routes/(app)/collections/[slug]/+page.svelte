@@ -9,7 +9,6 @@
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 
-
 	const { params }: PageProps = $props();
 	const slug = $derived(params.slug);
 	const after = $derived(page.url.searchParams.get('after') ?? undefined);
@@ -32,17 +31,21 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
-			<a href="/collections" class="text-muted-foreground hover:text-foreground transition-colors">
+			<a href="/collections" class="text-muted-foreground transition-colors hover:text-foreground">
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
 				<div class="flex items-center gap-2">
 					{#if collection?.icon}
-						<img src="/assets/_api/{collection.icon.id}" alt={collection.icon.filename} class="size-7 rounded-md object-cover" />
+						<img
+							src="/assets/_api/{collection.icon.id}"
+							alt={collection.icon.filename}
+							class="size-7 rounded-md object-cover"
+						/>
 					{/if}
 					<h1 class="text-2xl font-bold">{collection?.name ?? 'Entries'}</h1>
 				</div>
-				<p class="text-muted-foreground font-mono text-xs">{collection?.slug}</p>
+				<p class="font-mono text-xs text-muted-foreground">{collection?.slug}</p>
 			</div>
 		</div>
 		<div class="flex items-center gap-2">
@@ -59,10 +62,14 @@
 	</div>
 
 	{#if entries.nodes.length === 0}
-		<div class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-			<FileTextIcon class="text-muted-foreground mb-4 size-12" />
+		<div
+			class="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
+		>
+			<FileTextIcon class="mb-4 size-12 text-muted-foreground" />
 			<h3 class="text-lg font-semibold">No entries yet</h3>
-			<p class="text-muted-foreground mt-1 mb-4 text-sm">Create your first entry for this collection</p>
+			<p class="mt-1 mb-4 text-sm text-muted-foreground">
+				Create your first entry for this collection
+			</p>
 			<a href="/collections/{collection?.slug}/entries/new">
 				<Button size="sm">
 					<PlusIcon class="mr-2 size-4" />
@@ -75,16 +82,22 @@
 			<table class="w-full text-sm">
 				<thead>
 					<tr class="border-b">
-						<th class="text-muted-foreground px-4 py-3 text-left font-medium">Name</th>
-						<th class="text-muted-foreground px-4 py-3 text-left font-medium">Status</th>
-						<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium md:table-cell">Slug</th>
-						<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium lg:table-cell">Updated</th>
-						<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium lg:table-cell">Created</th>
+						<th class="px-4 py-3 text-left font-medium text-muted-foreground">Name</th>
+						<th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+						<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell"
+							>Slug</th
+						>
+						<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground lg:table-cell"
+							>Updated</th
+						>
+						<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground lg:table-cell"
+							>Created</th
+						>
 					</tr>
 				</thead>
 				<tbody>
 					{#each entries.nodes as entry (entry.id)}
-						<tr class="hover:bg-muted/50 border-b last:border-0 transition-colors">
+						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
 									href="/collections/{collection?.slug}/entries/{entry.id}"
@@ -98,13 +111,13 @@
 									{entry.status.charAt(0) + entry.status.slice(1).toLowerCase()}
 								</Badge>
 							</td>
-							<td class="text-muted-foreground hidden px-4 py-3 font-mono text-xs md:table-cell">
+							<td class="hidden px-4 py-3 font-mono text-xs text-muted-foreground md:table-cell">
 								{entry.slug ?? '—'}
 							</td>
-							<td class="text-muted-foreground hidden px-4 py-3 lg:table-cell">
+							<td class="hidden px-4 py-3 text-muted-foreground lg:table-cell">
 								{formatDate(entry.updatedAt)}
 							</td>
-							<td class="text-muted-foreground hidden px-4 py-3 lg:table-cell">
+							<td class="hidden px-4 py-3 text-muted-foreground lg:table-cell">
 								{formatDate(entry.createdAt)}
 							</td>
 						</tr>

@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import PolicyPicker from '$lib/components/policy-picker.svelte';
 	import {
 		getRole,
 		updateRole,
@@ -22,6 +23,27 @@
 		ALLOW: 'default',
 		DENY: 'destructive'
 	};
+
+	function formatDate(dateStr: string | null | undefined): string {
+		if (!dateStr) return '';
+		try {
+			return new Date(dateStr).toLocaleDateString();
+		} catch {
+			return dateStr;
+		}
+	}
+
+	function isExpired(dateStr: string | null | undefined): boolean {
+		if (!dateStr) return false;
+		try {
+			return new Date(dateStr) < new Date();
+		} catch {
+			return false;
+		}
+	}
+
+	let selectedPolicyId = $state('');
+	let policyExpiresAt = $state('');
 </script>
 
 {#if !role}
@@ -29,13 +51,16 @@
 {:else}
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
-			<a href="/settings/roles" class="text-muted-foreground hover:text-foreground transition-colors">
+			<a
+				href="/settings/roles"
+				class="text-muted-foreground transition-colors hover:text-foreground"
+			>
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
 				<h1 class="text-2xl font-bold">{role.name}</h1>
 				{#if role.description}
-					<p class="text-muted-foreground text-sm">{role.description}</p>
+					<p class="text-sm text-muted-foreground">{role.description}</p>
 				{/if}
 			</div>
 		</div>
@@ -54,8 +79,9 @@
 						id="r-desc"
 						name="description"
 						rows="2"
-						class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
-					>{role.description ?? ''}</textarea>
+						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						>{role.description ?? ''}</textarea
+					>
 				</div>
 				<Button type="submit">Save</Button>
 			</form>
@@ -68,16 +94,26 @@
 					{#each role.policies as policy (policy.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<div class="min-w-0 flex-1">
-								<div class="flex items-center gap-2">
-									<a href="/settings/policies/{policy.id}" class="font-medium transition-colors hover:text-primary">
+								<div class="flex flex-wrap items-center gap-2">
+									<a
+										href="/settings/policies/{policy.id}"
+										class="font-medium transition-colors hover:text-primary"
+									>
 										{policy.name}
 									</a>
-									<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}>
+									<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
 										{policy.effect.toLowerCase()}
 									</Badge>
 								</div>
-								<p class="text-muted-foreground text-xs">
+								<p class="text-xs text-muted-foreground">
 									{policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}
+									{#if policy.expiresAt}
+										<span class:text-destructive={isExpired(policy.expiresAt)}>
+											— {isExpired(policy.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
+												policy.expiresAt
+											)}
+										</span>
+									{/if}
 								</p>
 							</div>
 							<form {...unassignPolicyFromRole}>
@@ -89,13 +125,25 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-sm">No policies assigned.</p>
+				<p class="text-sm text-muted-foreground">No policies assigned.</p>
 			{/if}
 
-			<form {...assignPolicyToRole} class="flex gap-2">
+			<form {...assignPolicyToRole} class="space-y-3 border-t pt-3">
 				<input type="hidden" name="roleId" value={role.id} />
-				<Input name="policyId" placeholder="Policy ID" class="flex-1" />
-				<Button type="submit" variant="outline">Assign Policy</Button>
+				<input type="hidden" name="policyId" value={selectedPolicyId} />
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Add policy</Label>
+						<PolicyPicker bind:value={selectedPolicyId} placeholder="Search for a policy..." />
+					</div>
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Optional expiration</Label>
+						<Input type="datetime-local" name="expiresAt" bind:value={policyExpiresAt} />
+					</div>
+				</div>
+				<Button type="submit" variant="outline" size="sm" disabled={!selectedPolicyId}
+					>Assign Policy</Button
+				>
 			</form>
 		</section>
 
@@ -105,24 +153,45 @@
 				<div class="divide-y rounded-md border">
 					{#each role.users as u (u.id)}
 						<div class="flex items-center justify-between px-4 py-3">
-							<a href="/settings/users/{u.id}" class="font-medium transition-colors hover:text-primary">
+							<a
+								href="/settings/users/{u.id}"
+								class="font-medium transition-colors hover:text-primary"
+							>
 								{u.name}
 							</a>
-							<Badge variant={u.status === 'ACTIVE' ? 'default' : u.status === 'BANNED' ? 'destructive' : 'secondary'}>
-								{u.status.toLowerCase()}
-							</Badge>
+							<div class="flex items-center gap-2">
+								<Badge
+									variant={u.status === 'ACTIVE'
+										? 'default'
+										: u.status === 'BANNED'
+											? 'destructive'
+											: 'secondary'}
+									class="text-xs"
+								>
+									{u.status.toLowerCase()}
+								</Badge>
+								{#if u.expiresAt}
+									<span
+										class="text-xs text-muted-foreground"
+										class:text-destructive={isExpired(u.expiresAt)}
+									>
+										{isExpired(u.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(u.expiresAt)}
+									</span>
+								{/if}
+							</div>
 						</div>
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-sm">No members.</p>
+				<p class="text-sm text-muted-foreground">No members.</p>
 			{/if}
 		</section>
 
 		<section class="space-y-3 rounded-lg border border-destructive/30 p-6">
-			<h2 class="text-destructive font-semibold">Danger Zone</h2>
+			<h2 class="font-semibold text-destructive">Danger Zone</h2>
 			<form
 				{...deleteRole}
+				class="flex items-center gap-3"
 				onsubmit={(e) => {
 					if (!confirm(`Delete role "${role.name}"?`)) e.preventDefault();
 				}}

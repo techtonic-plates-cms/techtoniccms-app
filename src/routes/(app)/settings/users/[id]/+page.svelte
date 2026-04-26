@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import RolePicker from '$lib/components/role-picker.svelte';
 	import {
 		getUser,
 		updateUser,
@@ -31,6 +32,28 @@
 		BANNED: 'destructive'
 	};
 
+	function formatDate(dateStr: string | null | undefined): string {
+		if (!dateStr) return '';
+		try {
+			return new Date(dateStr).toLocaleDateString();
+		} catch {
+			return dateStr;
+		}
+	}
+
+	function isExpired(dateStr: string | null | undefined): boolean {
+		if (!dateStr) return false;
+		try {
+			return new Date(dateStr) < new Date();
+		} catch {
+			return false;
+		}
+	}
+
+	let selectedRoleId = $state('');
+	let roleExpiresAt = $state('');
+	let selectedPolicyId = $state('');
+	let policyExpiresAt = $state('');
 </script>
 
 {#if !user}
@@ -39,7 +62,10 @@
 	<div class="space-y-8">
 		<div class="flex items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
-				<a href="/settings/users" class="text-muted-foreground hover:text-foreground transition-colors">
+				<a
+					href="/settings/users"
+					class="text-muted-foreground transition-colors hover:text-foreground"
+				>
 					<ArrowLeftIcon class="size-4" />
 				</a>
 				<div>
@@ -49,9 +75,11 @@
 							{user.status.charAt(0) + user.status.slice(1).toLowerCase()}
 						</Badge>
 					</div>
-					<p class="text-muted-foreground text-xs">
+					<p class="text-xs text-muted-foreground">
 						Created: {user.creationTime ? new Date(user.creationTime).toLocaleDateString() : '—'}
-						· Last login: {user.lastLoginTime ? new Date(user.lastLoginTime).toLocaleDateString() : '—'}
+						· Last login: {user.lastLoginTime
+							? new Date(user.lastLoginTime).toLocaleDateString()
+							: '—'}
 					</p>
 				</div>
 			</div>
@@ -101,13 +129,24 @@
 					{#each user.roles as role (role.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<div>
-								<a href="/settings/roles/{role.id}" class="font-medium transition-colors hover:text-primary">
+								<a
+									href="/settings/roles/{role.id}"
+									class="font-medium transition-colors hover:text-primary"
+								>
 									{role.name}
 								</a>
-								{#if role.assignedAt}
-									<p class="text-muted-foreground text-xs">
-										Since {new Date(role.assignedAt).toLocaleDateString()}
+								{#if role.expiresAt}
+									<p
+										class="text-xs"
+										class:text-muted-foreground={!isExpired(role.expiresAt)}
+										class:text-destructive={isExpired(role.expiresAt)}
+									>
+										{isExpired(role.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
+											role.expiresAt
+										)}
 									</p>
+								{:else if role.assignedAt}
+									<p class="text-xs text-muted-foreground">Since {formatDate(role.assignedAt)}</p>
 								{/if}
 							</div>
 							<form {...unassignRole}>
@@ -119,27 +158,56 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-sm">No roles assigned.</p>
+				<p class="text-sm text-muted-foreground">No roles assigned.</p>
 			{/if}
 
-			<form {...assignRole} class="flex gap-2">
+			<form {...assignRole} class="space-y-3 border-t pt-3">
 				<input type="hidden" name="userId" value={user.id} />
-				<Input name="roleId" placeholder="Role ID" class="flex-1" />
-				<Button type="submit" variant="outline">Assign Role</Button>
+				<input type="hidden" name="roleId" value={selectedRoleId} />
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Add role</Label>
+						<RolePicker bind:value={selectedRoleId} placeholder="Search for a role..." />
+					</div>
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Optional expiration</Label>
+						<Input type="datetime-local" name="expiresAt" bind:value={roleExpiresAt} />
+					</div>
+				</div>
+				<Button type="submit" variant="outline" size="sm" disabled={!selectedRoleId}
+					>Assign Role</Button
+				>
 			</form>
 		</section>
 
 		<section class="space-y-4 rounded-lg border p-6">
 			<h2 class="font-semibold">Policies</h2>
-			<form {...assignPolicyToUser} class="flex gap-2">
+			<p class="text-sm text-muted-foreground">
+				Assign policies directly to this user for one-off exceptions.
+			</p>
+			<form {...assignPolicyToUser} class="space-y-3">
 				<input type="hidden" name="userId" value={user.id} />
-				<Input name="policyId" placeholder="Policy ID" class="flex-1" />
-				<Button type="submit" variant="outline">Assign Policy</Button>
+				<input type="hidden" name="policyId" value={selectedPolicyId} />
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Add policy</Label>
+						<!-- For now we use a simple text input since PolicyPicker needs integration -->
+						<Input name="policyId" placeholder="Policy ID" bind:value={selectedPolicyId} />
+					</div>
+					<div class="space-y-1.5">
+						<Label class="text-xs text-muted-foreground">Optional expiration</Label>
+						<Input type="datetime-local" name="expiresAt" bind:value={policyExpiresAt} />
+					</div>
+				</div>
+				<Button type="submit" variant="outline" size="sm" disabled={!selectedPolicyId}
+					>Assign Policy</Button
+				>
 			</form>
-			<form {...unassignPolicyFromUser} class="flex gap-2">
+
+			<form {...unassignPolicyFromUser} class="flex gap-2 pt-2">
 				<input type="hidden" name="userId" value={user.id} />
-				<Input name="policyId" placeholder="Policy ID" class="flex-1" />
-				<Button type="submit" variant="ghost">Unassign Policy</Button>
+				<Input name="policyId" placeholder="Policy ID to remove" class="flex-1" />
+				<Button type="submit" variant="ghost">Unassign</Button>
 			</form>
 		</section>
 
@@ -163,9 +231,10 @@
 		</section>
 
 		<section class="space-y-3 rounded-lg border border-destructive/30 p-6">
-			<h2 class="text-destructive font-semibold">Danger Zone</h2>
+			<h2 class="font-semibold text-destructive">Danger Zone</h2>
 			<form
 				{...deleteUser}
+				class="flex items-center gap-3"
 				onsubmit={(e) => {
 					if (!confirm(`Delete user "${user.name}"?`)) e.preventDefault();
 				}}

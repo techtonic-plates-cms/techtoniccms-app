@@ -80,18 +80,16 @@
 	}
 
 	function removeField(id: string) {
-		fields = fields.filter(f => f.id !== id);
+		fields = fields.filter((f) => f.id !== id);
 	}
 
 	function updateField(id: string, patch: Partial<DraftField>) {
-		const idx = fields.findIndex(f => f.id === id);
+		const idx = fields.findIndex((f) => f.id === id);
 		if (idx !== -1) fields[idx] = { ...fields[idx], ...patch };
 	}
 
 	// Serialized for hidden inputs
-	const fieldsJson = $derived(
-		JSON.stringify(fields.map(({ id, advancedOpen, ...rest }) => rest))
-	);
+	const fieldsJson = $derived(JSON.stringify(fields.map(({ id, advancedOpen, ...rest }) => rest)));
 	const supportedLocalesStr = $derived(supportedLocales.join(','));
 
 	// Preflight validation
@@ -120,15 +118,14 @@
 		'#14b8a6',
 		'#0ea5e9'
 	];
-
 </script>
 
-<div class="mx-auto max-w-3xl space-y-8 py-8 px-4">
+<div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
 	<!-- Header -->
 	<div class="space-y-2">
 		<a
 			href="/collections"
-			class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
 			Back to Collections
@@ -146,13 +143,15 @@
 
 		<!-- Global error banner -->
 		{#each createCollection.fields.allIssues() as issue (issue.message)}
-			<div class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+			<div
+				class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+			>
 				{issue.message}
 			</div>
 		{/each}
 
 		<!-- Section 1: General -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<h2 class="text-lg font-semibold">General</h2>
 			<Separator />
 
@@ -216,7 +215,9 @@
 					<input type="hidden" name="icon" value={iconInput} />
 					<AssetCombobox
 						value={iconInput}
-						onValueChange={(id) => { iconInput = id; }}
+						onValueChange={(id) => {
+							iconInput = id;
+						}}
 					/>
 				</div>
 
@@ -247,7 +248,7 @@
 		</div>
 
 		<!-- Section 2: Localization -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Localization</h2>
 				<Switch.Root bind:checked={isLocalized} />
@@ -255,10 +256,14 @@
 			<Separator />
 
 			{#if isLocalized}
-				<div class="space-y-4 animate-in fade-in">
+				<div class="animate-in space-y-4 fade-in">
 					<div class="space-y-1.5">
 						<Label for="locale-default">Default Locale</Label>
-						<Select.Root type="single" value={defaultLocale} onValueChange={(v: string) => (defaultLocale = v)}>
+						<Select.Root
+							type="single"
+							value={defaultLocale}
+							onValueChange={(v: string) => (defaultLocale = v)}
+						>
 							<Select.Trigger id="locale-default">
 								<span>{defaultLocale}</span>
 							</Select.Trigger>
@@ -274,14 +279,14 @@
 						<Label>Supported Locales</Label>
 						<div class="flex flex-wrap gap-2">
 							{#each LOCALES as locale}
-								<label class="flex items-center gap-2 text-sm cursor-pointer">
+								<label class="flex cursor-pointer items-center gap-2 text-sm">
 									<Checkbox.Root
 										checked={supportedLocales.includes(locale)}
 										onCheckedChange={(c) => {
 											if (c) {
 												supportedLocales = [...supportedLocales, locale];
 											} else {
-												supportedLocales = supportedLocales.filter(l => l !== locale);
+												supportedLocales = supportedLocales.filter((l) => l !== locale);
 											}
 										}}
 									/>
@@ -295,7 +300,7 @@
 		</div>
 
 		<!-- Section 3: Fields -->
-		<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Fields</h2>
 				<span class="text-sm text-muted-foreground"
@@ -306,10 +311,10 @@
 
 			{#if fields.length === 0}
 				<div class="rounded-lg border border-dashed p-6 text-center">
-					<p class="text-muted-foreground text-sm mb-3">No fields yet</p>
-					<p class="text-muted-foreground text-xs mb-4"
-						>Add fields to define the structure of entries in this collection</p
-					>
+					<p class="mb-3 text-sm text-muted-foreground">No fields yet</p>
+					<p class="mb-4 text-xs text-muted-foreground">
+						Add fields to define the structure of entries in this collection
+					</p>
 					<Button type="button" variant="outline" size="sm" onclick={addField}>
 						<PlusIcon class="mr-2 size-4" />
 						Add Your First Field
@@ -318,10 +323,10 @@
 			{:else}
 				<div class="space-y-3">
 					{#each fields as field (field.id)}
-					{console.log(field.dataType)}
-						<div class="rounded-md border p-4 space-y-3">
+						{console.log(field.dataType)}
+						<div class="space-y-3 rounded-md border p-4">
 							<!-- Row 1: name, label, dataType, remove -->
-							<div class="grid grid-cols-12 gap-2 items-end">
+							<div class="grid grid-cols-12 items-end gap-2">
 								<div class="col-span-4 space-y-1.5">
 									<Label class="text-xs">Name *</Label>
 									<Input
@@ -386,14 +391,14 @@
 
 							<!-- Toggles -->
 							<div class="flex items-center gap-6">
-								<label class="flex items-center gap-2 text-sm cursor-pointer">
+								<label class="flex cursor-pointer items-center gap-2 text-sm">
 									<Checkbox.Root
 										checked={field.isRequired}
 										onCheckedChange={(c) => updateField(field.id, { isRequired: !!c })}
 									/>
 									Required
 								</label>
-								<label class="flex items-center gap-2 text-sm cursor-pointer">
+								<label class="flex cursor-pointer items-center gap-2 text-sm">
 									<Checkbox.Root
 										checked={field.isUnique}
 										onCheckedChange={(c) => updateField(field.id, { isUnique: !!c })}
@@ -404,7 +409,9 @@
 
 							<!-- Advanced collapsible -->
 							<Collapsible.Root bind:open={field.advancedOpen}>
-								<Collapsible.Trigger class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+								<Collapsible.Trigger
+									class="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+								>
 									<ChevronDownIcon
 										class="size-4 transition-transform"
 										style={field.advancedOpen ? 'transform: rotate(180deg)' : ''}
@@ -454,7 +461,7 @@
 		</div>
 
 		<!-- Form actions -->
-		<div class="flex items-center justify-between pt-4 border-t">
+		<div class="flex items-center justify-between border-t pt-4">
 			<a href="/collections">
 				<Button type="button" variant="ghost">Cancel</Button>
 			</a>

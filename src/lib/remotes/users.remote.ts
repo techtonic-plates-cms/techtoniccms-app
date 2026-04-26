@@ -126,7 +126,11 @@ export const getUsers = query(
 	async ({ search, status, after }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ users: { users: { nodes: User[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } },
+			{
+				users: {
+					users: { nodes: User[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+				};
+			},
 			Record<string, unknown>
 		>(USERS_QUERY, { first: 25, after, search, status }, { token: locals.accessToken?.tokenValue });
 		return result.users.users ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
@@ -139,10 +143,11 @@ export const getUser = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{ users: { user: User | null } },
-			{ id: string }
-		>(USER_QUERY, { id }, { token: locals.accessToken?.tokenValue });
+		const result = await gqlFetch<{ users: { user: User | null } }, { id: string }>(
+			USER_QUERY,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.users.user;
 	}
 );
@@ -160,15 +165,19 @@ export const createUser = form(
 		const result = await gqlFetch<
 			{ users: { create: { id: string } } },
 			{ input: Record<string, unknown> }
-		>(CREATE_USER_MUTATION, {
-			input: {
-				name,
-				password: _password,
-				status: status || 'ACTIVE',
-				roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined,
-				policyIds: policyIds ? policyIds.split(',').filter(Boolean) : undefined
-			}
-		}, { token: locals.accessToken?.tokenValue });
+		>(
+			CREATE_USER_MUTATION,
+			{
+				input: {
+					name,
+					password: _password,
+					status: status || 'ACTIVE',
+					roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined,
+					policyIds: policyIds ? policyIds.split(',').filter(Boolean) : undefined
+				}
+			},
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/users/${result.users.create.id}`);
 	}
 );
@@ -194,7 +203,11 @@ export const deleteUser = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(DELETE_USER_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			DELETE_USER_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, '/settings/users');
 	}
 );
@@ -202,13 +215,14 @@ export const deleteUser = form(
 export const assignRole = form(
 	v.object({
 		userId: v.pipe(v.string(), v.nonEmpty()),
-		roleId: v.pipe(v.string(), v.nonEmpty())
+		roleId: v.pipe(v.string(), v.nonEmpty()),
+		expiresAt: v.optional(v.string())
 	}),
-	async ({ userId, roleId }) => {
+	async ({ userId, roleId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		await gqlFetch<unknown, { input: Record<string, unknown> }>(
 			ASSIGN_ROLE_MUTATION,
-			{ input: { userId, roleId } },
+			{ input: { userId, roleId, expiresAt: expiresAt || undefined } },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/settings/users/${userId}`);
@@ -235,7 +249,11 @@ export const activateUser = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(ACTIVATE_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			ACTIVATE_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/users/${id}`);
 	}
 );
@@ -244,25 +262,34 @@ export const deactivateUser = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(DEACTIVATE_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			DEACTIVATE_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/users/${id}`);
 	}
 );
 
-export const banUser = form(
-	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
-	async ({ id }) => {
-		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(BAN_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
-		redirect(303, `/settings/users/${id}`);
-	}
-);
+export const banUser = form(v.object({ id: v.pipe(v.string(), v.nonEmpty()) }), async ({ id }) => {
+	const { locals } = getRequestEvent();
+	await gqlFetch<unknown, { id: string }>(
+		BAN_MUTATION,
+		{ id },
+		{ token: locals.accessToken?.tokenValue }
+	);
+	redirect(303, `/settings/users/${id}`);
+});
 
 export const unbanUser = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(UNBAN_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			UNBAN_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/users/${id}`);
 	}
 );
@@ -286,13 +313,14 @@ export const changePassword = form(
 export const assignPolicyToUser = form(
 	v.object({
 		userId: v.pipe(v.string(), v.nonEmpty()),
-		policyId: v.pipe(v.string(), v.nonEmpty())
+		policyId: v.pipe(v.string(), v.nonEmpty()),
+		expiresAt: v.optional(v.string())
 	}),
-	async ({ userId, policyId }) => {
+	async ({ userId, policyId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		await gqlFetch<unknown, { input: Record<string, unknown> }>(
 			ASSIGN_POLICY_MUTATION,
-			{ input: { userId, policyId } },
+			{ input: { userId, policyId, expiresAt: expiresAt || undefined } },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/settings/users/${userId}`);

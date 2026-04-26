@@ -14,16 +14,20 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.LoginDocument,
-    "\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.MeDocument,
-    "\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.RefreshDocument,
-    "\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n": typeof types.LogoutDocument,
+	'\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n': typeof types.LoginDocument;
+	'\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n': typeof types.MeDocument;
+	'\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n': typeof types.RefreshDocument;
+	'\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n': typeof types.LogoutDocument;
 };
 const documents: Documents = {
-    "\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.LoginDocument,
-    "\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.MeDocument,
-    "\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.RefreshDocument,
-    "\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n": types.LogoutDocument,
+	'\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n':
+		types.LoginDocument,
+	'\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n':
+		types.MeDocument,
+	'\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n':
+		types.RefreshDocument,
+	'\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n':
+		types.LogoutDocument
 };
 
 /**
@@ -43,22 +47,31 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"];
+export function graphql(
+	source: '\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'
+): (typeof documents)['\n\tmutation Login($name: String!, $password: String!) {\n\t\tauth {\n\t\t\tlogin(name: $name, password: $password) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\tuser {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tstatus\n\t\t\t\t\troles {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tname\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"];
+export function graphql(
+	source: '\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'
+): (typeof documents)['\n\tquery Me {\n\t\tauth {\n\t\t\tme {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tstatus\n\t\t\t\tcreationTime\n\t\t\t\tlastLoginTime\n\t\t\t\troles {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"];
+export function graphql(
+	source: '\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'
+): (typeof documents)['\n\tmutation Refresh($refreshToken: String!) {\n\t\tauth {\n\t\t\trefresh(refreshToken: $refreshToken) {\n\t\t\t\taccessToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t\trefreshToken {\n\t\t\t\t\ttokenValue\n\t\t\t\t\texpiresAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"];
+export function graphql(
+	source: '\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n'
+): (typeof documents)['\n\tmutation Logout {\n\t\tauth {\n\t\t\tlogout {\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n'];
 
 export function graphql(source: string) {
-  return (documents as any)[source] ?? {};
+	return (documents as any)[source] ?? {};
 }
 
-export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> =
+	TDocumentNode extends DocumentNode<infer TType, any> ? TType : never;

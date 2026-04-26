@@ -43,25 +43,26 @@
 		</Button>
 		<div>
 			<h1 class="text-2xl font-bold">Upload Asset</h1>
-			<p class="text-muted-foreground text-sm">Add a file to your media library</p>
+			<p class="text-sm text-muted-foreground">Add a file to your media library</p>
 		</div>
 	</div>
 
-	<form
-		action="/assets/_api/upload"
-		method="post"
-		enctype="multipart/form-data"
-		class="space-y-5"
-	>
+	<form action="/assets/_api/upload" method="post" enctype="multipart/form-data" class="space-y-5">
 		<!-- Drop zone -->
 		<div
 			role="button"
 			tabindex="0"
 			class="relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-colors
 				{isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}"
-			ondragover={(e) => { e.preventDefault(); isDragging = true; }}
+			ondragover={(e) => {
+				e.preventDefault();
+				isDragging = true;
+			}}
 			ondragleave={() => (isDragging = false)}
-			ondrop={(e) => { e.preventDefault(); onDrop(e); }}
+			ondrop={(e) => {
+				e.preventDefault();
+				onDrop(e);
+			}}
 			onclick={() => fileInput?.click()}
 			onkeydown={(e) => e.key === 'Enter' && fileInput?.click()}
 		>
@@ -76,18 +77,18 @@
 			{#if previewUrl}
 				<img src={previewUrl} alt="Preview" class="mb-3 max-h-48 rounded object-contain" />
 			{:else if selectedFile}
-				<FileIcon class="text-muted-foreground mb-3 size-12" />
+				<FileIcon class="mb-3 size-12 text-muted-foreground" />
 			{:else}
-				<UploadIcon class="text-muted-foreground mb-3 size-10" />
+				<UploadIcon class="mb-3 size-10 text-muted-foreground" />
 			{/if}
 
 			{#if selectedFile}
 				<p class="text-sm font-medium">{selectedFile.name}</p>
-				<p class="text-muted-foreground text-xs">{formatSize(selectedFile.size)}</p>
-				<p class="text-muted-foreground mt-1 text-xs">Click to change file</p>
+				<p class="text-xs text-muted-foreground">{formatSize(selectedFile.size)}</p>
+				<p class="mt-1 text-xs text-muted-foreground">Click to change file</p>
 			{:else}
 				<p class="text-sm font-medium">Drop a file or click to browse</p>
-				<p class="text-muted-foreground text-xs">Images, documents, and other files</p>
+				<p class="text-xs text-muted-foreground">Images, documents, and other files</p>
 			{/if}
 		</div>
 
@@ -112,7 +113,7 @@
 			/>
 			<div>
 				<Label for="isPublic" class="cursor-pointer">Publicly accessible</Label>
-				<p class="text-muted-foreground text-xs">Anyone with the URL can view this file</p>
+				<p class="text-xs text-muted-foreground">Anyone with the URL can view this file</p>
 			</div>
 		</div>
 

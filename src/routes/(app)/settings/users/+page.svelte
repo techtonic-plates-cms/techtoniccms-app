@@ -22,7 +22,7 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-bold">Users</h1>
-			<p class="text-muted-foreground text-sm">Manage user accounts and roles</p>
+			<p class="text-sm text-muted-foreground">Manage user accounts and roles</p>
 		</div>
 		<a href="/settings/users/create">
 			<Button>
@@ -36,17 +36,24 @@
 		<table class="w-full text-sm">
 			<thead>
 				<tr class="border-b">
-					<th class="text-muted-foreground px-4 py-3 text-left font-medium">Username</th>
-					<th class="text-muted-foreground px-4 py-3 text-left font-medium">Status</th>
-					<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium md:table-cell">Roles</th>
-					<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium lg:table-cell">Last login</th>
+					<th class="px-4 py-3 text-left font-medium text-muted-foreground">Username</th>
+					<th class="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+					<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell"
+						>Roles</th
+					>
+					<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground lg:table-cell"
+						>Last login</th
+					>
 				</tr>
 			</thead>
 			<tbody>
 				{#each users.nodes as user (user.id)}
-					<tr class="hover:bg-muted/50 border-b last:border-0 transition-colors">
+					<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 						<td class="px-4 py-3">
-							<a href="/settings/users/{user.id}" class="font-medium transition-colors hover:text-primary">
+							<a
+								href="/settings/users/{user.id}"
+								class="font-medium transition-colors hover:text-primary"
+							>
 								{user.name}
 							</a>
 						</td>
@@ -55,14 +62,14 @@
 								{user.status.charAt(0) + user.status.slice(1).toLowerCase()}
 							</Badge>
 						</td>
-						<td class="text-muted-foreground hidden px-4 py-3 md:table-cell">
+						<td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
 							{#if user.roles.length > 0}
 								{user.roles.map((r) => r.name).join(', ')}
 							{:else}
 								<span class="italic">No roles</span>
 							{/if}
 						</td>
-						<td class="text-muted-foreground hidden px-4 py-3 lg:table-cell">
+						<td class="hidden px-4 py-3 text-muted-foreground lg:table-cell">
 							{user.lastLoginTime ? new Date(user.lastLoginTime).toLocaleDateString() : '—'}
 						</td>
 					</tr>

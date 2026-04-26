@@ -11,7 +11,9 @@
 	const effect = $derived(page.url.searchParams.get('effect') ?? undefined);
 	const isActive = $derived(page.url.searchParams.get('isActive') ?? undefined);
 
-	const policies = $derived(await getPolicies({ search, resourceType, actionType, effect, isActive }));
+	const policies = $derived(
+		await getPolicies({ search, resourceType, actionType, effect, isActive })
+	);
 
 	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
 		ALLOW: 'default',
@@ -23,7 +25,7 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-bold">Policies</h1>
-			<p class="text-muted-foreground text-sm">Define attribute-based access control rules</p>
+			<p class="text-sm text-muted-foreground">Define attribute-based access control rules</p>
 		</div>
 		<a href="/settings/policies/create">
 			<Button>
@@ -34,28 +36,35 @@
 	</div>
 
 	{#if policies.length === 0}
-		<p class="text-muted-foreground py-8 text-center text-sm">No policies yet.</p>
+		<p class="py-8 text-center text-sm text-muted-foreground">No policies yet.</p>
 	{:else}
 		<div class="rounded-lg border">
 			<table class="w-full text-sm">
 				<thead>
 					<tr class="border-b">
-						<th class="text-muted-foreground px-4 py-3 text-left font-medium">Name</th>
-						<th class="text-muted-foreground px-4 py-3 text-left font-medium">Effect</th>
-						<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium md:table-cell">Resource</th>
-						<th class="text-muted-foreground hidden px-4 py-3 text-left font-medium md:table-cell">Action</th>
-						<th class="text-muted-foreground px-4 py-3 text-left font-medium">Rules</th>
+						<th class="px-4 py-3 text-left font-medium text-muted-foreground">Name</th>
+						<th class="px-4 py-3 text-left font-medium text-muted-foreground">Effect</th>
+						<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell"
+							>Resource</th
+						>
+						<th class="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell"
+							>Action</th
+						>
+						<th class="px-4 py-3 text-left font-medium text-muted-foreground">Rules</th>
 					</tr>
 				</thead>
 				<tbody>
 					{#each policies as policy (policy.id)}
-						<tr class="hover:bg-muted/50 border-b last:border-0 transition-colors">
+						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
-								<a href="/settings/policies/{policy.id}" class="font-medium transition-colors hover:text-primary">
+								<a
+									href="/settings/policies/{policy.id}"
+									class="font-medium transition-colors hover:text-primary"
+								>
 									{policy.name}
 								</a>
 								{#if !policy.isActive}
-									<span class="text-muted-foreground ml-1 text-xs">(inactive)</span>
+									<span class="ml-1 text-xs text-muted-foreground">(inactive)</span>
 								{/if}
 							</td>
 							<td class="px-4 py-3">
@@ -63,13 +72,13 @@
 									{policy.effect.toLowerCase()}
 								</Badge>
 							</td>
-							<td class="text-muted-foreground hidden px-4 py-3 md:table-cell">
+							<td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
 								{policy.resourceType.toLowerCase()}
 							</td>
-							<td class="text-muted-foreground hidden px-4 py-3 md:table-cell">
+							<td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
 								{policy.actionType.toLowerCase().replace(/_/g, ' ')}
 							</td>
-							<td class="text-muted-foreground px-4 py-3">{policy.rules.length}</td>
+							<td class="px-4 py-3 text-muted-foreground">{policy.rules.length}</td>
 						</tr>
 					{/each}
 				</tbody>

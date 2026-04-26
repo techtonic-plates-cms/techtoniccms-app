@@ -2,6 +2,7 @@
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
+	import CopyIcon from '@lucide/svelte/icons/copy';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -11,8 +12,15 @@
 		updatePolicy,
 		deletePolicy,
 		addPolicyRule,
-		deletePolicyRule
+		deletePolicyRule,
+		duplicatePolicy
 	} from '$lib/remotes/policies.remote';
+	import {
+		ruleToSentence,
+		valueToDisplayString,
+		getAttributeLabel,
+		getOperatorLabel
+	} from '$lib/components/policy-rule-utils';
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
@@ -20,29 +28,28 @@
 
 	const policy = $derived(await getPolicy({ id }));
 
-	const ATTRIBUTE_PATHS = [
-		'SUBJECT_ID', 'SUBJECT_ROLE', 'SUBJECT_STATUS', 'SUBJECT_CREATED_AT',
-		'RESOURCE_ENTRY_ID', 'RESOURCE_ENTRY_STATUS', 'RESOURCE_ENTRY_CREATED_BY',
-		'RESOURCE_ENTRY_COLLECTION_ID', 'RESOURCE_ENTRY_LOCALE', 'RESOURCE_ENTRY_PUBLISHED_AT',
-		'RESOURCE_COLLECTION_ID', 'RESOURCE_COLLECTION_SLUG', 'RESOURCE_COLLECTION_CREATED_BY',
-		'RESOURCE_COLLECTION_IS_LOCALIZED', 'RESOURCE_ASSET_ID', 'RESOURCE_ASSET_UPLOADED_BY',
-		'RESOURCE_ASSET_MIME_TYPE', 'RESOURCE_ASSET_FILE_SIZE',
-		'ENVIRONMENT_CURRENT_TIME', 'ENVIRONMENT_IP_ADDRESS', 'ENVIRONMENT_USER_AGENT',
-		'ACTION_TYPE'
-	];
-
-	const OPERATORS = [
-		'EQ', 'NE', 'GT', 'GTE', 'LT', 'LTE',
-		'IN', 'NOT_IN', 'CONTAINS', 'STARTS_WITH', 'ENDS_WITH',
-		'IS_NULL', 'IS_NOT_NULL', 'REGEX'
-	];
-
-	const VALUE_TYPES = ['STRING', 'NUMBER', 'BOOLEAN', 'DATETIME', 'UUID', 'ARRAY'];
-
 	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
 		ALLOW: 'default',
 		DENY: 'destructive'
 	};
+
+	function formatDate(dateStr: string | null | undefined): string {
+		if (!dateStr) return '';
+		try {
+			return new Date(dateStr).toLocaleDateString();
+		} catch {
+			return dateStr;
+		}
+	}
+
+	function isExpired(dateStr: string | null | undefined): boolean {
+		if (!dateStr) return false;
+		try {
+			return new Date(dateStr) < new Date();
+		} catch {
+			return false;
+		}
+	}
 </script>
 
 {#if !policy}
@@ -51,23 +58,37 @@
 	<div class="space-y-8">
 		<div class="flex items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
-				<a href="/settings/policies" class="text-muted-foreground hover:text-foreground transition-colors">
+				<a
+					href="/settings/policies"
+					class="text-muted-foreground transition-colors hover:text-foreground"
+				>
 					<ArrowLeftIcon class="size-4" />
 				</a>
 				<div>
-					<div class="flex items-center gap-2 flex-wrap">
+					<div class="flex flex-wrap items-center gap-2">
 						<h1 class="text-2xl font-bold">{policy.name}</h1>
-						<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}>{policy.effect.toLowerCase()}</Badge>
+						<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}
+							>{policy.effect === 'ALLOW' ? 'Allow' : 'Block'}</Badge
+						>
 						{#if !policy.isActive}
 							<Badge variant="secondary">inactive</Badge>
 						{/if}
 					</div>
-					<p class="text-muted-foreground text-xs">
-						{policy.resourceType.toLowerCase()} · {policy.actionType.toLowerCase().replace(/_/g, ' ')}
+					<p class="text-xs text-muted-foreground">
+						{policy.resourceType.toLowerCase()} · {policy.actionType
+							.toLowerCase()
+							.replace(/_/g, ' ')}
 						· priority {policy.priority}
 					</p>
 				</div>
 			</div>
+			<form {...duplicatePolicy}>
+				<input type="hidden" name="id" value={policy.id} />
+				<Button type="submit" variant="outline" size="sm">
+					<CopyIcon class="mr-1.5 size-3.5" />
+					Duplicate
+				</Button>
+			</form>
 		</div>
 
 		<!-- Metadata -->
@@ -91,27 +112,46 @@
 						id="p-desc"
 						name="description"
 						rows="2"
-						class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
-					>{policy.description ?? ''}</textarea>
+						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						>{policy.description ?? ''}</textarea
+					>
 				</div>
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
 						<Label for="p-effect">Effect</Label>
-						<select id="p-effect" name="effect" class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm">
+						<select
+							id="p-effect"
+							name="effect"
+							class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						>
 							<option value="ALLOW" selected={policy.effect === 'ALLOW'}>Allow</option>
-							<option value="DENY" selected={policy.effect === 'DENY'}>Deny</option>
+							<option value="DENY" selected={policy.effect === 'DENY'}>Block</option>
 						</select>
 					</div>
 					<div class="space-y-1.5">
 						<Label for="p-connector">Rule connector</Label>
-						<select id="p-connector" name="ruleConnector" class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm">
-							<option value="AND" selected={policy.ruleConnector === 'AND'}>AND (all rules must match)</option>
-							<option value="OR" selected={policy.ruleConnector === 'OR'}>OR (any rule matches)</option>
+						<select
+							id="p-connector"
+							name="ruleConnector"
+							class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						>
+							<option value="AND" selected={policy.ruleConnector === 'AND'}
+								>AND (all rules must match)</option
+							>
+							<option value="OR" selected={policy.ruleConnector === 'OR'}
+								>OR (any rule matches)</option
+							>
 						</select>
 					</div>
 				</div>
 				<div class="flex items-center gap-2">
-					<input id="p-active" type="checkbox" name="isActive" class="size-4 rounded" checked={policy.isActive} />
+					<input
+						id="p-active"
+						type="checkbox"
+						name="isActive"
+						class="size-4 rounded"
+						checked={policy.isActive}
+					/>
 					<Label for="p-active">Active</Label>
 				</div>
 				<Button type="submit">Save changes</Button>
@@ -122,7 +162,9 @@
 		<section class="space-y-4 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="font-semibold">Rules</h2>
-				<span class="text-muted-foreground text-xs">Connected with <strong>{policy.ruleConnector}</strong></span>
+				<span class="text-xs text-muted-foreground"
+					>Connected with <strong>{policy.ruleConnector}</strong></span
+				>
 			</div>
 
 			{#if policy.rules.length > 0}
@@ -130,25 +172,27 @@
 					{#each policy.rules as rule (rule.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<div class="min-w-0 flex-1">
-								<div class="text-sm font-medium font-mono">
-									{rule.attributePath.toLowerCase().replace(/_/g, '.')}
-									<span class="text-muted-foreground font-sans font-normal">
-										{rule.operator.toLowerCase().replace(/_/g, ' ')}
-									</span>
-									<span class="text-primary">"{rule.expectedValue}"</span>
+								<div class="text-sm">
+									{ruleToSentence(rule.attributePath, rule.operator, rule.value)}
 								</div>
-								<p class="text-muted-foreground text-xs">
-									{rule.valueType.toLowerCase()}
-									{#if !rule.isActive}<span class="text-destructive"> · inactive</span>{/if}
-								</p>
+								{#if rule.description}
+									<p class="text-xs text-muted-foreground">{rule.description}</p>
+								{/if}
+								{#if !rule.isActive}<span class="text-xs text-destructive"> · inactive</span>{/if}
 							</div>
 							<form
 								{...deletePolicyRule}
-								onsubmit={(e) => { if (!confirm('Delete this rule?')) e.preventDefault(); }}
+								class="ml-4"
+								onsubmit={(e) => {
+									if (!confirm('Delete this rule?')) e.preventDefault();
+								}}
 							>
 								<input type="hidden" name="policyId" value={policy.id} />
 								<input type="hidden" name="ruleId" value={rule.id} />
-								<button type="submit" class="text-muted-foreground hover:text-destructive p-1 transition-colors">
+								<button
+									type="submit"
+									class="p-1 text-muted-foreground transition-colors hover:text-destructive"
+								>
 									<TrashIcon class="size-4" />
 								</button>
 							</form>
@@ -156,7 +200,9 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-sm">No rules. This policy matches all requests for its resource/action.</p>
+				<p class="text-sm text-muted-foreground">
+					No rules. This policy matches all requests for its resource/action.
+				</p>
 			{/if}
 
 			<!-- Add rule -->
@@ -169,35 +215,47 @@
 					<input type="hidden" name="policyId" value={policy.id} />
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="space-y-1.5">
-							<Label for="r-attr">Attribute path</Label>
-							<select id="r-attr" name="attributePath" class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm">
-								{#each ATTRIBUTE_PATHS as ap (ap)}
-									<option value={ap}>{ap.toLowerCase().replace(/_/g, '.')}</option>
-								{/each}
+							<Label for="r-attr">When</Label>
+							<select
+								id="r-attr"
+								name="attributePath"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+							>
+								<option value="SUBJECT_ROLE">User's role</option>
+								<option value="SUBJECT_STATUS">User's status</option>
+								<option value="RESOURCE_ENTRY_CREATED_BY">Who created the entry</option>
+								<option value="RESOURCE_ENTRY_COLLECTION_ID"
+									>Which collection the entry belongs to</option
+								>
+								<option value="RESOURCE_ENTRY_STATUS">Entry status</option>
+								<option value="ENVIRONMENT_CURRENT_TIME">Current time</option>
 							</select>
 						</div>
 						<div class="space-y-1.5">
-							<Label for="r-op">Operator</Label>
-							<select id="r-op" name="operator" class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm">
-								{#each OPERATORS as op (op)}
-									<option value={op}>{op.toLowerCase().replace(/_/g, ' ')}</option>
-								{/each}
+							<Label for="r-op">Condition</Label>
+							<select
+								id="r-op"
+								name="operator"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+							>
+								<option value="EQ">is exactly</option>
+								<option value="NE">is not</option>
+								<option value="IN">is one of</option>
+								<option value="GT">is greater than</option>
+								<option value="LT">is less than</option>
+								<option value="IS_NULL">is empty / not set</option>
+								<option value="IS_NOT_NULL">is set</option>
+								<option value="EQ_CONTEXT_REF">is the same as</option>
 							</select>
 						</div>
 					</div>
-					<div class="grid gap-3 sm:grid-cols-2">
-						<div class="space-y-1.5">
-							<Label for="r-val">Expected value</Label>
-							<Input id="r-val" name="expectedValue" placeholder="e.g. PUBLISHED" />
-						</div>
-						<div class="space-y-1.5">
-							<Label for="r-vtype">Value type</Label>
-							<select id="r-vtype" name="valueType" class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm">
-								{#each VALUE_TYPES as vt (vt)}
-									<option value={vt}>{vt.toLowerCase()}</option>
-								{/each}
-							</select>
-						</div>
+					<div class="space-y-1.5">
+						<Label for="r-val">Value</Label>
+						<Input id="r-val" name="valueJson" placeholder="e.g. editor or editor, admin or true" />
+						<p class="text-xs text-muted-foreground">
+							For "is the same as", enter a JSON object like
+							&#123;"contextReferencePath":"SUBJECT_ID"&#125;
+						</p>
 					</div>
 					<div class="flex items-center gap-2">
 						<input id="r-active" type="checkbox" name="isActive" class="size-4 rounded" checked />
@@ -217,20 +275,48 @@
 				<h2 class="font-semibold">Assigned to</h2>
 				{#if policy.assignedToRoles.length > 0}
 					<div>
-						<p class="text-muted-foreground mb-2 text-xs uppercase tracking-wide">Roles</p>
+						<p class="mb-2 text-xs tracking-wide text-muted-foreground uppercase">Roles</p>
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToRoles as role (role.id)}
-								<a href="/settings/roles/{role.id}" class="text-sm hover:underline">{role.name}</a>
+								<a
+									href="/settings/roles/{role.id}"
+									class="inline-flex items-center gap-1 text-sm hover:underline"
+								>
+									{role.name}
+									{#if role.expiresAt}
+										<span
+											class="text-xs text-muted-foreground"
+											class:text-destructive={isExpired(role.expiresAt)}
+										>
+											({isExpired(role.expiresAt) ? 'expired' : 'expires'}
+											{formatDate(role.expiresAt)})
+										</span>
+									{/if}
+								</a>
 							{/each}
 						</div>
 					</div>
 				{/if}
 				{#if policy.assignedToUsers.length > 0}
 					<div>
-						<p class="text-muted-foreground mb-2 text-xs uppercase tracking-wide">Users</p>
+						<p class="mb-2 text-xs tracking-wide text-muted-foreground uppercase">Users</p>
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToUsers as u (u.id)}
-								<a href="/settings/users/{u.id}" class="text-sm hover:underline">{u.name}</a>
+								<a
+									href="/settings/users/{u.id}"
+									class="inline-flex items-center gap-1 text-sm hover:underline"
+								>
+									{u.name}
+									{#if u.expiresAt}
+										<span
+											class="text-xs text-muted-foreground"
+											class:text-destructive={isExpired(u.expiresAt)}
+										>
+											({isExpired(u.expiresAt) ? 'expired' : 'expires'}
+											{formatDate(u.expiresAt)})
+										</span>
+									{/if}
+								</a>
 							{/each}
 						</div>
 					</div>
@@ -240,10 +326,13 @@
 
 		<!-- Danger zone -->
 		<section class="space-y-3 rounded-lg border border-destructive/30 p-6">
-			<h2 class="text-destructive font-semibold">Danger Zone</h2>
+			<h2 class="font-semibold text-destructive">Danger Zone</h2>
 			<form
 				{...deletePolicy}
-				onsubmit={(e) => { if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault(); }}
+				class="flex items-center gap-3"
+				onsubmit={(e) => {
+					if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault();
+				}}
 			>
 				<input type="hidden" name="id" value={policy.id} />
 				<Button type="submit" variant="destructive" size="sm">Delete Policy</Button>

@@ -44,7 +44,11 @@ The GraphQL API is accessed through two layers:
 
 ```ts
 // Correct pattern
-const result = await gqlFetch<MyQuery, MyQueryVariables>(MY_QUERY, { id }, { token: locals.accessToken });
+const result = await gqlFetch<MyQuery, MyQueryVariables>(
+	MY_QUERY,
+	{ id },
+	{ token: locals.accessToken }
+);
 ```
 
 The schema of the api is usualy located in `$API_URL/graphql`.
@@ -71,12 +75,14 @@ const data = await getData();
 ### Auth
 
 Auth state is populated in `src/hooks.server.ts` via two cookies:
+
 - `ACCESS_TOKEN` (14 min) — validated against `ME_QUERY` on every request
 - `REFRESH_TOKEN` (7 days) — used to silently obtain a new access token when the access token expires
 
 After the hook runs, `event.locals.user` and `event.locals.accessToken` are available server-side.
 
 **Protect a page/layout** by calling `requireAuth()` from `src/lib/auth.remote.ts`:
+
 ```ts
 const user = await requireAuth(); // redirects to /login if unauthenticated
 ```
@@ -108,13 +114,17 @@ Paraglide JS handles i18n. Translation messages live in `/messages/`. The `handl
 You have access to a Svelte MCP server with Svelte 5 and SvelteKit documentation. Use it for all Svelte/SvelteKit work:
 
 ### 1. `list-sections`
+
 Use FIRST to discover available documentation sections. Always call this when working on a Svelte/SvelteKit task to find relevant sections.
 
 ### 2. `get-documentation`
+
 After `list-sections`, fetch ALL sections relevant to the task (use the `use_cases` field to judge relevance).
 
 ### 3. `svelte-autofixer`
+
 Run on any Svelte code you write **before** sending it to the user. Keep calling until no issues are returned.
 
 ### 4. `playground-link`
+
 Generates a Svelte Playground link. Only call after explicit user confirmation and **never** when code has been written to project files.

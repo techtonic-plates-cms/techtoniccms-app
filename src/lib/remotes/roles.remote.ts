@@ -97,7 +97,11 @@ export const getRoles = query(
 	async ({ search, after }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ roles: { roles: { nodes: Role[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } },
+			{
+				roles: {
+					roles: { nodes: Role[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+				};
+			},
 			Record<string, unknown>
 		>(ROLES_QUERY, { first: 25, after, search }, { token: locals.accessToken?.tokenValue });
 		return result.roles.roles ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
@@ -110,10 +114,11 @@ export const getRole = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{ roles: { role: Role | null } },
-			{ id: string }
-		>(ROLE_QUERY, { id }, { token: locals.accessToken?.tokenValue });
+		const result = await gqlFetch<{ roles: { role: Role | null } }, { id: string }>(
+			ROLE_QUERY,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.roles.role;
 	}
 );
@@ -130,9 +135,17 @@ export const createRole = form(
 		const result = await gqlFetch<
 			{ roles: { create: { id: string } } },
 			{ input: Record<string, unknown> }
-		>(CREATE_ROLE_MUTATION, {
-			input: { name, description: description || undefined, policyIds: ids.length ? ids : undefined }
-		}, { token: locals.accessToken?.tokenValue });
+		>(
+			CREATE_ROLE_MUTATION,
+			{
+				input: {
+					name,
+					description: description || undefined,
+					policyIds: ids.length ? ids : undefined
+				}
+			},
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/roles/${result.roles.create.id}`);
 	}
 );
@@ -158,7 +171,11 @@ export const deleteRole = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(DELETE_ROLE_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			DELETE_ROLE_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, '/settings/roles');
 	}
 );
@@ -166,13 +183,14 @@ export const deleteRole = form(
 export const assignPolicyToRole = form(
 	v.object({
 		roleId: v.pipe(v.string(), v.nonEmpty()),
-		policyId: v.pipe(v.string(), v.nonEmpty())
+		policyId: v.pipe(v.string(), v.nonEmpty()),
+		expiresAt: v.optional(v.string())
 	}),
-	async ({ roleId, policyId }) => {
+	async ({ roleId, policyId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		await gqlFetch<unknown, { input: Record<string, unknown> }>(
 			ASSIGN_POLICY_MUTATION,
-			{ input: { roleId, policyId } },
+			{ input: { roleId, policyId, expiresAt: expiresAt || undefined } },
 			{ token: locals.accessToken?.tokenValue }
 		);
 		redirect(303, `/settings/roles/${roleId}`);

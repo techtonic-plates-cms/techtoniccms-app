@@ -77,10 +77,19 @@ export const getApiKeys = query(
 	async ({ after }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ apiKeys: { apiKeys: { nodes: ApiKey[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } } } },
+			{
+				apiKeys: {
+					apiKeys: {
+						nodes: ApiKey[];
+						pageInfo: { hasNextPage: boolean; endCursor: string | null };
+					};
+				};
+			},
 			Record<string, unknown>
 		>(API_KEYS_QUERY, { first: 25, after }, { token: locals.accessToken?.tokenValue });
-		return result.apiKeys.apiKeys ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		return (
+			result.apiKeys.apiKeys ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+		);
 	}
 );
 
@@ -90,10 +99,11 @@ export const getApiKey = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{ apiKeys: { apiKey: ApiKey | null } },
-			{ id: string }
-		>(API_KEY_QUERY, { id }, { token: locals.accessToken?.tokenValue });
+		const result = await gqlFetch<{ apiKeys: { apiKey: ApiKey | null } }, { id: string }>(
+			API_KEY_QUERY,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.apiKeys.apiKey;
 	}
 );
@@ -108,12 +118,16 @@ export const createApiKey = form(
 		const result = await gqlFetch<
 			{ apiKeys: { createApiKey: { apiKey: { id: string }; key: string } } },
 			{ input: Record<string, unknown> }
-		>(CREATE_API_KEY_MUTATION, {
-			input: {
-				name,
-				expiresAt: expiresAt || undefined
-			}
-		}, { token: locals.accessToken?.tokenValue });
+		>(
+			CREATE_API_KEY_MUTATION,
+			{
+				input: {
+					name,
+					expiresAt: expiresAt || undefined
+				}
+			},
+			{ token: locals.accessToken?.tokenValue }
+		);
 		const { apiKey, key } = result.apiKeys.createApiKey;
 		redirect(303, `/settings/api-keys/${apiKey.id}?key=${encodeURIComponent(key)}`);
 	}
@@ -148,7 +162,11 @@ export const revokeApiKey = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(REVOKE_API_KEY_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			REVOKE_API_KEY_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, `/settings/api-keys/${id}`);
 	}
 );
@@ -157,7 +175,11 @@ export const deleteApiKey = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(DELETE_API_KEY_MUTATION, { id }, { token: locals.accessToken?.tokenValue });
+		await gqlFetch<unknown, { id: string }>(
+			DELETE_API_KEY_MUTATION,
+			{ id },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		redirect(303, '/settings/api-keys');
 	}
 );

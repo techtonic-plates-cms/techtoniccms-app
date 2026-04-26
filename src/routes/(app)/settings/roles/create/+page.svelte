@@ -30,11 +30,11 @@
 	};
 </script>
 
-<div class="mx-auto max-w-3xl space-y-8 py-8 px-4">
+<div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
 	<div class="space-y-2">
 		<a
 			href="/settings/roles"
-			class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
 			Back to Roles
@@ -47,12 +47,14 @@
 		<input type="hidden" name="policyIds" value={policyIdsStr} />
 
 		{#each createRole.fields.allIssues() as issue (issue.message)}
-			<div class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+			<div
+				class="rounded border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+			>
 				{issue.message}
 			</div>
 		{/each}
 
-<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<h2 class="text-lg font-semibold">General</h2>
 			<Separator />
 
@@ -77,12 +79,12 @@
 					name="description"
 					rows="2"
 					placeholder="A brief description of this role"
-					class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
+					class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 				></textarea>
 			</div>
 		</div>
 
-<div class="rounded-lg border p-6 space-y-5">
+		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Policies</h2>
 				<span class="text-sm text-muted-foreground">
@@ -96,7 +98,9 @@
 			{:else}
 				<div class="flex flex-col gap-2">
 					{#each policies as policy (policy.id)}
-						<label class="flex items-center gap-3 text-sm cursor-pointer rounded-md p-2 hover:bg-muted/50 transition-colors">
+						<label
+							class="flex cursor-pointer items-center gap-3 rounded-md p-2 text-sm transition-colors hover:bg-muted/50"
+						>
 							<Checkbox.Root
 								checked={selectedPolicyIds.includes(policy.id)}
 								onCheckedChange={(c) => {
@@ -111,9 +115,13 @@
 							<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
 								{policy.effect.toLowerCase()}
 							</Badge>
-							<span class="text-muted-foreground text-xs">{policy.resourceType.toLowerCase()} · {policy.actionType.toLowerCase().replace(/_/g, ' ')}</span>
+							<span class="text-xs text-muted-foreground"
+								>{policy.resourceType.toLowerCase()} · {policy.actionType
+									.toLowerCase()
+									.replace(/_/g, ' ')}</span
+							>
 							{#if policy.description}
-								<span class="text-muted-foreground text-xs">— {policy.description}</span>
+								<span class="text-xs text-muted-foreground">— {policy.description}</span>
 							{/if}
 						</label>
 					{/each}
@@ -121,7 +129,7 @@
 			{/if}
 		</div>
 
-<div class="flex items-center justify-between pt-4 border-t">
+		<div class="flex items-center justify-between border-t pt-4">
 			<a href="/settings/roles">
 				<Button type="button" variant="ghost">Cancel</Button>
 			</a>

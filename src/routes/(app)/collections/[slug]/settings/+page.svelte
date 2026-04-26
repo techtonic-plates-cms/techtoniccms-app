@@ -42,12 +42,15 @@
 {:else}
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
-			<a href="/collections/{collection.slug}" class="text-muted-foreground hover:text-foreground transition-colors">
+			<a
+				href="/collections/{collection.slug}"
+				class="text-muted-foreground transition-colors hover:text-foreground"
+			>
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
 				<h1 class="text-2xl font-bold">Settings — {collection.name}</h1>
-				<p class="text-muted-foreground font-mono text-xs">{collection.slug}</p>
+				<p class="font-mono text-xs text-muted-foreground">{collection.slug}</p>
 			</div>
 		</div>
 
@@ -58,7 +61,9 @@
 				<input type="hidden" name="id" value={collection.id} />
 
 				{#each updateCollectionMeta.fields.allIssues() as issue (issue.message)}
-					<p class="rounded border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+					<p
+						class="rounded border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+					>
 						{issue.message}
 					</p>
 				{/each}
@@ -73,7 +78,9 @@
 						<input type="hidden" name="icon" value={iconOverride ?? collection.icon?.id ?? ''} />
 						<AssetCombobox
 							value={iconOverride ?? collection.icon?.id ?? ''}
-							onValueChange={(id) => { iconOverride = id; }}
+							onValueChange={(id) => {
+								iconOverride = id;
+							}}
 						/>
 					</div>
 				</div>
@@ -84,13 +91,20 @@
 						id="meta-desc"
 						name="description"
 						rows="2"
-						class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
-					>{collection.description ?? ''}</textarea>
+						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						>{collection.description ?? ''}</textarea
+					>
 				</div>
 
 				<div class="space-y-1.5">
 					<Label for="meta-color">Color</Label>
-					<Input id="meta-color" name="color" type="color" value={collection.color ?? '#6366f1'} class="h-9 w-20 cursor-pointer px-2" />
+					<Input
+						id="meta-color"
+						name="color"
+						type="color"
+						value={collection.color ?? '#6366f1'}
+						class="h-9 w-20 cursor-pointer px-2"
+					/>
 				</div>
 
 				<Button type="submit">Save changes</Button>
@@ -101,7 +115,9 @@
 		<section class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-semibold">Fields</h2>
-				<span class="text-muted-foreground text-sm">{collection.fields.length} field{collection.fields.length !== 1 ? 's' : ''}</span>
+				<span class="text-sm text-muted-foreground"
+					>{collection.fields.length} field{collection.fields.length !== 1 ? 's' : ''}</span
+				>
 			</div>
 
 			{#if collection.fields.length > 0}
@@ -112,10 +128,10 @@
 								<div class="flex items-center gap-2">
 									<span class="font-medium">{field.label ?? field.name}</span>
 									{#if field.isRequired}
-										<span class="text-destructive text-xs">required</span>
+										<span class="text-xs text-destructive">required</span>
 									{/if}
 								</div>
-								<div class="text-muted-foreground flex items-center gap-2 text-xs">
+								<div class="flex items-center gap-2 text-xs text-muted-foreground">
 									<span class="font-mono">{field.name}</span>
 									<span>·</span>
 									<span>{field.dataType.toLowerCase()}</span>
@@ -135,7 +151,7 @@
 								<input type="hidden" name="fieldId" value={field.id} />
 								<button
 									type="submit"
-									class="text-muted-foreground hover:text-destructive p-1 transition-colors"
+									class="p-1 text-muted-foreground transition-colors hover:text-destructive"
 								>
 									<TrashIcon class="size-4" />
 								</button>
@@ -144,7 +160,7 @@
 					{/each}
 				</div>
 			{:else}
-				<p class="text-muted-foreground text-sm">No fields yet. Add your first field below.</p>
+				<p class="text-sm text-muted-foreground">No fields yet. Add your first field below.</p>
 			{/if}
 
 			<!-- Add field form -->
@@ -186,7 +202,7 @@
 								id="field-type"
 								{...addCollectionField.fields.dataType.as('text')}
 								bind:value={newFieldType}
-								class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 							>
 								{#each DATA_TYPES as dt (dt.value)}
 									<option value={dt.value}>{dt.label}</option>
@@ -198,7 +214,11 @@
 					{#if newFieldType === 'RELATION'}
 						<div class="space-y-1.5">
 							<Label for="related-collection">Related collection ID</Label>
-							<Input id="related-collection" name="relatedCollectionId" placeholder="Collection ID" />
+							<Input
+								id="related-collection"
+								name="relatedCollectionId"
+								placeholder="Collection ID"
+							/>
 						</div>
 					{/if}
 
@@ -223,8 +243,8 @@
 
 		<!-- Danger zone -->
 		<section class="space-y-3 rounded-lg border border-destructive/30 p-6">
-			<h2 class="text-destructive font-semibold">Danger Zone</h2>
-			<p class="text-muted-foreground text-sm">
+			<h2 class="font-semibold text-destructive">Danger Zone</h2>
+			<p class="text-sm text-muted-foreground">
 				Deleting this collection will permanently remove all entries and cannot be undone.
 			</p>
 			<a href="/collections">

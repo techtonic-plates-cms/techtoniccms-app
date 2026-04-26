@@ -39,7 +39,6 @@ export type Collection = {
 	fields: CollectionField[];
 };
 
-
 const COLLECTIONS_QUERY = `
 	query Collections {
 		collections {
@@ -124,7 +123,11 @@ export const getCollectionsForCombobox = query(
 		const { locals } = getRequestEvent();
 		const token = locals.accessToken?.tokenValue;
 		const result = await gqlFetch<
-			{ collections: { collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> } } },
+			{
+				collections: {
+					collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> };
+				};
+			},
 			{ search?: string }
 		>(COLLECTIONS_COMBOBOX_QUERY, { search: search ?? '' }, { token });
 		return result.collections.collectionsData?.nodes ?? [];
@@ -135,7 +138,17 @@ export const getCollections = query(async () => {
 	const { locals } = getRequestEvent();
 	const token = locals.accessToken?.tokenValue;
 	const result = await gqlFetch<
-		{ collections: { collectionsData: { nodes: Array<Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & { fields: Array<{ id: string }> }> } } },
+		{
+			collections: {
+				collectionsData: {
+					nodes: Array<
+						Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & {
+							fields: Array<{ id: string }>;
+						}
+					>;
+				};
+			};
+		},
 		Record<string, never>
 	>(COLLECTIONS_QUERY, {}, { token });
 	return result.collections.collectionsData?.nodes ?? [];
@@ -168,14 +181,28 @@ export const createCollection = form(
 		fields: v.optional(v.string()),
 		supportedLocales: v.optional(v.string())
 	}),
-	async ({ name, slug, description, icon, color, isLocalized, defaultLocale, fields, supportedLocales }) => {
+	async ({
+		name,
+		slug,
+		description,
+		icon,
+		color,
+		isLocalized,
+		defaultLocale,
+		fields,
+		supportedLocales
+	}) => {
 		const { locals } = getRequestEvent();
 		try {
 			let parsedFields: Array<Record<string, unknown>> = [];
 			if (fields) {
 				try {
-					const draftFields = JSON.parse(fields) as Array<{ dataType: string; relatedCollectionId?: string; [key: string]: unknown }>;
-					parsedFields = draftFields.map(f => ({
+					const draftFields = JSON.parse(fields) as Array<{
+						dataType: string;
+						relatedCollectionId?: string;
+						[key: string]: unknown;
+					}>;
+					parsedFields = draftFields.map((f) => ({
 						name: f.name,
 						label: f.label || undefined,
 						isRequired: f.isRequired,
@@ -183,9 +210,10 @@ export const createCollection = form(
 						defaultValue: f.defaultValue || undefined,
 						description: f.description || undefined,
 						helpText: f.helpText || undefined,
-						config: f.dataType === 'RELATION'
-							? { relation: { relatedCollectionId: f.relatedCollectionId } }
-							: { simple: { dataType: f.dataType } }
+						config:
+							f.dataType === 'RELATION'
+								? { relation: { relatedCollectionId: f.relatedCollectionId } }
+								: { simple: { dataType: f.dataType } }
 					}));
 				} catch {
 					// Silently ignore malformed JSON — collection still created without fields
@@ -195,19 +223,25 @@ export const createCollection = form(
 			const result = await gqlFetch<
 				{ collections: { create: { id: string; slug: string } } },
 				{ input: Record<string, unknown> }
-			>(CREATE_COLLECTION_MUTATION, {
-				input: {
-					name,
-					slug,
-					description: description || undefined,
-					iconId: icon || undefined,
-					color: color || undefined,
-					isLocalized: isLocalized === 'on',
-					defaultLocale: defaultLocale || 'EN',
-					supportedLocales: supportedLocales ? supportedLocales.split(',').filter(Boolean) : undefined,
-					fields: parsedFields.length > 0 ? parsedFields : undefined
-				}
-			}, { token: locals.accessToken?.tokenValue });
+			>(
+				CREATE_COLLECTION_MUTATION,
+				{
+					input: {
+						name,
+						slug,
+						description: description || undefined,
+						iconId: icon || undefined,
+						color: color || undefined,
+						isLocalized: isLocalized === 'on',
+						defaultLocale: defaultLocale || 'EN',
+						supportedLocales: supportedLocales
+							? supportedLocales.split(',').filter(Boolean)
+							: undefined,
+						fields: parsedFields.length > 0 ? parsedFields : undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
 
 			getCollections().refresh();
 
@@ -246,10 +280,20 @@ export const updateCollectionMeta = form(
 		const result = await gqlFetch<
 			{ collections: { update: { id: string; slug: string } } },
 			{ input: Record<string, unknown> }
-		>(UPDATE_COLLECTION_MUTATION, {
-			input: { id, name: name || undefined, description: description || undefined, icon: icon || undefined, color: color || undefined }
-		}, { token: locals.accessToken?.tokenValue });
-		getCollection({slug: result.collections.update.slug}).refresh();
+		>(
+			UPDATE_COLLECTION_MUTATION,
+			{
+				input: {
+					id,
+					name: name || undefined,
+					description: description || undefined,
+					icon: icon || undefined,
+					color: color || undefined
+				}
+			},
+			{ token: locals.accessToken?.tokenValue }
+		);
+		getCollection({ slug: result.collections.update.slug }).refresh();
 		redirect(303, `/collections/${result.collections.update.slug}/settings`);
 	}
 );
@@ -268,7 +312,19 @@ export const addCollectionField = form(
 		helpText: v.optional(v.string()),
 		relatedCollectionId: v.optional(v.string())
 	}),
-	async ({ collectionId, collectionSlug, name, label, dataType, isRequired, isUnique, defaultValue, description, helpText, relatedCollectionId }) => {
+	async ({
+		collectionId,
+		collectionSlug,
+		name,
+		label,
+		dataType,
+		isRequired,
+		isUnique,
+		defaultValue,
+		description,
+		helpText,
+		relatedCollectionId
+	}) => {
 		const { locals } = getRequestEvent();
 		const isRelation = dataType === 'RELATION';
 		const config = isRelation
@@ -279,24 +335,26 @@ export const addCollectionField = form(
 			{
 				input: {
 					id: collectionId,
-					fields: [{
-						name,
-						label: label || undefined,
-						dataType: isRelation ? undefined : dataType,
-						isRequired: isRequired === 'on',
-						isUnique: isUnique === 'on',
-						defaultValue: defaultValue || undefined,
-						description: description || undefined,
-						helpText: helpText || undefined,
-						relatedCollectionId: relatedCollectionId || undefined,
-						config
-					}]
+					fields: [
+						{
+							name,
+							label: label || undefined,
+							dataType: isRelation ? undefined : dataType,
+							isRequired: isRequired === 'on',
+							isUnique: isUnique === 'on',
+							defaultValue: defaultValue || undefined,
+							description: description || undefined,
+							helpText: helpText || undefined,
+							relatedCollectionId: relatedCollectionId || undefined,
+							config
+						}
+					]
 				}
 			},
 			{ token: locals.accessToken?.tokenValue }
 		);
 
-		getCollection({slug: collectionSlug}).refresh();
+		getCollection({ slug: collectionSlug }).refresh();
 		redirect(303, `/collections/${collectionSlug}/settings`);
 	}
 );
@@ -314,7 +372,7 @@ export const deleteCollectionField = form(
 			{ input: { id: collectionId, deleteFieldIds: [fieldId] } },
 			{ token: locals.accessToken?.tokenValue }
 		);
-		getCollection({slug: collectionSlug}).refresh();
+		getCollection({ slug: collectionSlug }).refresh();
 		redirect(303, `/collections/${collectionSlug}/settings`);
 	}
 );

@@ -44,10 +44,9 @@ export const refreshAuth = command(async () => {
 	if (!locals.refreshToken) return null;
 
 	try {
-		const result = await gqlFetch<RefreshMutation, RefreshMutationVariables>(
-			REFRESH_MUTATION,
-			{ refreshToken: locals.refreshToken.tokenValue }
-		);
+		const result = await gqlFetch<RefreshMutation, RefreshMutationVariables>(REFRESH_MUTATION, {
+			refreshToken: locals.refreshToken.tokenValue
+		});
 		const { accessToken, refreshToken } = result.auth.refresh;
 		setAuthCookies(cookies, {
 			accessToken: accessToken.tokenValue,
@@ -56,7 +55,10 @@ export const refreshAuth = command(async () => {
 			refreshTokenExpiresAt: refreshToken.expiresAt
 		});
 		locals.accessToken = { tokenValue: accessToken.tokenValue, expiresAt: accessToken.expiresAt };
-		locals.refreshToken = { tokenValue: refreshToken.tokenValue, expiresAt: refreshToken.expiresAt };
+		locals.refreshToken = {
+			tokenValue: refreshToken.tokenValue,
+			expiresAt: refreshToken.expiresAt
+		};
 		return { accessToken: locals.accessToken };
 	} catch {
 		return null;
@@ -75,10 +77,10 @@ export const login = form(
 	async ({ name, _password }) => {
 		const { cookies, url } = getRequestEvent();
 		try {
-			const result = await gqlFetch<LoginMutation, LoginMutationVariables>(
-				LOGIN_MUTATION,
-				{ name, password: _password }
-			);
+			const result = await gqlFetch<LoginMutation, LoginMutationVariables>(LOGIN_MUTATION, {
+				name,
+				password: _password
+			});
 			//console.log('Login result:', result);
 			setAuthCookies(cookies, {
 				accessToken: result.auth.login.accessToken.tokenValue,

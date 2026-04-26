@@ -7,7 +7,15 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import type { Collection } from '$lib/remotes/collections.remote';
 	import type { EntryNode } from '$lib/remotes/entries.remote';
-	import { createEntry, updateEntry, publishEntry, unpublishEntry, archiveEntry, restoreEntry, deleteEntry } from '$lib/remotes/entries.remote';
+	import {
+		createEntry,
+		updateEntry,
+		publishEntry,
+		unpublishEntry,
+		archiveEntry,
+		restoreEntry,
+		deleteEntry
+	} from '$lib/remotes/entries.remote';
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 	import EntriesCombobox from '$lib/components/entries-combobox.svelte';
 
@@ -71,14 +79,14 @@
 		<div class="flex items-center gap-3">
 			<a
 				href="/collections/{collectionSlug}"
-				class="text-muted-foreground hover:text-foreground transition-colors"
+				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
 				<h1 class="text-xl font-bold">{isNew ? 'New Entry' : entryName}</h1>
 				<div class="flex items-center gap-2">
-					<span class="text-muted-foreground font-mono text-xs">{collection.name}</span>
+					<span class="font-mono text-xs text-muted-foreground">{collection.name}</span>
 					{#if !isNew}
 						<Badge variant={STATUS_VARIANT[entryStatus] ?? 'outline'}>
 							{entryStatus.charAt(0) + entryStatus.slice(1).toLowerCase()}
@@ -87,15 +95,11 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 
 	<div class="grid gap-6 lg:grid-cols-3">
 		<div class="lg:col-span-2">
-			<form
-				{...(isNew ? createEntry : updateEntry)}
-				class="space-y-5 rounded-lg border p-6"
-			>
+			<form {...isNew ? createEntry : updateEntry} class="space-y-5 rounded-lg border p-6">
 				<input type="hidden" name="collectionSlug" value={collectionSlug} />
 				{#if !isNew && entry}
 					<input type="hidden" name="entryId" value={entry.id} />
@@ -126,23 +130,23 @@
 							<Label for="field-{field.name}">
 								{field.label ?? field.name}
 								{#if isNew && field.isRequired}
-									<span class="text-destructive ml-0.5">*</span>
+									<span class="ml-0.5 text-destructive">*</span>
 								{/if}
 							</Label>
 							{#if field.helpText}
-								<p class="text-muted-foreground text-xs">{field.helpText}</p>
+								<p class="text-xs text-muted-foreground">{field.helpText}</p>
 							{/if}
 
 							{#if field.dataType === 'TEXT'}
-								
 								<textarea
 									id="field-{field.name}"
 									rows="4"
-									class="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full rounded-md border px-3 py-2 text-sm shadow-sm focus-visible:ring-1 focus-visible:outline-none"
+									class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 									placeholder={field.description ?? ''}
 									required={isNew && field.isRequired}
 									value={getFieldValue(field.name)}
-									oninput={(e) => setFieldValue(field.name, (e.target as HTMLTextAreaElement).value)}
+									oninput={(e) =>
+										setFieldValue(field.name, (e.target as HTMLTextAreaElement).value)}
 								></textarea>
 							{:else if field.dataType === 'NUMBER'}
 								<Input
@@ -151,10 +155,7 @@
 									required={isNew && field.isRequired}
 									value={getFieldValue(field.name)}
 									oninput={(e) =>
-										setFieldValue(
-											field.name,
-											parseFloat((e.target as HTMLInputElement).value)
-										)}
+										setFieldValue(field.name, parseFloat((e.target as HTMLInputElement).value))}
 								/>
 							{:else if field.dataType === 'BOOLEAN'}
 								<div class="flex items-center gap-2">
@@ -189,7 +190,7 @@
 											collectionSlug={field.relatedCollection.slug}
 											onValueChange={(id) => setFieldValue(field.name, id)}
 										/>
-										<p class="text-muted-foreground text-xs">
+										<p class="text-xs text-muted-foreground">
 											Relates to: <a
 												href="/collections/{field.relatedCollection.slug}"
 												class="hover:underline">{field.relatedCollection.name}</a
@@ -234,7 +235,7 @@
 				<h3 class="mb-3 font-semibold">Status</h3>
 				<select
 					bind:value={entryStatus}
-					class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+					class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 				>
 					<option value="DRAFT">Draft</option>
 					<option value="PUBLISHED">Published</option>
@@ -248,15 +249,20 @@
 					<input
 						type="datetime-local"
 						bind:value={schedulePublishFor}
-						class="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+						class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 					/>
-					<p class="text-muted-foreground mt-1.5 text-xs">Leave blank to publish immediately.</p>
+					<p class="mt-1.5 text-xs text-muted-foreground">Leave blank to publish immediately.</p>
 				</div>
 			{/if}
 
 			{#if !isNew && entry}
 				{@const entryId = entry.id}
-				{#snippet actionForm(formAction: Record<string, unknown>, label: string, variant: 'default' | 'outline' | 'destructive' = 'default', onsubmit?: (e: SubmitEvent) => void)}
+				{#snippet actionForm(
+					formAction: Record<string, unknown>,
+					label: string,
+					variant: 'default' | 'outline' | 'destructive' = 'default',
+					onsubmit?: (e: SubmitEvent) => void
+				)}
 					<form {...formAction} {onsubmit}>
 						<input type="hidden" name="collectionSlug" value={collectionSlug} />
 						<input type="hidden" name="entryId" value={entryId} />
@@ -264,7 +270,7 @@
 							<input
 								type="datetime-local"
 								name="scheduleFor"
-								class="border-input bg-background w-full rounded-md border px-3 py-2 text-xs"
+								class="w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
 							/>
 							<Button type="submit" {variant} size="sm" class="w-full">{label}</Button>
 						</div>
@@ -272,7 +278,9 @@
 				{/snippet}
 				<div class="rounded-lg border p-4">
 					<h3 class="mb-3 font-semibold">Actions</h3>
-					<p class="text-muted-foreground mb-3 text-xs">Set a date to schedule, or leave blank to act immediately.</p>
+					<p class="mb-3 text-xs text-muted-foreground">
+						Set a date to schedule, or leave blank to act immediately.
+					</p>
 					<div class="space-y-3">
 						{#if entry.status === 'DRAFT'}
 							{@render actionForm(publishEntry, 'Publish')}
@@ -284,14 +292,16 @@
 							{@render actionForm(restoreEntry, 'Restore')}
 						{/if}
 						{#if entry.status !== 'DELETED'}
-							{@render actionForm(deleteEntry, 'Delete', 'destructive', (e) => { if (!confirmDelete()) e.preventDefault(); })}
+							{@render actionForm(deleteEntry, 'Delete', 'destructive', (e) => {
+								if (!confirmDelete()) e.preventDefault();
+							})}
 						{/if}
 					</div>
 				</div>
 			{/if}
 
 			{#if !isNew && entry}
-				<div class="text-muted-foreground space-y-1.5 rounded-lg border p-4 text-xs">
+				<div class="space-y-1.5 rounded-lg border p-4 text-xs text-muted-foreground">
 					<p>
 						<span class="font-medium">Created:</span>
 						{new Date(entry.createdAt).toLocaleString()}
@@ -306,7 +316,10 @@
 							{new Date(entry.publishedAt).toLocaleString()}
 						</p>
 					{/if}
-					<p class="break-all font-mono"><span class="font-sans font-medium">ID:</span> {entry.id}</p>
+					<p class="font-mono break-all">
+						<span class="font-sans font-medium">ID:</span>
+						{entry.id}
+					</p>
 				</div>
 			{/if}
 		</div>

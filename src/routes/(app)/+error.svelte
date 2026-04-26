@@ -6,31 +6,35 @@
 
 	const errors: Record<number, { title: string; description: string; emoji: string }> = {
 		404: {
-			title: "Page not found",
-			description: "This section doesn't exist or may have been removed. Head back to the dashboard to continue.",
-			emoji: "🔍"
+			title: 'Page not found',
+			description:
+				"This section doesn't exist or may have been removed. Head back to the dashboard to continue.",
+			emoji: '🔍'
 		},
 		403: {
-			title: "Access denied",
-			description: "You don't have the permissions needed to view this page. Contact your administrator if you believe this is an error.",
-			emoji: "🔒"
+			title: 'Access denied',
+			description:
+				"You don't have the permissions needed to view this page. Contact your administrator if you believe this is an error.",
+			emoji: '🔒'
 		},
 		500: {
-			title: "Server error",
-			description: "Something went wrong while loading this page. Try refreshing — if the problem persists, contact support.",
-			emoji: "⚙️"
+			title: 'Server error',
+			description:
+				'Something went wrong while loading this page. Try refreshing — if the problem persists, contact support.',
+			emoji: '⚙️'
 		},
 		401: {
-			title: "Session expired",
-			description: "Your session has expired. Please sign in again to continue.",
-			emoji: "🔑"
+			title: 'Session expired',
+			description: 'Your session has expired. Please sign in again to continue.',
+			emoji: '🔑'
 		}
 	};
 
 	const current = errors[page.status] ?? {
-		title: "Something went wrong",
-		description: "An unexpected error occurred. Try refreshing the page or return to the dashboard.",
-		emoji: "💥"
+		title: 'Something went wrong',
+		description:
+			'An unexpected error occurred. Try refreshing the page or return to the dashboard.',
+		emoji: '💥'
 	};
 </script>
 
@@ -43,7 +47,7 @@
 				<Badge variant="secondary" class="font-mono text-xs">{page.status}</Badge>
 				<h1 class="text-2xl font-bold tracking-tight">{current.title}</h1>
 			</div>
-			<p class="text-muted-foreground text-sm leading-relaxed">
+			<p class="text-sm leading-relaxed text-muted-foreground">
 				{current.description}
 			</p>
 		</div>
@@ -52,10 +56,10 @@
 		{#if page.error?.message && page.error.message !== 'Not found' && page.error.message !== current.title}
 			<Card.Root class="border-destructive/30 bg-destructive/5">
 				<Card.Header class="pb-2">
-					<Card.Title class="text-destructive text-sm font-medium">Error details</Card.Title>
+					<Card.Title class="text-sm font-medium text-destructive">Error details</Card.Title>
 				</Card.Header>
 				<Card.Content>
-					<p class="text-muted-foreground font-mono text-xs break-words">{page.error.message}</p>
+					<p class="font-mono text-xs break-words text-muted-foreground">{page.error.message}</p>
 				</Card.Content>
 			</Card.Root>
 		{/if}
