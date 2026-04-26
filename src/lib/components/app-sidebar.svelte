@@ -7,9 +7,12 @@
 	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 	import ClipboardListIcon from '@lucide/svelte/icons/clipboard-list';
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
+	import GlobeIcon from '@lucide/svelte/icons/globe';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppNavUser from '$lib/components/app-nav-user.svelte';
 	import NavCollections from '$lib/components/nav-collections.svelte';
+	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import RockTexture from '$lib/components/rock-texture.svelte';
 	import { page } from '$app/state';
 
 	let {
@@ -27,6 +30,8 @@
 </script>
 
 <Sidebar.Root variant="inset" collapsible="offcanvas">
+	<RockTexture />
+
 	<Sidebar.Header>
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
@@ -34,11 +39,11 @@
 					{#snippet child({ props })}
 						<a href="/" {...props}>
 							<div
-								class="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground"
+								class="flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--accent-copper)] text-xs font-bold text-white"
 							>
-								T
+								<GlobeIcon class="size-5" />
 							</div>
-							<span class="text-base font-semibold">Techtonic CMS</span>
+							<span class="text-base font-semibold text-[var(--text-primary)]">Techtonic</span>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
@@ -48,11 +53,17 @@
 
 	<Sidebar.Content>
 		<Sidebar.Group>
-			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden">Overview</Sidebar.GroupLabel>
+			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden text-[var(--text-secondary)]">Overview</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/')} tooltipContent="Dashboard">
+						<Sidebar.MenuButton
+							isActive={isActive('/')}
+							tooltipContent="Dashboard"
+							class={isActive('/')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/" {...props}>
 									<LayoutDashboardIcon />
@@ -66,12 +77,18 @@
 		</Sidebar.Group>
 
 		<Sidebar.Group>
-			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden">Content</Sidebar.GroupLabel>
+			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden text-[var(--text-secondary)]">Content</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					<NavCollections {collections} />
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/assets')} tooltipContent="Assets">
+						<Sidebar.MenuButton
+							isActive={isActive('/assets')}
+							tooltipContent="Assets"
+							class={isActive('/assets')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/assets" {...props}>
 									<ImageIcon />
@@ -85,11 +102,17 @@
 		</Sidebar.Group>
 
 		<Sidebar.Group>
-			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden">Settings</Sidebar.GroupLabel>
+			<Sidebar.GroupLabel class="group-data-[collapsible=icon]:hidden text-[var(--text-secondary)]">Settings</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/settings/users')} tooltipContent="Users">
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/users')}
+							tooltipContent="Users"
+							class={isActive('/settings/users')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/settings/users" {...props}>
 									<UsersIcon />
@@ -99,7 +122,13 @@
 						</Sidebar.MenuButton>
 					</Sidebar.MenuItem>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/settings/roles')} tooltipContent="Roles">
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/roles')}
+							tooltipContent="Roles"
+							class={isActive('/settings/roles')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/settings/roles" {...props}>
 									<ShieldIcon />
@@ -109,7 +138,13 @@
 						</Sidebar.MenuButton>
 					</Sidebar.MenuItem>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/settings/policies')} tooltipContent="Policies">
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/policies')}
+							tooltipContent="Policies"
+							class={isActive('/settings/policies')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/settings/policies" {...props}>
 									<KeyIcon />
@@ -119,7 +154,13 @@
 						</Sidebar.MenuButton>
 					</Sidebar.MenuItem>
 					<Sidebar.MenuItem>
-						<Sidebar.MenuButton isActive={isActive('/settings/api-keys')} tooltipContent="API Keys">
+						<Sidebar.MenuButton
+							isActive={isActive('/settings/api-keys')}
+							tooltipContent="API Keys"
+							class={isActive('/settings/api-keys')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
+						>
 							{#snippet child({ props })}
 								<a href="/settings/api-keys" {...props}>
 									<KeyRoundIcon />
@@ -132,6 +173,9 @@
 						<Sidebar.MenuButton
 							isActive={isActive('/settings/audit')}
 							tooltipContent="Activity Log"
+							class={isActive('/settings/audit')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
 						>
 							{#snippet child({ props })}
 								<a href="/settings/audit" {...props}>
@@ -145,6 +189,9 @@
 						<Sidebar.MenuButton
 							isActive={isActive('/settings/permissions')}
 							tooltipContent="Permission Check"
+							class={isActive('/settings/permissions')
+								? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+								: 'text-[var(--text-secondary)]'}
 						>
 							{#snippet child({ props })}
 								<a href="/settings/permissions/check" {...props}>
@@ -160,6 +207,7 @@
 	</Sidebar.Content>
 
 	<Sidebar.Footer>
+		<ModeToggle />
 		<AppNavUser {user} />
 	</Sidebar.Footer>
 
