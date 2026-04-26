@@ -5,6 +5,7 @@
 	import { getCollections } from '$lib/remotes/collections.remote';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import RockTexture from '$lib/components/rock-texture.svelte';
 
 	let { children } = $props();
 
@@ -42,9 +43,9 @@
 
 	<Sidebar.Inset>
 		<header
-			class="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
+			class="relative flex h-(--header-height) shrink-0 items-center gap-2 overflow-hidden border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
 		>
-			<div class="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+			<div class="relative flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
 				<Sidebar.Trigger class="-ms-1" />
 				<Separator orientation="vertical" class="mx-2 data-[orientation=vertical]:h-4" />
 				<div class="ms-auto flex items-center gap-2">

@@ -21,7 +21,7 @@ export type UserPolicy = {
 export type User = {
 	id: string;
 	name: string;
-	status: 'ACTIVE' | 'INACTIVE' ;
+	status: 'ACTIVE' | 'INACTIVE';
 	creationTime: string | null;
 	lastLoginTime: string | null;
 	lastEditTime: string | null;
@@ -271,7 +271,6 @@ export const deactivateUser = form(
 		redirect(303, `/settings/users/${id}`);
 	}
 );
-
 
 export const changePassword = form(
 	v.object({

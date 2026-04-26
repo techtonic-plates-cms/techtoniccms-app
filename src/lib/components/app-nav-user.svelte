@@ -23,7 +23,9 @@
 						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
 						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Fallback class="rounded-lg text-xs font-semibold uppercase">
+							<Avatar.Fallback
+								class="rounded-lg bg-[var(--accent-moss)] text-xs font-semibold text-white uppercase"
+							>
 								{user.name.slice(0, 2)}
 							</Avatar.Fallback>
 						</Avatar.Root>
@@ -46,7 +48,9 @@
 				<DropdownMenu.Label class="p-0 font-normal">
 					<div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
 						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Fallback class="rounded-lg text-xs font-semibold uppercase">
+							<Avatar.Fallback
+								class="rounded-lg bg-[var(--accent-moss)] text-xs font-semibold text-white uppercase"
+							>
 								{user.name.slice(0, 2)}
 							</Avatar.Fallback>
 						</Avatar.Root>

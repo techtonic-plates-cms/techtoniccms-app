@@ -11,98 +11,98 @@
 
 :root {
 	/* === Earthy Foundation (Light Mode) === */
-	--bg-page: #F5F0E8;
-	--bg-surface: #FFFFFF;
-	--bg-base: #F5F0E8;
-	--bg-surface-hover: #F0EBE0;
+	--bg-page: #f5f0e8;
+	--bg-surface: #f5f0e8;
+	--bg-base: #f5f0e8;
+	--bg-surface-hover: #f0ebe0;
 
-	--text-primary: #1A1A1E;
-	--text-secondary: #6B6B75;
+	--text-primary: #1a1a1e;
+	--text-secondary: #6b6b75;
 
-	--border-subtle: #E0DCD4;
-	--border-focus: #C75A1A;
+	--border-subtle: #e0dcd4;
+	--border-focus: #c75a1a;
 
 	/* === Geological Accents (both modes) === */
-	--accent-copper: #C75A1A;
-	--accent-moss: #3A5A40;
-	--accent-gold: #D4A017;
+	--accent-copper: #c75a1a;
+	--accent-moss: #3a5a40;
+	--accent-gold: #d4a017;
 
 	/* === Rock Texture Crack Color === */
-	--rock-crack: rgba(26, 26, 30, 0.055);
+	--rock-crack: rgba(26, 26, 30, 0.095);
 
 	/* === shadcn-svelte mapped variables === */
-	--background: #F5F0E8;
-	--foreground: #1A1A1E;
-	--card: #FFFFFF;
-	--card-foreground: #1A1A1E;
-	--popover: #FFFFFF;
-	--popover-foreground: #1A1A1E;
-	--primary: #C75A1A;
-	--primary-foreground: #FFFFFF;
-	--secondary: #F0EBE0;
-	--secondary-foreground: #1A1A1E;
-	--muted: #F0EBE0;
-	--muted-foreground: #6B6B75;
-	--accent: #F0EBE0;
-	--accent-foreground: #1A1A1E;
-	--destructive: #C75A1A;
-	--border: #E0DCD4;
-	--input: #E0DCD4;
-	--ring: #C75A1A;
+	--background: #f5f0e8;
+	--foreground: #1a1a1e;
+	--card: #ffffff;
+	--card-foreground: #1a1a1e;
+	--popover: #ffffff;
+	--popover-foreground: #1a1a1e;
+	--primary: #c75a1a;
+	--primary-foreground: #ffffff;
+	--secondary: #f0ebe0;
+	--secondary-foreground: #1a1a1e;
+	--muted: #f0ebe0;
+	--muted-foreground: #6b6b75;
+	--accent: #f0ebe0;
+	--accent-foreground: #1a1a1e;
+	--destructive: #c75a1a;
+	--border: #e0dcd4;
+	--input: #e0dcd4;
+	--ring: #c75a1a;
 	--radius: 0.5rem;
-	--sidebar: #FFFFFF;
-	--sidebar-foreground: #1A1A1E;
-	--sidebar-primary: #C75A1A;
-	--sidebar-primary-foreground: #FFFFFF;
-	--sidebar-accent: #F0EBE0;
-	--sidebar-accent-foreground: #1A1A1E;
-	--sidebar-border: #E0DCD4;
-	--sidebar-ring: #C75A1A;
+	--sidebar: #f5f0e8;
+	--sidebar-foreground: #1a1a1e;
+	--sidebar-primary: #c75a1a;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f0ebe0;
+	--sidebar-accent-foreground: #1a1a1e;
+	--sidebar-border: #e0dcd4;
+	--sidebar-ring: #c75a1a;
 }
 
 .dark {
 	/* === Earthy Foundation (Dark Mode) === */
-	--bg-page: #0D0D0F;
-	--bg-surface: #16161A;
-	--bg-base: #0D0D0F;
-	--bg-surface-hover: #1E1E24;
+	--bg-page: #0d0d0f;
+	--bg-surface: #16161a;
+	--bg-base: #0d0d0f;
+	--bg-surface-hover: #1e1e24;
 
-	--text-primary: #F2EDE4;
-	--text-secondary: #8C8C96;
+	--text-primary: #f2ede4;
+	--text-secondary: #8c8c96;
 
-	--border-subtle: #2A2A32;
-	--border-focus: #C75A1A;
+	--border-subtle: #2a2a32;
+	--border-focus: #c75a1a;
 
 	/* === Rock Texture Crack Color === */
-	--rock-crack: rgba(242, 237, 228, 0.055);
+	--rock-crack: rgba(242, 237, 228, 0.03);
 
 	/* === shadcn-svelte mapped variables === */
-	--background: #0D0D0F;
-	--foreground: #F2EDE4;
-	--card: #16161A;
-	--card-foreground: #F2EDE4;
-	--popover: #16161A;
-	--popover-foreground: #F2EDE4;
-	--primary: #C75A1A;
-	--primary-foreground: #FFFFFF;
-	--secondary: #1E1E24;
-	--secondary-foreground: #F2EDE4;
-	--muted: #1E1E24;
-	--muted-foreground: #8C8C96;
-	--accent: #1E1E24;
-	--accent-foreground: #F2EDE4;
-	--destructive: #C75A1A;
-	--border: #2A2A32;
-	--input: #2A2A32;
-	--ring: #C75A1A;
-	--sidebar: #16161A;
-	--sidebar-foreground: #F2EDE4;
-	--sidebar-primary: #C75A1A;
-	--sidebar-primary-foreground: #FFFFFF;
-	--sidebar-accent: #1E1E24;
-	--sidebar-accent-foreground: #F2EDE4;
-	--sidebar-border: #2A2A32;
-	--sidebar-ring: #C75A1A;
+	--background: #0d0d0f;
+	--foreground: #f2ede4;
+	--card: #16161a;
+	--card-foreground: #f2ede4;
+	--popover: #16161a;
+	--popover-foreground: #f2ede4;
+	--primary: #c75a1a;
+	--primary-foreground: #ffffff;
+	--secondary: #1e1e24;
+	--secondary-foreground: #f2ede4;
+	--muted: #1e1e24;
+	--muted-foreground: #8c8c96;
+	--accent: #1e1e24;
+	--accent-foreground: #f2ede4;
+	--destructive: #c75a1a;
+	--border: #2a2a32;
+	--input: #2a2a32;
+	--ring: #c75a1a;
+	--sidebar: #16161a;
+	--sidebar-foreground: #f2ede4;
+	--sidebar-primary: #c75a1a;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #1e1e24;
+	--sidebar-accent-foreground: #f2ede4;
+	--sidebar-border: #2a2a32;
+	--sidebar-ring: #c75a1a;
 }
 
 @theme inline {

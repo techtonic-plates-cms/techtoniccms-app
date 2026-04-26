@@ -4,6 +4,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { SIDEBAR_WIDTH_MOBILE } from './constants.js';
 	import { useSidebar } from './context.svelte.js';
+	import RockTexture from '$lib/components/rock-texture.svelte';
 
 	let {
 		ref = $bindable(null),
@@ -25,12 +26,13 @@
 {#if collapsible === 'none'}
 	<div
 		class={cn(
-			'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
+			'relative flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
 			className
 		)}
 		bind:this={ref}
 		{...restProps}
 	>
+		<RockTexture />
 		{@render children?.()}
 	</div>
 {:else if sidebar.isMobile}
@@ -51,7 +53,8 @@
 				<Sheet.Title>Sidebar</Sheet.Title>
 				<Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
 			</Sheet.Header>
-			<div class="flex h-full w-full flex-col">
+			<div class="relative flex h-full w-full flex-col">
+				<RockTexture />
 				{@render children?.()}
 			</div>
 		</Sheet.Content>
@@ -96,8 +99,9 @@
 			<div
 				data-sidebar="sidebar"
 				data-slot="sidebar-inner"
-				class="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+				class="relative flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
 			>
+				<RockTexture />
 				{@render children?.()}
 			</div>
 		</div>

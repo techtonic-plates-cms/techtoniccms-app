@@ -19,7 +19,13 @@
 
 {#if collections.length === 0}
 	<Sidebar.MenuItem>
-		<Sidebar.MenuButton isActive={isActive('/collections')} tooltipContent="Collections">
+		<Sidebar.MenuButton
+			isActive={isActive('/collections')}
+			tooltipContent="Collections"
+			class={isActive('/collections')
+				? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+				: ''}
+		>
 			{#snippet child({ props })}
 				<a href="/collections" {...props}>
 					<LayersIcon />
@@ -32,7 +38,13 @@
 	<Collapsible.Root open={isActive('/collections')} class="group/collapsible">
 		{#snippet child({ props })}
 			<Sidebar.MenuItem {...props}>
-				<Sidebar.MenuButton isActive={isActive('/collections')} tooltipContent="Collections">
+				<Sidebar.MenuButton
+					isActive={isActive('/collections')}
+					tooltipContent="Collections"
+					class={isActive('/collections')
+						? 'border-l-[3px] border-l-[var(--accent-copper)] !bg-[var(--accent-copper)]/[0.06] !text-[var(--accent-copper)]'
+						: ''}
+				>
 					{#snippet child({ props })}
 						<a href="/collections" {...props}>
 							<LayersIcon />
@@ -55,7 +67,12 @@
 					<Sidebar.MenuSub>
 						{#each collections as collection (collection.id)}
 							<Sidebar.MenuSubItem>
-								<Sidebar.MenuSubButton isActive={isActive(`/collections/${collection.slug}`)}>
+								<Sidebar.MenuSubButton
+									isActive={isActive(`/collections/${collection.slug}`)}
+									class={isActive(`/collections/${collection.slug}`)
+										? '!text-[var(--accent-copper)]'
+										: ''}
+								>
 									{#snippet child({ props })}
 										<a href="/collections/{collection.slug}" {...props}>
 											<span>{collection.name}</span>
