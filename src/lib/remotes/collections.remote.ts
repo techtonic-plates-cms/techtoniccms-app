@@ -57,7 +57,7 @@ const COLLECTIONS_QUERY = `
 const COLLECTIONS_COMBOBOX_QUERY = `
 	query CollectionsCombobox($search: String) {
 		collections {
-			collectionsData(search: $search) {
+			collectionsData(first: 20, where: { name: { contains: $search } }) {
 				nodes { id name slug }
 			}
 		}

@@ -10,10 +10,12 @@
 	const actionType = $derived(page.url.searchParams.get('actionType') ?? undefined);
 	const effect = $derived(page.url.searchParams.get('effect') ?? undefined);
 	const isActive = $derived(page.url.searchParams.get('isActive') ?? undefined);
+	const after = $derived(page.url.searchParams.get('after') ?? undefined);
 
-	const policies = $derived(
-		await getPolicies({ search, resourceType, actionType, effect, isActive })
+	const policiesData = $derived(
+		await getPolicies({ search, resourceType, actionType, effect, isActive, after })
 	);
+	const policies = $derived(policiesData.nodes);
 
 	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
 		ALLOW: 'default',
@@ -84,5 +86,18 @@
 				</tbody>
 			</table>
 		</div>
+		{#if policiesData.pageInfo.hasNextPage}
+			<div class="flex justify-center border-t p-4">
+				<a
+					href="/settings/policies?after={policiesData.pageInfo.endCursor}{search
+						? '&search=' + encodeURIComponent(search)
+						: ''}{resourceType ? '&resourceType=' + resourceType : ''}{actionType
+						? '&actionType=' + actionType
+						: ''}{effect ? '&effect=' + effect : ''}{isActive ? '&isActive=' + isActive : ''}"
+				>
+					<Button variant="outline">Load more</Button>
+				</a>
+			</div>
+		{/if}
 	{/if}
 </div>

@@ -57,13 +57,16 @@ const RULE_VALUE_FRAGMENT = `
 `;
 
 const POLICIES_QUERY = `
-	query Policies($limit: Int, $offset: Int, $search: String, $resourceType: BaseResource, $actionType: PermissionAction, $effect: PermissionEffect, $isActive: Boolean) {
+	query Policies($first: Int, $after: String, $where: AbacPolicyFilterInput) {
 		policy {
-			policies(limit: $limit, offset: $offset, search: $search, resourceType: $resourceType, actionType: $actionType, effect: $effect, isActive: $isActive) {
-				id name description actionType effect resourceType isActive priority createdAt
-				rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order }
-				assignedToRoles { id name assignedAt expiresAt }
-				assignedToUsers { id name assignedAt expiresAt }
+			policies(first: $first, after: $after, where: $where) {
+				nodes {
+					id name description actionType effect resourceType isActive priority createdAt
+					rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order }
+					assignedToRoles { id name assignedAt expiresAt }
+					assignedToUsers { id name assignedAt expiresAt }
+				}
+				pageInfo { hasNextPage endCursor }
 			}
 		}
 	}
@@ -111,24 +114,39 @@ export const getPolicies = query(
 		resourceType: v.optional(v.string()),
 		actionType: v.optional(v.string()),
 		effect: v.optional(v.string()),
-		isActive: v.optional(v.string())
+		isActive: v.optional(v.string()),
+		after: v.optional(v.string())
 	}),
-	async ({ search, resourceType, actionType, effect, isActive }) => {
+	async ({ search, resourceType, actionType, effect, isActive, after }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ policy: { policies: Policy[] } }, Record<string, unknown>>(
+		const where: Record<string, unknown> = {};
+		if (search) where.name = { contains: search };
+		if (resourceType) where.resourceType = { eq: resourceType };
+		if (actionType) where.actionType = { eq: actionType };
+		if (effect) where.effect = { eq: effect };
+		if (isActive !== undefined && isActive !== null) where.isActive = { eq: isActive === 'true' };
+		const result = await gqlFetch<
+			{
+				policy: {
+					policies: {
+						nodes: Policy[];
+						pageInfo: { hasNextPage: boolean; endCursor: string | null };
+					};
+				};
+			},
+			Record<string, unknown>
+		>(
 			POLICIES_QUERY,
 			{
-				limit: 25,
-				offset: 0,
-				search,
-				resourceType,
-				actionType,
-				effect,
-				isActive: isActive === undefined || isActive === null ? undefined : isActive === 'true'
+				first: 25,
+				after,
+				where: Object.keys(where).length > 0 ? where : undefined
 			},
 			{ token: locals.accessToken?.tokenValue }
 		);
-		return result.policy.policies ?? [];
+		return (
+			result.policy.policies ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+		);
 	}
 );
 

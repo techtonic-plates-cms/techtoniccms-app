@@ -11,9 +11,10 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { getAssets, updateAsset, deleteAsset, type Asset } from '@/remotes/assets.remote';
 
-	const offset = $derived(page.url.searchParams.get('offset') ?? undefined);
+	const after = $derived(page.url.searchParams.get('after') ?? undefined);
 
-	const assets = $derived(await getAssets({ offset }));
+	const assetsData = $derived(await getAssets({ after }));
+	const assets = $derived(assetsData.nodes);
 
 	let editingAsset = $state<Asset | null>(null);
 
@@ -115,6 +116,14 @@
 				</div>
 			{/each}
 		</div>
+
+		{#if assetsData.pageInfo.hasNextPage}
+			<div class="flex justify-center pt-4">
+				<a href="/assets?after={assetsData.pageInfo.endCursor}">
+					<Button variant="outline">Load more</Button>
+				</a>
+			</div>
+		{/if}
 	{/if}
 </div>
 

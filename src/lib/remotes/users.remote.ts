@@ -21,7 +21,7 @@ export type UserPolicy = {
 export type User = {
 	id: string;
 	name: string;
-	status: 'ACTIVE' | 'INACTIVE' | 'BANNED';
+	status: 'ACTIVE' | 'INACTIVE' ;
 	creationTime: string | null;
 	lastLoginTime: string | null;
 	lastEditTime: string | null;
@@ -29,9 +29,9 @@ export type User = {
 };
 
 const USERS_QUERY = `
-	query Users($first: Int, $after: String, $search: String, $status: UserStatus) {
+	query Users($first: Int, $after: String, $where: UserFilterInput) {
 		users {
-			users(first: $first, after: $after, search: $search, status: $status) {
+			users(first: $first, after: $after, where: $where) {
 				nodes {
 					id name status creationTime lastLoginTime
 					roles { id name }
@@ -93,12 +93,6 @@ const ACTIVATE_MUTATION = `
 const DEACTIVATE_MUTATION = `
 	mutation DeactivateUser($id: UUID!) { users { deactivate(id: $id) { id status } } }
 `;
-const BAN_MUTATION = `
-	mutation BanUser($id: UUID!) { users { ban(id: $id) { id status } } }
-`;
-const UNBAN_MUTATION = `
-	mutation UnbanUser($id: UUID!) { users { unban(id: $id) { id status } } }
-`;
 const CHANGE_PASSWORD_MUTATION = `
 	mutation ChangePassword($input: ChangePasswordInput!) {
 		users { changePassword(input: $input) }
@@ -125,6 +119,9 @@ export const getUsers = query(
 	}),
 	async ({ search, status, after }) => {
 		const { locals } = getRequestEvent();
+		const where: Record<string, unknown> = {};
+		if (search) where.name = { contains: search };
+		if (status) where.status = { eq: status };
 		const result = await gqlFetch<
 			{
 				users: {
@@ -132,7 +129,11 @@ export const getUsers = query(
 				};
 			},
 			Record<string, unknown>
-		>(USERS_QUERY, { first: 25, after, search, status }, { token: locals.accessToken?.tokenValue });
+		>(
+			USERS_QUERY,
+			{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.users.users ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
 	}
 );
@@ -271,28 +272,6 @@ export const deactivateUser = form(
 	}
 );
 
-export const banUser = form(v.object({ id: v.pipe(v.string(), v.nonEmpty()) }), async ({ id }) => {
-	const { locals } = getRequestEvent();
-	await gqlFetch<unknown, { id: string }>(
-		BAN_MUTATION,
-		{ id },
-		{ token: locals.accessToken?.tokenValue }
-	);
-	redirect(303, `/settings/users/${id}`);
-});
-
-export const unbanUser = form(
-	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
-	async ({ id }) => {
-		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			UNBAN_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/users/${id}`);
-	}
-);
 
 export const changePassword = form(
 	v.object({

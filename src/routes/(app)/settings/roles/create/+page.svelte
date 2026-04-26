@@ -15,7 +15,8 @@
 
 	const nameField = createRole.fields.name.as('text');
 
-	const policies = await getPolicies({});
+	const policiesData = await getPolicies({});
+	const policies = policiesData.nodes;
 
 	let selectedPolicyIds = $state<string[]>([]);
 	const policyIdsStr = $derived(selectedPolicyIds.join(','));

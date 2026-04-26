@@ -18,7 +18,8 @@
 	const passwordField = createUser.fields._password.as('password');
 
 	const roles = await getRoles({});
-	const policies = await getPolicies({});
+	const policiesData = await getPolicies({});
+	const policies = policiesData.nodes;
 
 	let selectedRoleIds = $state<string[]>([]);
 	const roleIdsStr = $derived(selectedRoleIds.join(','));

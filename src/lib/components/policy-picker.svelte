@@ -20,7 +20,7 @@
 
 	async function loadPolicies() {
 		const result = await getPolicies({});
-		policies = result;
+		policies = result.nodes;
 	}
 
 	const filtered = $derived(

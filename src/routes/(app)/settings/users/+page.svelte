@@ -13,8 +13,7 @@
 
 	const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
 		ACTIVE: 'default',
-		INACTIVE: 'secondary',
-		BANNED: 'destructive'
+		INACTIVE: 'secondary'
 	};
 </script>
 

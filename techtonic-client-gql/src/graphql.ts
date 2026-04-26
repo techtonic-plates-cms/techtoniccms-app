@@ -67,6 +67,23 @@ export type AbacPolicyRuleFilterInput = {
 	valueType?: InputMaybe<ValueTypeOperationFilterInput>;
 };
 
+export type AbacPolicySortInput = {
+	actionType?: InputMaybe<SortEnumType>;
+	createdAt?: InputMaybe<SortEnumType>;
+	createdBy?: InputMaybe<SortEnumType>;
+	createdByUser?: InputMaybe<UserSortInput>;
+	description?: InputMaybe<SortEnumType>;
+	effect?: InputMaybe<SortEnumType>;
+	id?: InputMaybe<SortEnumType>;
+	isActive?: InputMaybe<SortEnumType>;
+	lastEvaluatedAt?: InputMaybe<SortEnumType>;
+	name?: InputMaybe<SortEnumType>;
+	priority?: InputMaybe<SortEnumType>;
+	resourceType?: InputMaybe<SortEnumType>;
+	ruleConnector?: InputMaybe<SortEnumType>;
+	updatedAt?: InputMaybe<SortEnumType>;
+};
+
 export type ApiKey = {
 	__typename?: 'ApiKey';
 	createdAt: Scalars['DateTime']['output'];
@@ -235,7 +252,7 @@ export type AssetMutationUpdateArgs = {
 export type AssetQuery = {
 	__typename?: 'AssetQuery';
 	asset?: Maybe<Asset>;
-	assets: Array<Asset>;
+	assets?: Maybe<AssetsConnection>;
 };
 
 export type AssetQueryAssetArgs = {
@@ -243,8 +260,10 @@ export type AssetQueryAssetArgs = {
 };
 
 export type AssetQueryAssetsArgs = {
-	limit?: InputMaybe<Scalars['Int']['input']>;
-	offset?: InputMaybe<Scalars['Int']['input']>;
+	after?: InputMaybe<Scalars['String']['input']>;
+	before?: InputMaybe<Scalars['String']['input']>;
+	first?: InputMaybe<Scalars['Int']['input']>;
+	last?: InputMaybe<Scalars['Int']['input']>;
 	order?: InputMaybe<Array<AssetSortInput>>;
 	where?: InputMaybe<AssetFilterInput>;
 };
@@ -261,6 +280,26 @@ export type AssetSortInput = {
 	uploadedAt?: InputMaybe<SortEnumType>;
 	uploadedBy?: InputMaybe<SortEnumType>;
 	uploadedByUser?: InputMaybe<UserSortInput>;
+};
+
+/** A connection to a list of items. */
+export type AssetsConnection = {
+	__typename?: 'AssetsConnection';
+	/** A list of edges. */
+	edges?: Maybe<Array<AssetsEdge>>;
+	/** A flattened list of the nodes. */
+	nodes?: Maybe<Array<Asset>>;
+	/** Information to aid in pagination. */
+	pageInfo: PageInfo;
+};
+
+/** An edge in a connection. */
+export type AssetsEdge = {
+	__typename?: 'AssetsEdge';
+	/** A cursor for use in pagination. */
+	cursor: Scalars['String']['output'];
+	/** The item at the end of the edge. */
+	node: Asset;
 };
 
 export type AssignPolicyToRoleInput = {
@@ -443,10 +482,7 @@ export type CollectionQueryCollectionsDataArgs = {
 	before?: InputMaybe<Scalars['String']['input']>;
 	first?: InputMaybe<Scalars['Int']['input']>;
 	last?: InputMaybe<Scalars['Int']['input']>;
-	limit?: InputMaybe<Scalars['Int']['input']>;
-	offset?: InputMaybe<Scalars['Int']['input']>;
 	order?: InputMaybe<Array<CollectionSortInput>>;
-	search?: InputMaybe<Scalars['String']['input']>;
 	where?: InputMaybe<CollectionFilterInput>;
 };
 
@@ -499,6 +535,7 @@ export type CreateApiKeyPayload = {
 
 export type CreateCollectionInput = {
 	color?: InputMaybe<Scalars['String']['input']>;
+	creatorPoliciesExpiresAt?: InputMaybe<Scalars['String']['input']>;
 	defaultLocale?: InputMaybe<Locale>;
 	description?: InputMaybe<Scalars['String']['input']>;
 	fields?: InputMaybe<Array<FieldDefinitionInput>>;
@@ -533,14 +570,14 @@ export type CreatePolicyRuleInput = {
 export type CreateRoleInput = {
 	description?: InputMaybe<Scalars['String']['input']>;
 	name: Scalars['String']['input'];
-	policyIds?: InputMaybe<Array<Scalars['UUID']['input']>>;
+	policies?: InputMaybe<PolicyAssignmentInRoleChoiceInput>;
 };
 
 export type CreateUserInput = {
 	name: Scalars['String']['input'];
 	password: Scalars['String']['input'];
-	policyIds?: InputMaybe<Array<Scalars['UUID']['input']>>;
-	roleIds?: InputMaybe<Array<Scalars['UUID']['input']>>;
+	policies?: InputMaybe<PolicyAssignmentChoiceInput>;
+	roles?: InputMaybe<RoleAssignmentChoiceInput>;
 	status?: InputMaybe<UserStatus>;
 };
 
@@ -938,6 +975,26 @@ export type PermissionEffectOperationFilterInput = {
 	nin?: InputMaybe<Array<PermissionEffect>>;
 };
 
+/** A connection to a list of items. */
+export type PoliciesConnection = {
+	__typename?: 'PoliciesConnection';
+	/** A list of edges. */
+	edges?: Maybe<Array<PoliciesEdge>>;
+	/** A flattened list of the nodes. */
+	nodes?: Maybe<Array<Policy>>;
+	/** Information to aid in pagination. */
+	pageInfo: PageInfo;
+};
+
+/** An edge in a connection. */
+export type PoliciesEdge = {
+	__typename?: 'PoliciesEdge';
+	/** A cursor for use in pagination. */
+	cursor: Scalars['String']['output'];
+	/** The item at the end of the edge. */
+	node: Policy;
+};
+
 export type Policy = {
 	__typename?: 'Policy';
 	actionType: PermissionAction;
@@ -956,6 +1013,28 @@ export type Policy = {
 	ruleConnector: LogicalOperator;
 	rules: Array<PolicyRule>;
 	updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PolicyAssignmentChoiceInput = {
+	assignments?: InputMaybe<Array<PolicyAssignmentInput>>;
+	ids?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
+export type PolicyAssignmentInRoleChoiceInput = {
+	assignments?: InputMaybe<Array<PolicyAssignmentInRoleInput>>;
+	ids?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
+export type PolicyAssignmentInRoleInput = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	policyId: Scalars['ID']['input'];
+	reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PolicyAssignmentInput = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	policyId: Scalars['ID']['input'];
+	reason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PolicyMutation = {
@@ -979,18 +1058,17 @@ export type PolicyMutationUpdateArgs = {
 
 export type PolicyQuery = {
 	__typename?: 'PolicyQuery';
-	policies: Array<Policy>;
+	policies?: Maybe<PoliciesConnection>;
 	policy?: Maybe<Policy>;
 };
 
 export type PolicyQueryPoliciesArgs = {
-	actionType?: InputMaybe<PermissionAction>;
-	effect?: InputMaybe<PermissionEffect>;
-	isActive?: InputMaybe<Scalars['Boolean']['input']>;
-	limit?: InputMaybe<Scalars['Int']['input']>;
-	offset?: InputMaybe<Scalars['Int']['input']>;
-	resourceType?: InputMaybe<BaseResource>;
-	search?: InputMaybe<Scalars['String']['input']>;
+	after?: InputMaybe<Scalars['String']['input']>;
+	before?: InputMaybe<Scalars['String']['input']>;
+	first?: InputMaybe<Scalars['Int']['input']>;
+	last?: InputMaybe<Scalars['Int']['input']>;
+	order?: InputMaybe<Array<AbacPolicySortInput>>;
+	where?: InputMaybe<AbacPolicyFilterInput>;
 };
 
 export type PolicyQueryPolicyArgs = {
@@ -1082,6 +1160,16 @@ export type RoleAssignment = {
 	reason?: Maybe<Scalars['String']['output']>;
 };
 
+export type RoleAssignmentChoiceInput = {
+	assignments?: InputMaybe<Array<RoleAssignmentInput>>;
+	ids?: InputMaybe<Array<Scalars['UUID']['input']>>;
+};
+
+export type RoleAssignmentInput = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	roleId: Scalars['ID']['input'];
+};
+
 export type RoleFilterInput = {
 	and?: InputMaybe<Array<RoleFilterInput>>;
 	creationTime?: InputMaybe<DateTimeOperationFilterInput>;
@@ -1101,6 +1189,7 @@ export type RoleMutation = {
 	delete: Scalars['Boolean']['output'];
 	unassignPolicy: Scalars['Boolean']['output'];
 	update: Role;
+	updatePolicyExpiration: Scalars['Boolean']['output'];
 };
 
 export type RoleMutationAssignPolicyArgs = {
@@ -1122,6 +1211,13 @@ export type RoleMutationUnassignPolicyArgs = {
 
 export type RoleMutationUpdateArgs = {
 	input: UpdateRoleInput;
+};
+
+export type RoleMutationUpdatePolicyExpirationArgs = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	policyId: Scalars['UUID']['input'];
+	reason?: InputMaybe<Scalars['String']['input']>;
+	roleId: Scalars['UUID']['input'];
 };
 
 export type RolePolicyFilterInput = {
@@ -1155,10 +1251,7 @@ export type RoleQueryRolesArgs = {
 	before?: InputMaybe<Scalars['String']['input']>;
 	first?: InputMaybe<Scalars['Int']['input']>;
 	last?: InputMaybe<Scalars['Int']['input']>;
-	limit?: InputMaybe<Scalars['Int']['input']>;
-	offset?: InputMaybe<Scalars['Int']['input']>;
 	order?: InputMaybe<Array<RoleSortInput>>;
-	search?: InputMaybe<Scalars['String']['input']>;
 	where?: InputMaybe<RoleFilterInput>;
 };
 
@@ -1508,6 +1601,8 @@ export type UserMutation = {
 	unassignPolicy: Scalars['Boolean']['output'];
 	unassignRole: Scalars['Boolean']['output'];
 	update: User;
+	updatePolicyExpiration: Scalars['Boolean']['output'];
+	updateRoleExpiration: Scalars['Boolean']['output'];
 };
 
 export type UserMutationActivateArgs = {
@@ -1552,6 +1647,19 @@ export type UserMutationUpdateArgs = {
 	input: UpdateUserInput;
 };
 
+export type UserMutationUpdatePolicyExpirationArgs = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	policyId: Scalars['UUID']['input'];
+	reason?: InputMaybe<Scalars['String']['input']>;
+	userId: Scalars['UUID']['input'];
+};
+
+export type UserMutationUpdateRoleExpirationArgs = {
+	expiresAt?: InputMaybe<Scalars['String']['input']>;
+	roleId: Scalars['UUID']['input'];
+	userId: Scalars['UUID']['input'];
+};
+
 export type UserPolicyFilterInput = {
 	and?: InputMaybe<Array<UserPolicyFilterInput>>;
 	assignedAt?: InputMaybe<DateTimeOperationFilterInput>;
@@ -1583,11 +1691,7 @@ export type UserQueryUsersArgs = {
 	before?: InputMaybe<Scalars['String']['input']>;
 	first?: InputMaybe<Scalars['Int']['input']>;
 	last?: InputMaybe<Scalars['Int']['input']>;
-	limit?: InputMaybe<Scalars['Int']['input']>;
-	offset?: InputMaybe<Scalars['Int']['input']>;
 	order?: InputMaybe<Array<UserSortInput>>;
-	search?: InputMaybe<Scalars['String']['input']>;
-	status?: InputMaybe<UserStatus>;
 	where?: InputMaybe<UserFilterInput>;
 };
 

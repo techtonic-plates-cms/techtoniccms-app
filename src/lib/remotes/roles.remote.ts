@@ -33,9 +33,9 @@ export type Role = {
 };
 
 const ROLES_QUERY = `
-	query Roles($first: Int, $after: String, $search: String) {
+	query Roles($first: Int, $after: String, $where: RoleFilterInput) {
 		roles {
-			roles(first: $first, after: $after, search: $search) {
+			roles(first: $first, after: $after, where: $where) {
 				nodes {
 					id name description creationTime
 					policies { id name actionType effect resourceType }
@@ -96,6 +96,8 @@ export const getRoles = query(
 	}),
 	async ({ search, after }) => {
 		const { locals } = getRequestEvent();
+		const where: Record<string, unknown> = {};
+		if (search) where.name = { contains: search };
 		const result = await gqlFetch<
 			{
 				roles: {
@@ -103,7 +105,11 @@ export const getRoles = query(
 				};
 			},
 			Record<string, unknown>
-		>(ROLES_QUERY, { first: 25, after, search }, { token: locals.accessToken?.tokenValue });
+		>(
+			ROLES_QUERY,
+			{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
 		return result.roles.roles ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
 	}
 );

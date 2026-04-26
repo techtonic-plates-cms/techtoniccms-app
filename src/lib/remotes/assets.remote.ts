@@ -17,26 +17,29 @@ export type Asset = {
 };
 
 const ASSETS_QUERY = `
-	query Assets($limit: Int, $offset: Int) {
+	query Assets($first: Int, $after: String) {
 		assets {
-			assets(limit: $limit, offset: $offset) {
-				id filename mimeType fileSize url alt caption isPublic uploadedAt
-				uploadedByUser { id name }
+			assets(first: $first, after: $after) {
+				nodes {
+					id filename mimeType fileSize url alt caption isPublic uploadedAt
+					uploadedByUser { id name }
+				}
+				pageInfo { hasNextPage endCursor }
 			}
 		}
 	}
 `;
 
 const ASSETS_COMBOBOX_QUERY = `
-	query AssetsCombobox($search: String, $limit: Int) {
+	query AssetsCombobox($search: String, $first: Int) {
 		assets {
-			assets(limit: $limit, where: {
+			assets(first: $first, where: {
 				or: [
 					{ filename: { contains: $search } }
 					{ caption: { contains: $search } }
 				]
 			}) {
-				id filename caption
+				nodes { id filename caption }
 			}
 		}
 	}
@@ -60,20 +63,19 @@ const DELETE_ASSET_MUTATION = `
 
 export const getAssets = query(
 	v.object({
-		offset: v.optional(
-			v.pipe(
-				v.string(),
-				v.transform((s) => parseInt(s, 10))
-			)
-		)
+		after: v.optional(v.string())
 	}),
-	async ({ offset }) => {
+	async ({ after }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ assets: { assets: Asset[] } },
-			{ limit: number; offset: number }
-		>(ASSETS_QUERY, { limit: 24, offset: offset ?? 0 }, { token: locals.accessToken?.tokenValue });
-		return result.assets.assets ?? [];
+			{
+				assets: {
+					assets: { nodes: Asset[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+				};
+			},
+			{ first: number; after?: string }
+		>(ASSETS_QUERY, { first: 24, after }, { token: locals.accessToken?.tokenValue });
+		return result.assets.assets ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
 	}
 );
 
@@ -82,14 +84,18 @@ export const getAssetsForCombobox = query(
 	async ({ search }) => {
 		const { locals } = getRequestEvent();
 		const result = await gqlFetch<
-			{ assets: { assets: Array<{ id: string; filename: string; caption: string | null }> } },
-			{ search?: string; limit: number }
+			{
+				assets: {
+					assets: { nodes: Array<{ id: string; filename: string; caption: string | null }> };
+				};
+			},
+			{ search?: string; first: number }
 		>(
 			ASSETS_COMBOBOX_QUERY,
-			{ search: search ?? '', limit: 20 },
+			{ search: search ?? '', first: 20 },
 			{ token: locals.accessToken?.tokenValue }
 		);
-		return result.assets.assets ?? [];
+		return result.assets.assets?.nodes ?? [];
 	}
 );
 

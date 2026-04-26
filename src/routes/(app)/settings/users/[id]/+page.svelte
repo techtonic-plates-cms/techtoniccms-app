@@ -15,8 +15,6 @@
 		unassignPolicyFromUser,
 		activateUser,
 		deactivateUser,
-		banUser,
-		unbanUser,
 		changePassword
 	} from '$lib/remotes/users.remote';
 	import type { PageProps } from './$types';
@@ -94,17 +92,6 @@
 					<form {...deactivateUser}>
 						<input type="hidden" name="id" value={user.id} />
 						<Button type="submit" size="sm" variant="outline">Deactivate</Button>
-					</form>
-				{/if}
-				{#if user.status === 'BANNED'}
-					<form {...unbanUser}>
-						<input type="hidden" name="id" value={user.id} />
-						<Button type="submit" size="sm" variant="outline">Unban</Button>
-					</form>
-				{:else}
-					<form {...banUser}>
-						<input type="hidden" name="id" value={user.id} />
-						<Button type="submit" size="sm" variant="destructive">Ban</Button>
 					</form>
 				{/if}
 			</div>
