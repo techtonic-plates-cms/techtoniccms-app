@@ -107,7 +107,7 @@
 							<input type="hidden" name="id" value={asset.id} />
 							<button
 								type="submit"
-								class="hover:text-destructive-foreground rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-destructive"
+								class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
 							>
 								<TrashIcon class="size-3" />
 							</button>

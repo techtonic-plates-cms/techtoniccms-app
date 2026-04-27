@@ -1,6 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# AGENTS.md
 
 ## About TechtonicCMS
 
@@ -128,3 +126,7 @@ Run on any Svelte code you write **before** sending it to the user. Keep calling
 ### 4. `playground-link`
 
 Generates a Svelte Playground link. Only call after explicit user confirmation and **never** when code has been written to project files.
+
+## Desing
+
+Design guidelines are located in @DESIGN.md . Keep it in mind when making design alterations or additions.

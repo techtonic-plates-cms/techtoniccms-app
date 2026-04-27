@@ -44,7 +44,7 @@
 				{console.log(collection)}
 				<!-- for debugging, to check if collection.icon is present -->
 
-				<Card.Root class="group relative transition-shadow hover:shadow-md">
+				<Card.Root class="group relative">
 					<Card.Content class="p-5">
 						<div class="mb-3 flex items-start justify-between gap-2">
 							<div class="flex min-w-0 items-center gap-2">
@@ -56,7 +56,7 @@
 									/>
 								{:else}
 									<div
-										class="flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
+										class="flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-primary-foreground"
 										style={collection.color
 											? `background-color: ${collection.color}`
 											: 'background-color: hsl(var(--primary))'}

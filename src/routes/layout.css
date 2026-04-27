@@ -12,14 +12,14 @@
 :root {
 	/* === Earthy Foundation (Light Mode) === */
 	--bg-page: #f5f0e8;
-	--bg-surface: #f5f0e8;
+	--bg-surface: #ede8de;
 	--bg-base: #f5f0e8;
-	--bg-surface-hover: #f0ebe0;
+	--bg-surface-hover: #e4dfd4;
 
 	--text-primary: #1a1a1e;
 	--text-secondary: #6b6b75;
 
-	--border-subtle: #e0dcd4;
+	--border-subtle: #d8d3c8;
 	--border-focus: #c75a1a;
 
 	/* === Geological Accents (both modes) === */
@@ -28,35 +28,41 @@
 	--accent-gold: #d4a017;
 
 	/* === Rock Texture Crack Color === */
-	--rock-crack: rgba(26, 26, 30, 0.095);
+	--rock-crack: rgba(26, 26, 30, 0.06);
 
 	/* === shadcn-svelte mapped variables === */
 	--background: #f5f0e8;
 	--foreground: #1a1a1e;
-	--card: #ffffff;
+	--card: #faf7f0;
 	--card-foreground: #1a1a1e;
-	--popover: #ffffff;
+	--popover: #fdfbf7;
 	--popover-foreground: #1a1a1e;
 	--primary: #c75a1a;
-	--primary-foreground: #ffffff;
-	--secondary: #f0ebe0;
+	--primary-foreground: #fdfcfa;
+	--secondary: #e8e3d8;
 	--secondary-foreground: #1a1a1e;
-	--muted: #f0ebe0;
+	--muted: #e8e3d8;
 	--muted-foreground: #6b6b75;
-	--accent: #f0ebe0;
+	--accent: #e8e3d8;
 	--accent-foreground: #1a1a1e;
-	--destructive: #c75a1a;
-	--border: #e0dcd4;
-	--input: #e0dcd4;
+	--destructive: #b42318;
+	--destructive-foreground: #fdfcfa;
+	--border: #d8d3c8;
+	--input: #d8d3c8;
 	--ring: #c75a1a;
 	--radius: 0.5rem;
-	--sidebar: #f5f0e8;
+	--chart-1: #c75a1a;
+	--chart-2: #3a5a40;
+	--chart-3: #d4a017;
+	--chart-4: #8c8c96;
+	--chart-5: #5a5a64;
+	--sidebar: #ede8de;
 	--sidebar-foreground: #1a1a1e;
 	--sidebar-primary: #c75a1a;
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: #f0ebe0;
+	--sidebar-primary-foreground: #fdfcfa;
+	--sidebar-accent: #e4dfd4;
 	--sidebar-accent-foreground: #1a1a1e;
-	--sidebar-border: #e0dcd4;
+	--sidebar-border: #d8d3c8;
 	--sidebar-ring: #c75a1a;
 }
 
@@ -74,31 +80,37 @@
 	--border-focus: #c75a1a;
 
 	/* === Rock Texture Crack Color === */
-	--rock-crack: rgba(242, 237, 228, 0.03);
+	--rock-crack: rgba(242, 237, 228, 0.04);
 
 	/* === shadcn-svelte mapped variables === */
 	--background: #0d0d0f;
 	--foreground: #f2ede4;
 	--card: #16161a;
 	--card-foreground: #f2ede4;
-	--popover: #16161a;
+	--popover: #1e1e24;
 	--popover-foreground: #f2ede4;
 	--primary: #c75a1a;
-	--primary-foreground: #ffffff;
+	--primary-foreground: #fdfcfa;
 	--secondary: #1e1e24;
 	--secondary-foreground: #f2ede4;
 	--muted: #1e1e24;
 	--muted-foreground: #8c8c96;
 	--accent: #1e1e24;
 	--accent-foreground: #f2ede4;
-	--destructive: #c75a1a;
+	--destructive: #ef4444;
+	--destructive-foreground: #0d0d0f;
 	--border: #2a2a32;
 	--input: #2a2a32;
 	--ring: #c75a1a;
+	--chart-1: #e07a3a;
+	--chart-2: #4a7a50;
+	--chart-3: #e4b037;
+	--chart-4: #9c9ca6;
+	--chart-5: #6a6a74;
 	--sidebar: #16161a;
 	--sidebar-foreground: #f2ede4;
 	--sidebar-primary: #c75a1a;
-	--sidebar-primary-foreground: #ffffff;
+	--sidebar-primary-foreground: #fdfcfa;
 	--sidebar-accent: #1e1e24;
 	--sidebar-accent-foreground: #f2ede4;
 	--sidebar-border: #2a2a32;
@@ -108,6 +120,17 @@
 @theme inline {
 	--font-sans: 'Inter Variable', 'Inter', sans-serif;
 	--font-mono: 'JetBrains Mono', monospace;
+	--color-bg-page: var(--bg-page);
+	--color-bg-surface: var(--bg-surface);
+	--color-bg-surface-hover: var(--bg-surface-hover);
+	--color-accent-copper: var(--accent-copper);
+	--color-accent-moss: var(--accent-moss);
+	--color-accent-gold: var(--accent-gold);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -119,6 +142,7 @@
 	--color-ring: var(--ring);
 	--color-input: var(--input);
 	--color-border: var(--border);
+	--color-destructive-foreground: var(--destructive-foreground);
 	--color-destructive: var(--destructive);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-accent: var(--accent);

@@ -86,7 +86,7 @@
 							/>
 						{:else}
 							<div
-								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-primary-foreground"
 								style={collection.color
 									? `background-color: ${collection.color}`
 									: 'background-color: hsl(var(--primary))'}
