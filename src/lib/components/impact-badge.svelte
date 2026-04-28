@@ -32,5 +32,5 @@
 		{/if}
 	</span>
 {:else}
-	<span class="text-xs italic text-muted-foreground">Unassigned</span>
+	<span class="text-xs text-muted-foreground italic">Unassigned</span>
 {/if}

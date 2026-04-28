@@ -299,24 +299,23 @@
 					</div>
 					<div class="mt-3 space-y-2 text-sm">
 						<p>
-							<strong>Resource</strong> — The thing being protected. Entries, collections,
-							assets, or users.
+							<strong>Resource</strong> — The thing being protected. Entries, collections, assets, or
+							users.
 						</p>
 						<p>
-							<strong>Action</strong> — What someone is trying to do. Read, create, update,
-							delete, etc.
+							<strong>Action</strong> — What someone is trying to do. Read, create, update, delete, etc.
 						</p>
 						<p>
-							<strong>Effect</strong> — Allow grants access. Block denies access. A Block
-							policy at higher priority always wins.
+							<strong>Effect</strong> — Allow grants access. Block denies access. A Block policy at higher
+							priority always wins.
 						</p>
 						<p>
-							<strong>Priority</strong> — Higher numbers are checked first. Use 2000 for
-							block rules that should override everything.
+							<strong>Priority</strong> — Higher numbers are checked first. Use 2000 for block rules that
+							should override everything.
 						</p>
 						<p>
-							<strong>Rules</strong> — Optional conditions that narrow when the policy
-							applies. No rules = applies to everyone.
+							<strong>Rules</strong> — Optional conditions that narrow when the policy applies. No rules
+							= applies to everyone.
 						</p>
 					</div>
 				</div>
@@ -392,21 +391,13 @@
 						{#each createPolicy.fields.resourceType.issues() as issue (issue.message)}
 							<p class="text-xs text-destructive">{issue.message}</p>
 						{/each}
-						<Select.Root
-							type="single"
-							name={resourceTypeField.name}
-							bind:value={resourceType}
-						>
-							<Select.Trigger
-								id="p-resource"
-								aria-invalid={resourceTypeField['aria-invalid']}
-							>
+						<Select.Root type="single" name={resourceTypeField.name} bind:value={resourceType}>
+							<Select.Trigger id="p-resource" aria-invalid={resourceTypeField['aria-invalid']}>
 								<span>{resourceType.charAt(0) + resourceType.slice(1).toLowerCase()}</span>
 							</Select.Trigger>
 							<Select.Content>
 								{#each RESOURCE_TYPES as rt (rt)}
-									<Select.Item value={rt}
-										>{rt.charAt(0) + rt.slice(1).toLowerCase()}</Select.Item>
+									<Select.Item value={rt}>{rt.charAt(0) + rt.slice(1).toLowerCase()}</Select.Item>
 								{/each}
 							</Select.Content>
 						</Select.Root>
@@ -422,15 +413,8 @@
 						{#each createPolicy.fields.actionType.issues() as issue (issue.message)}
 							<p class="text-xs text-destructive">{issue.message}</p>
 						{/each}
-						<Select.Root
-							type="single"
-							name={actionTypeField.name}
-							bind:value={actionType}
-						>
-							<Select.Trigger
-								id="p-action"
-								aria-invalid={actionTypeField['aria-invalid']}
-							>
+						<Select.Root type="single" name={actionTypeField.name} bind:value={actionType}>
+							<Select.Trigger id="p-action" aria-invalid={actionTypeField['aria-invalid']}>
 								<span>{actionType.toLowerCase().replace(/_/g, ' ')}</span>
 							</Select.Trigger>
 							<Select.Content>
@@ -493,8 +477,7 @@
 						/>
 					</div>
 					<p class="text-xs text-muted-foreground">
-						Higher numbers are checked first. Block rules should usually be higher than Allow
-						rules.
+						Higher numbers are checked first. Block rules should usually be higher than Allow rules.
 					</p>
 					<div class="flex items-center gap-3">
 						<input
@@ -515,26 +498,26 @@
 						/>
 					</div>
 					<div class="flex flex-wrap gap-2 text-xs text-muted-foreground">
-					<button
-						type="button"
-						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
-						onclick={() => (priority = 100)}>Standard (100)</button
-					>
-					<button
-						type="button"
-						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
-						onclick={() => (priority = 500)}>Creator (500)</button
-					>
-					<button
-						type="button"
-						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
-						onclick={() => (priority = 1000)}>Admin (1000)</button
-					>
-					<button
-						type="button"
-						class="rounded bg-destructive/10 px-2 py-1 text-destructive transition-colors hover:bg-destructive/20"
-						onclick={() => (priority = 2000)}>Block (2000)</button
-					>
+						<button
+							type="button"
+							class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+							onclick={() => (priority = 100)}>Standard (100)</button
+						>
+						<button
+							type="button"
+							class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+							onclick={() => (priority = 500)}>Creator (500)</button
+						>
+						<button
+							type="button"
+							class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+							onclick={() => (priority = 1000)}>Admin (1000)</button
+						>
+						<button
+							type="button"
+							class="rounded bg-destructive/10 px-2 py-1 text-destructive transition-colors hover:bg-destructive/20"
+							onclick={() => (priority = 2000)}>Block (2000)</button
+						>
 					</div>
 				</div>
 			</div>

@@ -283,7 +283,9 @@
 							{:else if isArrayOperator(rule.operator)}
 								<div class="flex items-center gap-1.5">
 									<Label class="text-xs text-muted-foreground">Values (comma-separated)</Label>
-									<HelpTooltip text="Enter multiple values separated by commas. The rule will match if the attribute is any one of these values." />
+									<HelpTooltip
+										text="Enter multiple values separated by commas. The rule will match if the attribute is any one of these values."
+									/>
 								</div>
 								<Input
 									value={Array.isArray(rule.rawValue)
@@ -298,14 +300,15 @@
 										checked={Boolean(rule.rawValue)}
 										onCheckedChange={(c) => updateRuleValue(i, !!c)}
 									/>
-									<span class="text-sm"
-										>{Boolean(rule.rawValue) ? 'Yes / True' : 'No / False'}</span
+									<span class="text-sm">{Boolean(rule.rawValue) ? 'Yes / True' : 'No / False'}</span
 									>
 								</div>
 							{:else if getNaturalType(rule.attributePath) === 'number'}
 								<div class="flex items-center gap-1.5">
 									<Label class="text-xs text-muted-foreground">Number</Label>
-									<HelpTooltip text="Enter a numeric value. The rule will compare using the selected condition (greater than, less than, etc.)." />
+									<HelpTooltip
+										text="Enter a numeric value. The rule will compare using the selected condition (greater than, less than, etc.)."
+									/>
 								</div>
 								<Input
 									type="number"
@@ -316,7 +319,9 @@
 							{:else if getNaturalType(rule.attributePath) === 'datetime'}
 								<div class="flex items-center gap-1.5">
 									<Label class="text-xs text-muted-foreground">Date & time</Label>
-									<HelpTooltip text="Pick a specific date and time. Useful for time-based access restrictions like 'block after 5pm'." />
+									<HelpTooltip
+										text="Pick a specific date and time. Useful for time-based access restrictions like 'block after 5pm'."
+									/>
 								</div>
 								<Input
 									type="datetime-local"
@@ -327,19 +332,16 @@
 								<div class="flex items-center gap-1.5">
 									<Label class="text-xs text-muted-foreground">Value</Label>
 									<HelpTooltip
-										text={getValueHelpText(
-											rule.operator,
-											getNaturalType(rule.attributePath)
-										)}
+										text={getValueHelpText(rule.operator, getNaturalType(rule.attributePath))}
 									/>
 								</div>
 								<Input
 									value={String(rule.rawValue ?? '')}
 									oninput={(e) => updateRuleValue(i, e.currentTarget.value)}
 									placeholder={getValuePlaceholder(
-											rule.operator,
-											getNaturalType(rule.attributePath)
-										)}
+										rule.operator,
+										getNaturalType(rule.attributePath)
+									)}
 								/>
 							{/if}
 						</div>

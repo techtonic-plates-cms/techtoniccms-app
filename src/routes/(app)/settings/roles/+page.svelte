@@ -61,25 +61,25 @@
 	<!-- Metrics -->
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Total Roles</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Total Roles</p>
 			<p class="mt-1 text-3xl font-bold">{metrics.total}</p>
 		</div>
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Users with Roles</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Users with Roles</p>
 			<div class="mt-1 flex items-center gap-2">
 				<UsersIcon class="size-5 text-muted-foreground" />
 				<p class="text-3xl font-bold">{metrics.totalUsers}</p>
 			</div>
 		</div>
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Policies in Use</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Policies in Use</p>
 			<div class="mt-1 flex items-center gap-2">
 				<ShieldIcon class="size-5 text-muted-foreground" />
 				<p class="text-3xl font-bold">{metrics.totalPolicies}</p>
 			</div>
 		</div>
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Unused Roles</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Unused Roles</p>
 			<div class="mt-1 flex items-center gap-2">
 				<AlertCircleIcon class="size-5 text-muted-foreground" />
 				<p class="text-3xl font-bold">{metrics.unused}</p>
@@ -92,8 +92,8 @@
 
 	<!-- Search -->
 	<div class="flex flex-wrap items-end gap-3">
-		<div class="relative flex-1 min-w-[200px] max-w-sm">
-			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+		<div class="relative max-w-sm min-w-[200px] flex-1">
+			<SearchIcon class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 			<Input
 				placeholder="Search roles..."
 				class="pl-9"
@@ -102,9 +102,7 @@
 			/>
 		</div>
 		{#if search}
-			<Button variant="ghost" size="sm" onclick={clearFilters}>
-				Clear search
-			</Button>
+			<Button variant="ghost" size="sm" onclick={clearFilters}>Clear search</Button>
 		{/if}
 	</div>
 
@@ -152,7 +150,7 @@
 									{role.name}
 								</a>
 								{#if role.description}
-									<p class="mt-1 max-w-xs text-xs text-muted-foreground line-clamp-1">
+									<p class="mt-1 line-clamp-1 max-w-xs text-xs text-muted-foreground">
 										{role.description}
 									</p>
 								{/if}
@@ -176,7 +174,7 @@
 										{/if}
 									</div>
 								{:else}
-									<span class="text-xs italic text-muted-foreground">No policies</span>
+									<span class="text-xs text-muted-foreground italic">No policies</span>
 								{/if}
 							</td>
 							<td class="hidden px-4 py-3 lg:table-cell">
@@ -196,7 +194,7 @@
 										{/if}
 									</div>
 								{:else}
-									<span class="text-xs italic text-muted-foreground">No members</span>
+									<span class="text-xs text-muted-foreground italic">No members</span>
 								{/if}
 							</td>
 							<td class="px-4 py-3">

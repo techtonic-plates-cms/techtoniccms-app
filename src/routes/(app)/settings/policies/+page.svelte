@@ -35,8 +35,9 @@
 		total: policies.length,
 		allow: policies.filter((p) => p.effect === 'ALLOW').length,
 		deny: policies.filter((p) => p.effect === 'DENY').length,
-		unassigned: policies.filter((p) => p.assignedToRoles.length === 0 && p.assignedToUsers.length === 0)
-			.length
+		unassigned: policies.filter(
+			(p) => p.assignedToRoles.length === 0 && p.assignedToUsers.length === 0
+		).length
 	});
 
 	const RESOURCE_TYPES = ['ASSETS', 'COLLECTIONS', 'ENTRIES', 'USERS'];
@@ -107,25 +108,25 @@
 	<!-- Metrics -->
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Total Policies</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Total Policies</p>
 			<p class="mt-1 text-3xl font-bold">{metrics.total}</p>
 		</div>
 		<div class="rounded-lg border border-l-4 border-l-copper p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Allow Rules</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Allow Rules</p>
 			<div class="mt-1 flex items-center gap-2">
 				<ShieldCheckIcon class="size-5 text-copper" />
 				<p class="text-3xl font-bold">{metrics.allow}</p>
 			</div>
 		</div>
 		<div class="rounded-lg border border-l-4 border-l-destructive p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Block Rules</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Block Rules</p>
 			<div class="mt-1 flex items-center gap-2">
 				<ShieldXIcon class="size-5 text-destructive" />
 				<p class="text-3xl font-bold">{metrics.deny}</p>
 			</div>
 		</div>
 		<div class="rounded-lg border p-4">
-			<p class="text-xs uppercase tracking-wide text-muted-foreground">Unassigned</p>
+			<p class="text-xs tracking-wide text-muted-foreground uppercase">Unassigned</p>
 			<div class="mt-1 flex items-center gap-2">
 				<AlertCircleIcon class="size-5 text-muted-foreground" />
 				<p class="text-3xl font-bold">{metrics.unassigned}</p>
@@ -138,8 +139,8 @@
 
 	<!-- Filters -->
 	<div class="flex flex-wrap items-end gap-3">
-		<div class="relative flex-1 min-w-[200px] max-w-sm">
-			<SearchIcon class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+		<div class="relative max-w-sm min-w-[200px] flex-1">
+			<SearchIcon class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 			<Input
 				placeholder="Search policies..."
 				class="pl-9"
@@ -153,20 +154,20 @@
 			onValueChange={(v) => updateFilter('resourceType', v)}
 		>
 			<Select.Trigger class="w-[140px]">
-				<span>{resourceType ? resourceType.charAt(0) + resourceType.slice(1).toLowerCase() : 'All Resources'}</span>
+				<span
+					>{resourceType
+						? resourceType.charAt(0) + resourceType.slice(1).toLowerCase()
+						: 'All Resources'}</span
+				>
 			</Select.Trigger>
 			<Select.Content>
-						<Select.Item value="">All Resources</Select.Item>
+				<Select.Item value="">All Resources</Select.Item>
 				{#each RESOURCE_TYPES as rt (rt)}
 					<Select.Item value={rt}>{rt.charAt(0) + rt.slice(1).toLowerCase()}</Select.Item>
 				{/each}
 			</Select.Content>
 		</Select.Root>
-		<Select.Root
-			type="single"
-			value={effect}
-			onValueChange={(v) => updateFilter('effect', v)}
-		>
+		<Select.Root type="single" value={effect} onValueChange={(v) => updateFilter('effect', v)}>
 			<Select.Trigger class="w-[130px]">
 				<span>
 					{#if effect === 'ALLOW'}
@@ -179,15 +180,13 @@
 				</span>
 			</Select.Trigger>
 			<Select.Content>
-						<Select.Item value="">All Effects</Select.Item>
+				<Select.Item value="">All Effects</Select.Item>
 				<Select.Item value="ALLOW">Allow</Select.Item>
 				<Select.Item value="DENY">Block</Select.Item>
 			</Select.Content>
 		</Select.Root>
 		{#if search || resourceType || actionType || effect || isActive}
-			<Button variant="ghost" size="sm" onclick={clearFilters}>
-				Clear filters
-			</Button>
+			<Button variant="ghost" size="sm" onclick={clearFilters}>Clear filters</Button>
 		{/if}
 	</div>
 
@@ -242,7 +241,7 @@
 								{#if !policy.isActive}
 									<span class="ml-2 text-xs text-muted-foreground">(inactive)</span>
 								{/if}
-								<p class="mt-1 max-w-md text-xs text-muted-foreground line-clamp-2">
+								<p class="mt-1 line-clamp-2 max-w-md text-xs text-muted-foreground">
 									{policyToSentence(
 										policy.resourceType,
 										policy.actionType,

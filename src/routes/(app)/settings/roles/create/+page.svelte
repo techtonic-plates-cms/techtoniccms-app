@@ -49,7 +49,7 @@
 		for (const policy of policies) {
 			const rt = policy.resourceType;
 			if (!groups[rt]) groups[rt] = [];
-			groups[rt].push(policy as typeof groups[string][number]);
+			groups[rt].push(policy as (typeof groups)[string][number]);
 		}
 		return groups;
 	});
@@ -144,8 +144,11 @@
 						{@const groupPolicies = groupedPolicies()[resourceType] ?? []}
 						{#if groupPolicies.length > 0}
 							<div>
-								<h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-								>{resourceTypeLabels[resourceType]}</h3>
+								<h3
+									class="mb-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+								>
+									{resourceTypeLabels[resourceType]}
+								</h3>
 								<div class="space-y-2">
 									{#each groupPolicies as policy (policy.id)}
 										<label

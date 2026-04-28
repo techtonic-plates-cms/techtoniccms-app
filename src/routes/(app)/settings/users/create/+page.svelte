@@ -5,12 +5,14 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Checkbox from '$lib/components/ui/checkbox/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as v from 'valibot';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createUser } from '$lib/remotes/users.remote';
 	import { getRoles } from '$lib/remotes/roles.remote';
 	import { getPolicies } from '$lib/remotes/policies.remote';
+	import { policyToSentence, type RuleValue } from '$lib/components/policy-rule-utils';
 
 	await requireAuth();
 
@@ -31,6 +33,50 @@
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		_password: v.pipe(v.string(), v.nonEmpty('Password is required'))
 	});
+
+	const EFFECT_VARIANT: Record<string, 'default' | 'destructive' | 'outline'> = {
+		ALLOW: 'default',
+		DENY: 'destructive'
+	};
+
+	// Group policies by resource type
+	const groupedPolicies = $derived(() => {
+		const groups: Record<
+			string,
+			Array<{
+				id: string;
+				name: string;
+				description: string | null;
+				effect: string;
+				resourceType: string;
+				actionType: string;
+				rules: Array<{ attributePath: string; operator: string; value?: RuleValue }>;
+				ruleConnector: string;
+			}>
+		> = {};
+		for (const policy of policies) {
+			const rt = policy.resourceType;
+			if (!groups[rt]) groups[rt] = [];
+			groups[rt].push(policy as (typeof groups)[string][number]);
+		}
+		return groups;
+	});
+
+	const resourceTypeOrder = ['ENTRIES', 'COLLECTIONS', 'ASSETS', 'USERS'];
+	const resourceTypeLabels: Record<string, string> = {
+		ENTRIES: 'Entries',
+		COLLECTIONS: 'Collections',
+		ASSETS: 'Assets',
+		USERS: 'Users'
+	};
+
+	function togglePolicy(policyId: string, checked: boolean) {
+		if (checked) {
+			selectedPolicyIds = [...selectedPolicyIds, policyId];
+		} else {
+			selectedPolicyIds = selectedPolicyIds.filter((id) => id !== policyId);
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
@@ -111,34 +157,68 @@
 		<!-- Section 2: Policies -->
 		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-semibold">Policies</h2>
-				<span class="text-sm text-muted-foreground">
-					{selectedPolicyIds.length} selected
-				</span>
+				<div class="flex items-center gap-2">
+					<h2 class="text-lg font-semibold">Policies</h2>
+					<span class="text-sm text-muted-foreground">
+						{selectedPolicyIds.length} selected
+					</span>
+				</div>
 			</div>
 			<Separator />
 
 			{#if policies.length === 0}
 				<p class="text-sm text-muted-foreground italic">No policies available</p>
 			{:else}
-				<div class="flex flex-wrap gap-3">
-					{#each policies as policy (policy.id)}
-						<label class="flex cursor-pointer items-center gap-2 text-sm">
-							<Checkbox.Root
-								checked={selectedPolicyIds.includes(policy.id)}
-								onCheckedChange={(c) => {
-									if (c) {
-										selectedPolicyIds = [...selectedPolicyIds, policy.id];
-									} else {
-										selectedPolicyIds = selectedPolicyIds.filter((id) => id !== policy.id);
-									}
-								}}
-							/>
-							<span>{policy.name}</span>
-							<span class="text-xs text-muted-foreground"
-								>— {policy.effect.toLowerCase()} · {policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}</span
-							>
-						</label>
+				<div class="space-y-6">
+					{#each resourceTypeOrder as resourceType (resourceType)}
+						{@const groupPolicies = groupedPolicies()[resourceType] ?? []}
+						{#if groupPolicies.length > 0}
+							<div>
+								<h3
+									class="mb-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+								>
+									{resourceTypeLabels[resourceType]}
+								</h3>
+								<div class="space-y-2">
+									{#each groupPolicies as policy (policy.id)}
+										<label
+											class="flex cursor-pointer items-start gap-3 rounded-md p-3 text-sm transition-colors hover:bg-muted/50"
+										>
+											<Checkbox.Root
+												checked={selectedPolicyIds.includes(policy.id)}
+												onCheckedChange={(c) => togglePolicy(policy.id, !!c)}
+												class="mt-0.5"
+											/>
+											<div class="min-w-0 flex-1">
+												<div class="flex flex-wrap items-center gap-2">
+													<span class="font-medium">{policy.name}</span>
+													<Badge
+														variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}
+														class="text-[10px]"
+													>
+														{policy.effect === 'ALLOW' ? 'Allow' : 'Block'}
+													</Badge>
+												</div>
+												<p class="mt-1 text-xs text-muted-foreground">
+													{policyToSentence(
+														policy.resourceType,
+														policy.actionType,
+														policy.effect,
+														policy.ruleConnector,
+														policy.rules
+													)}
+												</p>
+												{#if policy.description}
+													<p class="mt-0.5 text-xs text-muted-foreground">
+														{policy.description}
+													</p>
+												{/if}
+											</div>
+										</label>
+									{/each}
+								</div>
+							</div>
+						{/if}
 					{/each}
 				</div>
 			{/if}
@@ -147,19 +227,23 @@
 		<!-- Section 3: Roles -->
 		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-semibold">Roles</h2>
-				<span class="text-sm text-muted-foreground">
-					{selectedRoleIds.length} selected
-				</span>
+				<div class="flex items-center gap-2">
+					<h2 class="text-lg font-semibold">Roles</h2>
+					<span class="text-sm text-muted-foreground">
+						{selectedRoleIds.length} selected
+					</span>
+				</div>
 			</div>
 			<Separator />
 
 			{#if roles.nodes.length === 0}
 				<p class="text-sm text-muted-foreground italic">No roles available</p>
 			{:else}
-				<div class="flex flex-wrap gap-3">
+				<div class="space-y-2">
 					{#each roles.nodes as role (role.id)}
-						<label class="flex cursor-pointer items-center gap-2 text-sm">
+						<label
+							class="flex cursor-pointer items-start gap-3 rounded-md p-3 text-sm transition-colors hover:bg-muted/50"
+						>
 							<Checkbox.Root
 								checked={selectedRoleIds.includes(role.id)}
 								onCheckedChange={(c) => {
@@ -169,11 +253,16 @@
 										selectedRoleIds = selectedRoleIds.filter((id) => id !== role.id);
 									}
 								}}
+								class="mt-0.5"
 							/>
-							<span>{role.name}</span>
-							{#if role.description}
-								<span class="text-xs text-muted-foreground">— {role.description}</span>
-							{/if}
+							<div class="min-w-0 flex-1">
+								<span class="font-medium">{role.name}</span>
+								{#if role.description}
+									<p class="mt-0.5 text-xs text-muted-foreground">
+										{role.description}
+									</p>
+								{/if}
+							</div>
 						</label>
 					{/each}
 				</div>

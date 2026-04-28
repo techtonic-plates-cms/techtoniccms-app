@@ -19,7 +19,7 @@
 		>
 			<HelpCircleIcon class="size-3.5" />
 		</Tooltip.Trigger>
-		<Tooltip.Content {side} class="max-w-[280px] text-balance leading-relaxed">
+		<Tooltip.Content {side} class="max-w-[280px] leading-relaxed text-balance">
 			{text}
 		</Tooltip.Content>
 	</Tooltip.Root>

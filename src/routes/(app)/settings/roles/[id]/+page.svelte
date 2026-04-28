@@ -96,7 +96,7 @@
 				<div class="mt-3 space-y-3">
 					{#if allowedActions.length > 0}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+							<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 								Members can:
 							</p>
 							<ul class="mt-1 space-y-0.5">
@@ -111,7 +111,7 @@
 					{/if}
 					{#if blockedActions.length > 0}
 						<div>
-							<p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+							<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
 								Members are blocked from:
 							</p>
 							<ul class="mt-1 space-y-0.5">
@@ -148,7 +148,8 @@
 						name="description"
 						rows="2"
 						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-						>{role.description ?? ''}</textarea>
+						>{role.description ?? ''}</textarea
+					>
 				</div>
 				<Button type="submit">Save</Button>
 			</form>

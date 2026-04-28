@@ -156,7 +156,8 @@
 						name="description"
 						rows="2"
 						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-						>{policy.description ?? ''}</textarea>
+						>{policy.description ?? ''}</textarea
+					>
 				</div>
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
@@ -183,9 +184,11 @@
 							class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 						>
 							<option value="AND" selected={policy.ruleConnector === 'AND'}
-								>AND (all rules must match)</option>
+								>AND (all rules must match)</option
+							>
 							<option value="OR" selected={policy.ruleConnector === 'OR'}
-								>OR (any rule matches)</option>
+								>OR (any rule matches)</option
+							>
 						</select>
 					</div>
 				</div>
@@ -231,10 +234,10 @@
 								<form
 									{...deletePolicyRule}
 									class="ml-4"
-										onsubmit={(e) => {
-											if (!confirm('Delete this rule?')) e.preventDefault();
-										}}
-									>
+									onsubmit={(e) => {
+										if (!confirm('Delete this rule?')) e.preventDefault();
+									}}
+								>
 									<input type="hidden" name="policyId" value={policy.id} />
 									<input type="hidden" name="ruleId" value={rule.id} />
 									<button
@@ -246,8 +249,11 @@
 								</form>
 							</div>
 							<div class="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-								<span class="rounded bg-muted px-1.5 py-0.5">{getAttributeLabel(rule.attributePath)}</span>
-								<span class="rounded bg-muted px-1.5 py-0.5">{getOperatorLabel(rule.operator)}</span>
+								<span class="rounded bg-muted px-1.5 py-0.5"
+									>{getAttributeLabel(rule.attributePath)}</span
+								>
+								<span class="rounded bg-muted px-1.5 py-0.5">{getOperatorLabel(rule.operator)}</span
+								>
 								{#if rule.value}
 									<span class="rounded bg-muted px-1.5 py-0.5">
 										{valueToDisplayString(rule.value)}
@@ -288,7 +294,8 @@
 								<option value="SUBJECT_STATUS">User's status</option>
 								<option value="RESOURCE_ENTRY_CREATED_BY">Who created the entry</option>
 								<option value="RESOURCE_ENTRY_COLLECTION_ID"
-									>Which collection the entry belongs to</option>
+									>Which collection the entry belongs to</option
+								>
 								<option value="RESOURCE_ENTRY_STATUS">Entry status</option>
 								<option value="ENVIRONMENT_CURRENT_TIME">Current time</option>
 							</select>
@@ -318,11 +325,7 @@
 					</div>
 					<div class="space-y-1.5">
 						<Label for="r-val">Value</Label>
-						<Input
-							id="r-val"
-							name="valueJson"
-							placeholder="e.g. editor or editor, admin or true"
-						/>
+						<Input id="r-val" name="valueJson" placeholder="e.g. editor or editor, admin or true" />
 						<p class="text-xs text-muted-foreground">
 							For "is the same as", enter a JSON object like
 							<code class="rounded bg-muted px-1 py-0.5 text-[10px]">
@@ -331,13 +334,7 @@
 						</p>
 					</div>
 					<div class="flex items-center gap-2">
-						<input
-							id="r-active"
-							type="checkbox"
-							name="isActive"
-							class="size-4 rounded"
-							checked
-						/>
+						<input id="r-active" type="checkbox" name="isActive" class="size-4 rounded" checked />
 						<Label for="r-active">Active</Label>
 					</div>
 					<Button type="submit" variant="outline">
@@ -409,10 +406,10 @@
 			<form
 				{...deletePolicy}
 				class="flex items-center gap-3"
-					onsubmit={(e) => {
-						if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault();
-					}}
-				>
+				onsubmit={(e) => {
+					if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault();
+				}}
+			>
 				<input type="hidden" name="id" value={policy.id} />
 				<Button type="submit" variant="destructive" size="sm">Delete Policy</Button>
 			</form>
