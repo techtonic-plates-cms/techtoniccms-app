@@ -80,7 +80,7 @@
 	--border-focus: #c75a1a;
 
 	/* === Rock Texture Crack Color === */
-	--rock-crack: rgba(242, 237, 228, 0.04);
+	--rock-crack: rgba(242, 237, 228, 0.025);
 
 	/* === shadcn-svelte mapped variables === */
 	--background: #0d0d0f;
