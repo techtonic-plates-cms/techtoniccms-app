@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+	import InfoIcon from '@lucide/svelte/icons/info';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -44,6 +45,22 @@
 
 	let selectedPolicyId = $state('');
 	let policyExpiresAt = $state('');
+
+	const allowedActions = $derived(
+		role?.policies
+			.filter((p) => p.effect === 'ALLOW')
+			.map(
+				(p) => `${p.actionType.toLowerCase().replace(/_/g, ' ')} ${p.resourceType.toLowerCase()}`
+			) ?? []
+	);
+
+	const blockedActions = $derived(
+		role?.policies
+			.filter((p) => p.effect === 'DENY')
+			.map(
+				(p) => `${p.actionType.toLowerCase().replace(/_/g, ' ')} ${p.resourceType.toLowerCase()}`
+			) ?? []
+	);
 </script>
 
 {#if !role}
@@ -65,6 +82,57 @@
 			</div>
 		</div>
 
+		<!-- Plain-English summary -->
+		<div class="rounded-lg border p-5">
+			<div class="flex items-center gap-2">
+				<InfoIcon class="size-4 text-primary" />
+				<h2 class="font-semibold">What this role does</h2>
+			</div>
+			{#if role.policies.length === 0}
+				<p class="mt-3 text-sm text-muted-foreground italic">
+					This role has no policies assigned. Members of this role currently have no permissions.
+				</p>
+			{:else}
+				<div class="mt-3 space-y-3">
+					{#if allowedActions.length > 0}
+						<div>
+							<p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								Members can:
+							</p>
+							<ul class="mt-1 space-y-0.5">
+								{#each allowedActions as action (action)}
+									<li class="text-sm">
+										<span class="text-copper">✓</span>
+										{action}
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+					{#if blockedActions.length > 0}
+						<div>
+							<p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								Members are blocked from:
+							</p>
+							<ul class="mt-1 space-y-0.5">
+								{#each blockedActions as action (action)}
+									<li class="text-sm">
+										<span class="text-destructive">✗</span>
+										{action}
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</div>
+			{/if}
+			<div class="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+				<span>{role.policies.length} {role.policies.length === 1 ? 'policy' : 'policies'}</span>
+				<span>·</span>
+				<span>{role.users.length} {role.users.length === 1 ? 'member' : 'members'}</span>
+			</div>
+		</div>
+
 		<section class="space-y-4 rounded-lg border p-6">
 			<h2 class="font-semibold">Details</h2>
 			<form {...updateRole} class="space-y-4">
@@ -80,8 +148,7 @@
 						name="description"
 						rows="2"
 						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-						>{role.description ?? ''}</textarea
-					>
+						>{role.description ?? ''}</textarea>
 				</div>
 				<Button type="submit">Save</Button>
 			</form>

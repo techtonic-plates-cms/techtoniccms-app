@@ -1,5 +1,8 @@
 <script lang="ts">
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+	import InfoIcon from '@lucide/svelte/icons/info';
+	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+	import ChevronUpIcon from '@lucide/svelte/icons/chevron-up';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -9,6 +12,7 @@
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createPolicy } from '$lib/remotes/policies.remote';
 	import PolicyRuleBuilder from '$lib/components/policy-rule-builder.svelte';
+	import HelpTooltip from '$lib/components/help-tooltip.svelte';
 	import { policyToSentence, type RuleValue } from '$lib/components/policy-rule-utils';
 
 	await requireAuth();
@@ -120,6 +124,7 @@
 
 	let selectedTemplate = $state<Template | null>(null);
 	let useCustom = $state(false);
+	let showExplainer = $state(true);
 
 	let name = $state('');
 	let description = $state('');
@@ -274,9 +279,52 @@
 				</div>
 			{/each}
 
+			<!-- ABAC Explainer -->
+			{#if showExplainer}
+				<div class="rounded-lg border border-primary/20 bg-primary/5 p-5">
+					<div class="flex items-start justify-between gap-3">
+						<div class="flex items-center gap-2">
+							<InfoIcon class="size-4 text-primary" />
+							<h3 class="font-semibold text-primary">How policies work</h3>
+						</div>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							class="h-auto p-0 text-xs text-muted-foreground"
+							onclick={() => (showExplainer = false)}
+						>
+							Dismiss
+						</Button>
+					</div>
+					<div class="mt-3 space-y-2 text-sm">
+						<p>
+							<strong>Resource</strong> — The thing being protected. Entries, collections,
+							assets, or users.
+						</p>
+						<p>
+							<strong>Action</strong> — What someone is trying to do. Read, create, update,
+							delete, etc.
+						</p>
+						<p>
+							<strong>Effect</strong> — Allow grants access. Block denies access. A Block
+							policy at higher priority always wins.
+						</p>
+						<p>
+							<strong>Priority</strong> — Higher numbers are checked first. Use 2000 for
+							block rules that should override everything.
+						</p>
+						<p>
+							<strong>Rules</strong> — Optional conditions that narrow when the policy
+							applies. No rules = applies to everyone.
+						</p>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Live summary -->
 			<div class="rounded-lg border border-primary/30 bg-primary/5 p-4">
-				<p class="text-sm font-medium text-primary">This policy will:{liveSummary}</p>
+				<p class="text-sm font-medium text-primary">This policy will: {liveSummary}</p>
 			</div>
 
 			<div class="space-y-5 rounded-lg border p-6">
@@ -325,34 +373,64 @@
 			</div>
 
 			<div class="space-y-5 rounded-lg border p-6">
-				<h2 class="text-lg font-semibold">Configuration</h2>
+				<div class="flex items-center gap-2">
+					<h2 class="text-lg font-semibold">Configuration</h2>
+					<HelpTooltip
+						text="These settings define what this policy protects and whether it grants or denies access."
+					/>
+				</div>
 				<Separator />
 
 				<div class="grid gap-4 sm:grid-cols-2">
 					<div class="space-y-1.5">
-						<Label for="p-resource">Resource *</Label>
+						<div class="flex items-center gap-1.5">
+							<Label for="p-resource">Resource *</Label>
+							<HelpTooltip
+								text="What type of content does this policy protect? Entries are individual content items, Collections are content types, Assets are files, and Users are people."
+							/>
+						</div>
 						{#each createPolicy.fields.resourceType.issues() as issue (issue.message)}
 							<p class="text-xs text-destructive">{issue.message}</p>
 						{/each}
-						<Select.Root type="single" name={resourceTypeField.name} bind:value={resourceType}>
-							<Select.Trigger id="p-resource" aria-invalid={resourceTypeField['aria-invalid']}>
+						<Select.Root
+							type="single"
+							name={resourceTypeField.name}
+							bind:value={resourceType}
+						>
+							<Select.Trigger
+								id="p-resource"
+								aria-invalid={resourceTypeField['aria-invalid']}
+							>
 								<span>{resourceType.charAt(0) + resourceType.slice(1).toLowerCase()}</span>
 							</Select.Trigger>
 							<Select.Content>
 								{#each RESOURCE_TYPES as rt (rt)}
-									<Select.Item value={rt}>{rt.charAt(0) + rt.slice(1).toLowerCase()}</Select.Item>
+									<Select.Item value={rt}
+										>{rt.charAt(0) + rt.slice(1).toLowerCase()}</Select.Item>
 								{/each}
 							</Select.Content>
 						</Select.Root>
 					</div>
 
 					<div class="space-y-1.5">
-						<Label for="p-action">Action *</Label>
+						<div class="flex items-center gap-1.5">
+							<Label for="p-action">Action *</Label>
+							<HelpTooltip
+								text="What is the user trying to do? Read = view content. Create = add new content. Update = edit existing content. Delete = remove content."
+							/>
+						</div>
 						{#each createPolicy.fields.actionType.issues() as issue (issue.message)}
 							<p class="text-xs text-destructive">{issue.message}</p>
 						{/each}
-						<Select.Root type="single" name={actionTypeField.name} bind:value={actionType}>
-							<Select.Trigger id="p-action" aria-invalid={actionTypeField['aria-invalid']}>
+						<Select.Root
+							type="single"
+							name={actionTypeField.name}
+							bind:value={actionType}
+						>
+							<Select.Trigger
+								id="p-action"
+								aria-invalid={actionTypeField['aria-invalid']}
+							>
 								<span>{actionType.toLowerCase().replace(/_/g, ' ')}</span>
 							</Select.Trigger>
 							<Select.Content>
@@ -366,7 +444,12 @@
 
 				<div class="grid gap-4 sm:grid-cols-2">
 					<div class="space-y-1.5">
-						<Label for="p-effect">Effect *</Label>
+						<div class="flex items-center gap-1.5">
+							<Label for="p-effect">Effect *</Label>
+							<HelpTooltip
+								text="Allow grants access. Block denies access regardless of other policies. A Block rule with higher priority always overrides an Allow rule."
+							/>
+						</div>
 						{#each createPolicy.fields.effect.issues() as issue (issue.message)}
 							<p class="text-xs text-destructive">{issue.message}</p>
 						{/each}
@@ -382,10 +465,17 @@
 					</div>
 
 					<div class="space-y-1.5">
-						<Label for="p-connector">Rule Connector</Label>
+						<div class="flex items-center gap-1.5">
+							<Label for="p-connector">Rule Connector</Label>
+							<HelpTooltip
+								text="All rules must match = every condition must be true. Any rule matches = at least one condition must be true."
+							/>
+						</div>
 						<Select.Root type="single" name="ruleConnector" bind:value={ruleConnector}>
 							<Select.Trigger id="p-connector">
-								<span>{ruleConnector === 'AND' ? 'All rules must match' : 'Any rule matches'}</span>
+								<span>
+									{ruleConnector === 'AND' ? 'All rules must match' : 'Any rule matches'}
+								</span>
 							</Select.Trigger>
 							<Select.Content>
 								<Select.Item value="AND">All rules must match</Select.Item>
@@ -396,9 +486,15 @@
 				</div>
 
 				<div class="space-y-1.5">
-					<Label for="p-priority">Priority</Label>
+					<div class="flex items-center gap-1.5">
+						<Label for="p-priority">Priority</Label>
+						<HelpTooltip
+							text="Higher numbers are checked first. A Block rule at priority 2000 will override an Allow rule at priority 100. Use high priorities for security-critical blocks."
+						/>
+					</div>
 					<p class="text-xs text-muted-foreground">
-						Higher numbers are checked first. Block rules should usually be higher than Allow rules.
+						Higher numbers are checked first. Block rules should usually be higher than Allow
+						rules.
 					</p>
 					<div class="flex items-center gap-3">
 						<input
@@ -418,24 +514,27 @@
 							class="w-24"
 						/>
 					</div>
-					<div class="flex gap-2 text-xs text-muted-foreground">
-						<button type="button" class="hover:underline" onclick={() => (priority = 100)}
-							>Standard (100)</button
-						>
-						<span>·</span>
-						<button type="button" class="hover:underline" onclick={() => (priority = 500)}
-							>Creator (500)</button
-						>
-						<span>·</span>
-						<button type="button" class="hover:underline" onclick={() => (priority = 1000)}
-							>Admin (1000)</button
-						>
-						<span>·</span>
-						<button
-							type="button"
-							class="text-destructive hover:underline"
-							onclick={() => (priority = 2000)}>Block (2000)</button
-						>
+					<div class="flex flex-wrap gap-2 text-xs text-muted-foreground">
+					<button
+						type="button"
+						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+						onclick={() => (priority = 100)}>Standard (100)</button
+					>
+					<button
+						type="button"
+						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+						onclick={() => (priority = 500)}>Creator (500)</button
+					>
+					<button
+						type="button"
+						class="rounded bg-muted px-2 py-1 transition-colors hover:bg-muted/80"
+						onclick={() => (priority = 1000)}>Admin (1000)</button
+					>
+					<button
+						type="button"
+						class="rounded bg-destructive/10 px-2 py-1 text-destructive transition-colors hover:bg-destructive/20"
+						onclick={() => (priority = 2000)}>Block (2000)</button
+					>
 					</div>
 				</div>
 			</div>

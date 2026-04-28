@@ -4,8 +4,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { Switch } from '$lib/components/ui/switch/index.js';
+	import HelpTooltip from '$lib/components/help-tooltip.svelte';
 	import {
 		ATTRIBUTE_PATHS,
 		OPERATOR_LABELS,
@@ -127,12 +127,49 @@
 	function isArrayOperator(operator: string): boolean {
 		return operator === 'IN' || operator === 'NOT_IN';
 	}
+
+	function getValuePlaceholder(operator: string, naturalType: string): string {
+		if (operator === 'IN' || operator === 'NOT_IN') {
+			return 'Enter values separated by commas, e.g. editor, admin, viewer';
+		}
+		if (naturalType === 'datetime') {
+			return 'Select a date and time';
+		}
+		if (naturalType === 'number') {
+			return 'Enter a number, e.g. 42';
+		}
+		if (naturalType === 'boolean') {
+			return '';
+		}
+		return 'Enter value...';
+	}
+
+	function getValueHelpText(operator: string, naturalType: string): string {
+		if (operator === 'EQ_CONTEXT_REF') {
+			return "Compare this attribute to another attribute, like 'the current user's ID'.";
+		}
+		if (operator === 'IN' || operator === 'NOT_IN') {
+			return 'Enter multiple values separated by commas.';
+		}
+		if (naturalType === 'datetime') {
+			return 'Pick a date and time. The rule will compare against this moment.';
+		}
+		if (naturalType === 'uuid') {
+			return "Enter an ID. Usually you'll use 'is the same as' instead for IDs.";
+		}
+		return 'Enter the value to compare against.';
+	}
 </script>
 
 <div class="space-y-4">
 	<div class="flex items-center justify-between">
 		<div>
-			<h2 class="text-lg font-semibold">Rules</h2>
+			<div class="flex items-center gap-2">
+				<h2 class="text-lg font-semibold">Rules</h2>
+				<HelpTooltip
+					text="Rules are optional conditions that narrow when this policy applies. No rules = applies to everyone. Each rule checks one attribute against a value."
+				/>
+			</div>
 			<p class="text-sm text-muted-foreground">
 				{rules.length === 0
 					? 'No rules added. The policy will apply unconditionally.'
@@ -189,7 +226,12 @@
 
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="space-y-1.5">
-							<Label class="text-xs text-muted-foreground">When</Label>
+							<div class="flex items-center gap-1.5">
+								<Label class="text-xs text-muted-foreground">When</Label>
+								<HelpTooltip
+									text="The property we're checking. 'User's role' checks the person making the request. Properties starting with 'Resource' check the content being accessed."
+								/>
+							</div>
 							<select
 								value={rule.attributePath}
 								onchange={(e) => updateAttribute(i, e.currentTarget.value)}
@@ -202,7 +244,12 @@
 						</div>
 
 						<div class="space-y-1.5">
-							<Label class="text-xs text-muted-foreground">Condition</Label>
+							<div class="flex items-center gap-1.5">
+								<Label class="text-xs text-muted-foreground">Condition</Label>
+								<HelpTooltip
+									text="How to compare the property to the value. 'Is exactly' for exact matches. 'Is the same as' to compare two properties (like user ID = entry creator)."
+								/>
+							</div>
 							<select
 								value={rule.operator}
 								onchange={(e) => updateOperator(i, e.currentTarget.value)}
@@ -218,7 +265,12 @@
 					{#if needsValueInput(rule.operator)}
 						<div class="space-y-1.5">
 							{#if isContextRefOperator(rule.operator)}
-								<Label class="text-xs text-muted-foreground">Compare to</Label>
+								<div class="flex items-center gap-1.5">
+									<Label class="text-xs text-muted-foreground">Compare to</Label>
+									<HelpTooltip
+										text="Choose which attribute to compare against. For example, 'Who created the entry' compared to 'the current user' means only the creator can access it."
+									/>
+								</div>
 								<select
 									value={String(rule.rawValue ?? 'SUBJECT_ID')}
 									onchange={(e) => updateRuleValue(i, e.currentTarget.value)}
@@ -229,7 +281,10 @@
 									{/each}
 								</select>
 							{:else if isArrayOperator(rule.operator)}
-								<Label class="text-xs text-muted-foreground">Values (comma-separated)</Label>
+								<div class="flex items-center gap-1.5">
+									<Label class="text-xs text-muted-foreground">Values (comma-separated)</Label>
+									<HelpTooltip text="Enter multiple values separated by commas. The rule will match if the attribute is any one of these values." />
+								</div>
 								<Input
 									value={Array.isArray(rule.rawValue)
 										? rule.rawValue.join(', ')
@@ -243,11 +298,15 @@
 										checked={Boolean(rule.rawValue)}
 										onCheckedChange={(c) => updateRuleValue(i, !!c)}
 									/>
-									<span class="text-sm">{Boolean(rule.rawValue) ? 'Yes / True' : 'No / False'}</span
+									<span class="text-sm"
+										>{Boolean(rule.rawValue) ? 'Yes / True' : 'No / False'}</span
 									>
 								</div>
 							{:else if getNaturalType(rule.attributePath) === 'number'}
-								<Label class="text-xs text-muted-foreground">Number</Label>
+								<div class="flex items-center gap-1.5">
+									<Label class="text-xs text-muted-foreground">Number</Label>
+									<HelpTooltip text="Enter a numeric value. The rule will compare using the selected condition (greater than, less than, etc.)." />
+								</div>
 								<Input
 									type="number"
 									value={String(rule.rawValue ?? '')}
@@ -255,18 +314,32 @@
 									placeholder="e.g. 42"
 								/>
 							{:else if getNaturalType(rule.attributePath) === 'datetime'}
-								<Label class="text-xs text-muted-foreground">Date & time</Label>
+								<div class="flex items-center gap-1.5">
+									<Label class="text-xs text-muted-foreground">Date & time</Label>
+									<HelpTooltip text="Pick a specific date and time. Useful for time-based access restrictions like 'block after 5pm'." />
+								</div>
 								<Input
 									type="datetime-local"
 									value={String(rule.rawValue ?? '')}
 									oninput={(e) => updateRuleValue(i, e.currentTarget.value)}
 								/>
 							{:else}
-								<Label class="text-xs text-muted-foreground">Value</Label>
+								<div class="flex items-center gap-1.5">
+									<Label class="text-xs text-muted-foreground">Value</Label>
+									<HelpTooltip
+										text={getValueHelpText(
+											rule.operator,
+											getNaturalType(rule.attributePath)
+										)}
+									/>
+								</div>
 								<Input
 									value={String(rule.rawValue ?? '')}
 									oninput={(e) => updateRuleValue(i, e.currentTarget.value)}
-									placeholder="Enter value..."
+									placeholder={getValuePlaceholder(
+											rule.operator,
+											getNaturalType(rule.attributePath)
+										)}
 								/>
 							{/if}
 						</div>

@@ -126,6 +126,9 @@
 	--color-accent-copper: var(--accent-copper);
 	--color-accent-moss: var(--accent-moss);
 	--color-accent-gold: var(--accent-gold);
+	--color-copper: var(--accent-copper);
+	--color-moss: var(--accent-moss);
+	--color-gold: var(--accent-gold);
 	--color-chart-5: var(--chart-5);
 	--color-chart-4: var(--chart-4);
 	--color-chart-3: var(--chart-3);

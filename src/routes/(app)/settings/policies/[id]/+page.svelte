@@ -3,10 +3,14 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import CopyIcon from '@lucide/svelte/icons/copy';
+	import InfoIcon from '@lucide/svelte/icons/info';
+	import UsersIcon from '@lucide/svelte/icons/users';
+	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import HelpTooltip from '$lib/components/help-tooltip.svelte';
 	import {
 		getPolicy,
 		updatePolicy,
@@ -19,7 +23,8 @@
 		ruleToSentence,
 		valueToDisplayString,
 		getAttributeLabel,
-		getOperatorLabel
+		getOperatorLabel,
+		policyToSentence
 	} from '$lib/components/policy-rule-utils';
 	import type { PageProps } from './$types';
 
@@ -50,6 +55,10 @@
 			return false;
 		}
 	}
+
+	const totalAssignments = $derived(
+		(policy?.assignedToRoles.length ?? 0) + (policy?.assignedToUsers.length ?? 0)
+	);
 </script>
 
 {#if !policy}
@@ -91,6 +100,40 @@
 			</form>
 		</div>
 
+		<!-- Policy at a glance -->
+		<div class="rounded-lg border p-5">
+			<div class="flex items-center gap-2">
+				<InfoIcon class="size-4 text-primary" />
+				<h2 class="font-semibold">Policy at a glance</h2>
+			</div>
+			<div class="mt-3 rounded-md bg-muted/50 p-4">
+				<p class="text-base leading-relaxed">
+					{policyToSentence(
+						policy.resourceType,
+						policy.actionType,
+						policy.effect,
+						policy.ruleConnector,
+						policy.rules
+					)}
+				</p>
+			</div>
+			<div class="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+				<span class="inline-flex items-center gap-1">
+					<ShieldIcon class="size-3.5" />
+					{policy.assignedToRoles.length}
+					{policy.assignedToRoles.length === 1 ? 'role' : 'roles'}
+				</span>
+				<span class="inline-flex items-center gap-1">
+					<UsersIcon class="size-3.5" />
+					{policy.assignedToUsers.length}
+					{policy.assignedToUsers.length === 1 ? 'user' : 'users'}
+				</span>
+				{#if totalAssignments === 0}
+					<span class="text-xs italic">This policy is not assigned to anyone yet.</span>
+				{/if}
+			</div>
+		</div>
+
 		<!-- Metadata -->
 		<section class="space-y-4 rounded-lg border p-6">
 			<h2 class="font-semibold">Details</h2>
@@ -113,8 +156,7 @@
 						name="description"
 						rows="2"
 						class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-						>{policy.description ?? ''}</textarea
-					>
+						>{policy.description ?? ''}</textarea>
 				</div>
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
@@ -129,18 +171,21 @@
 						</select>
 					</div>
 					<div class="space-y-1.5">
-						<Label for="p-connector">Rule connector</Label>
+						<div class="flex items-center gap-1.5">
+							<Label for="p-connector">Rule connector</Label>
+							<HelpTooltip
+								text="AND = all rules must match. OR = any single rule matching is enough."
+							/>
+						</div>
 						<select
 							id="p-connector"
 							name="ruleConnector"
 							class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 						>
 							<option value="AND" selected={policy.ruleConnector === 'AND'}
-								>AND (all rules must match)</option
-							>
+								>AND (all rules must match)</option>
 							<option value="OR" selected={policy.ruleConnector === 'OR'}
-								>OR (any rule matches)</option
-							>
+								>OR (any rule matches)</option>
 						</select>
 					</div>
 				</div>
@@ -168,34 +213,47 @@
 			</div>
 
 			{#if policy.rules.length > 0}
-				<div class="divide-y rounded-md border">
+				<div class="space-y-3">
 					{#each policy.rules as rule (rule.id)}
-						<div class="flex items-center justify-between px-4 py-3">
-							<div class="min-w-0 flex-1">
-								<div class="text-sm">
-									{ruleToSentence(rule.attributePath, rule.operator, rule.value)}
+						<div class="rounded-md border p-4 transition-colors hover:bg-muted/30">
+							<div class="flex items-start justify-between gap-3">
+								<div class="min-w-0 flex-1">
+									<p class="text-sm leading-relaxed">
+										{ruleToSentence(rule.attributePath, rule.operator, rule.value)}
+									</p>
+									{#if rule.description}
+										<p class="mt-1 text-xs text-muted-foreground">{rule.description}</p>
+									{/if}
+									{#if !rule.isActive}
+										<span class="mt-1 inline-block text-xs text-destructive">inactive</span>
+									{/if}
 								</div>
-								{#if rule.description}
-									<p class="text-xs text-muted-foreground">{rule.description}</p>
-								{/if}
-								{#if !rule.isActive}<span class="text-xs text-destructive"> · inactive</span>{/if}
+								<form
+									{...deletePolicyRule}
+									class="ml-4"
+										onsubmit={(e) => {
+											if (!confirm('Delete this rule?')) e.preventDefault();
+										}}
+									>
+									<input type="hidden" name="policyId" value={policy.id} />
+									<input type="hidden" name="ruleId" value={rule.id} />
+									<button
+										type="submit"
+										class="p-1 text-muted-foreground transition-colors hover:text-destructive"
+									>
+										<TrashIcon class="size-4" />
+									</button>
+								</form>
 							</div>
-							<form
-								{...deletePolicyRule}
-								class="ml-4"
-								onsubmit={(e) => {
-									if (!confirm('Delete this rule?')) e.preventDefault();
-								}}
-							>
-								<input type="hidden" name="policyId" value={policy.id} />
-								<input type="hidden" name="ruleId" value={rule.id} />
-								<button
-									type="submit"
-									class="p-1 text-muted-foreground transition-colors hover:text-destructive"
-								>
-									<TrashIcon class="size-4" />
-								</button>
-							</form>
+							<div class="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+								<span class="rounded bg-muted px-1.5 py-0.5">{getAttributeLabel(rule.attributePath)}</span>
+								<span class="rounded bg-muted px-1.5 py-0.5">{getOperatorLabel(rule.operator)}</span>
+								{#if rule.value}
+									<span class="rounded bg-muted px-1.5 py-0.5">
+										{valueToDisplayString(rule.value)}
+									</span>
+								{/if}
+							</div>
 						</div>
 					{/each}
 				</div>
@@ -215,7 +273,12 @@
 					<input type="hidden" name="policyId" value={policy.id} />
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="space-y-1.5">
-							<Label for="r-attr">When</Label>
+							<div class="flex items-center gap-1.5">
+								<Label for="r-attr">When</Label>
+								<HelpTooltip
+									text="The property we're checking. 'User's role' checks the person making the request. 'Who created the entry' checks the content itself."
+								/>
+							</div>
 							<select
 								id="r-attr"
 								name="attributePath"
@@ -225,14 +288,18 @@
 								<option value="SUBJECT_STATUS">User's status</option>
 								<option value="RESOURCE_ENTRY_CREATED_BY">Who created the entry</option>
 								<option value="RESOURCE_ENTRY_COLLECTION_ID"
-									>Which collection the entry belongs to</option
-								>
+									>Which collection the entry belongs to</option>
 								<option value="RESOURCE_ENTRY_STATUS">Entry status</option>
 								<option value="ENVIRONMENT_CURRENT_TIME">Current time</option>
 							</select>
 						</div>
 						<div class="space-y-1.5">
-							<Label for="r-op">Condition</Label>
+							<div class="flex items-center gap-1.5">
+								<Label for="r-op">Condition</Label>
+								<HelpTooltip
+									text="How we compare the property to the value. 'Is exactly' for exact matches. 'Is the same as' to compare two properties."
+								/>
+							</div>
 							<select
 								id="r-op"
 								name="operator"
@@ -251,14 +318,26 @@
 					</div>
 					<div class="space-y-1.5">
 						<Label for="r-val">Value</Label>
-						<Input id="r-val" name="valueJson" placeholder="e.g. editor or editor, admin or true" />
+						<Input
+							id="r-val"
+							name="valueJson"
+							placeholder="e.g. editor or editor, admin or true"
+						/>
 						<p class="text-xs text-muted-foreground">
 							For "is the same as", enter a JSON object like
-							&#123;"contextReferencePath":"SUBJECT_ID"&#125;
+							<code class="rounded bg-muted px-1 py-0.5 text-[10px]">
+								&#123;"contextReferencePath":"SUBJECT_ID"&#125;
+							</code>
 						</p>
 					</div>
 					<div class="flex items-center gap-2">
-						<input id="r-active" type="checkbox" name="isActive" class="size-4 rounded" checked />
+						<input
+							id="r-active"
+							type="checkbox"
+							name="isActive"
+							class="size-4 rounded"
+							checked
+						/>
 						<Label for="r-active">Active</Label>
 					</div>
 					<Button type="submit" variant="outline">
@@ -330,10 +409,10 @@
 			<form
 				{...deletePolicy}
 				class="flex items-center gap-3"
-				onsubmit={(e) => {
-					if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault();
-				}}
-			>
+					onsubmit={(e) => {
+						if (!confirm(`Delete policy "${policy.name}"?`)) e.preventDefault();
+					}}
+				>
 				<input type="hidden" name="id" value={policy.id} />
 				<Button type="submit" variant="destructive" size="sm">Delete Policy</Button>
 			</form>

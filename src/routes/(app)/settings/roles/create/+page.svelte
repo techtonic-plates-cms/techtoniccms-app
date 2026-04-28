@@ -10,6 +10,7 @@
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createRole } from '$lib/remotes/roles.remote';
 	import { getPolicies } from '$lib/remotes/policies.remote';
+	import { policyToSentence, type RuleValue } from '$lib/components/policy-rule-utils';
 
 	await requireAuth();
 
@@ -29,6 +30,45 @@
 		ALLOW: 'default',
 		DENY: 'destructive'
 	};
+
+	// Group policies by resource type
+	const groupedPolicies = $derived(() => {
+		const groups: Record<
+			string,
+			Array<{
+				id: string;
+				name: string;
+				description: string | null;
+				effect: string;
+				resourceType: string;
+				actionType: string;
+				rules: Array<{ attributePath: string; operator: string; value?: RuleValue }>;
+				ruleConnector: string;
+			}>
+		> = {};
+		for (const policy of policies) {
+			const rt = policy.resourceType;
+			if (!groups[rt]) groups[rt] = [];
+			groups[rt].push(policy as typeof groups[string][number]);
+		}
+		return groups;
+	});
+
+	const resourceTypeOrder = ['ENTRIES', 'COLLECTIONS', 'ASSETS', 'USERS'];
+	const resourceTypeLabels: Record<string, string> = {
+		ENTRIES: 'Entries',
+		COLLECTIONS: 'Collections',
+		ASSETS: 'Assets',
+		USERS: 'Users'
+	};
+
+	function togglePolicy(policyId: string, checked: boolean) {
+		if (checked) {
+			selectedPolicyIds = [...selectedPolicyIds, policyId];
+		} else {
+			selectedPolicyIds = selectedPolicyIds.filter((id) => id !== policyId);
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
@@ -87,44 +127,65 @@
 
 		<div class="space-y-5 rounded-lg border p-6">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-semibold">Policies</h2>
-				<span class="text-sm text-muted-foreground">
-					{selectedPolicyIds.length} selected
-				</span>
+				<div class="flex items-center gap-2">
+					<h2 class="text-lg font-semibold">Policies</h2>
+					<span class="text-sm text-muted-foreground">
+						{selectedPolicyIds.length} selected
+					</span>
+				</div>
 			</div>
 			<Separator />
 
 			{#if policies.length === 0}
 				<p class="text-sm text-muted-foreground italic">No policies available</p>
 			{:else}
-				<div class="flex flex-col gap-2">
-					{#each policies as policy (policy.id)}
-						<label
-							class="flex cursor-pointer items-center gap-3 rounded-md p-2 text-sm transition-colors hover:bg-muted/50"
-						>
-							<Checkbox.Root
-								checked={selectedPolicyIds.includes(policy.id)}
-								onCheckedChange={(c) => {
-									if (c) {
-										selectedPolicyIds = [...selectedPolicyIds, policy.id];
-									} else {
-										selectedPolicyIds = selectedPolicyIds.filter((id) => id !== policy.id);
-									}
-								}}
-							/>
-							<span class="font-medium">{policy.name}</span>
-							<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
-								{policy.effect.toLowerCase()}
-							</Badge>
-							<span class="text-xs text-muted-foreground"
-								>{policy.resourceType.toLowerCase()} · {policy.actionType
-									.toLowerCase()
-									.replace(/_/g, ' ')}</span
-							>
-							{#if policy.description}
-								<span class="text-xs text-muted-foreground">— {policy.description}</span>
-							{/if}
-						</label>
+				<div class="space-y-6">
+					{#each resourceTypeOrder as resourceType (resourceType)}
+						{@const groupPolicies = groupedPolicies()[resourceType] ?? []}
+						{#if groupPolicies.length > 0}
+							<div>
+								<h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+								>{resourceTypeLabels[resourceType]}</h3>
+								<div class="space-y-2">
+									{#each groupPolicies as policy (policy.id)}
+										<label
+											class="flex cursor-pointer items-start gap-3 rounded-md p-3 text-sm transition-colors hover:bg-muted/50"
+										>
+											<Checkbox.Root
+												checked={selectedPolicyIds.includes(policy.id)}
+												onCheckedChange={(c) => togglePolicy(policy.id, !!c)}
+												class="mt-0.5"
+											/>
+											<div class="min-w-0 flex-1">
+												<div class="flex flex-wrap items-center gap-2">
+													<span class="font-medium">{policy.name}</span>
+													<Badge
+														variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}
+														class="text-[10px]"
+													>
+														{policy.effect === 'ALLOW' ? 'Allow' : 'Block'}
+													</Badge>
+												</div>
+												<p class="mt-1 text-xs text-muted-foreground">
+													{policyToSentence(
+														policy.resourceType,
+														policy.actionType,
+														policy.effect,
+														policy.ruleConnector,
+														policy.rules
+													)}
+												</p>
+												{#if policy.description}
+													<p class="mt-0.5 text-xs text-muted-foreground">
+														{policy.description}
+													</p>
+												{/if}
+											</div>
+										</label>
+									{/each}
+								</div>
+							</div>
+						{/if}
 					{/each}
 				</div>
 			{/if}
