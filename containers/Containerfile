@@ -1,0 +1,29 @@
+
+FROM docker.io/denoland/deno:latest AS builder
+
+# Set working directory
+WORKDIR /build
+RUN apt-get update && \
+    apt-get install -y curl nodejs npm
+
+
+# Copy application source code
+ADD . .
+
+RUN deno i
+RUN ls
+RUN deno task compile
+
+FROM debian:bookworm-slim
+WORKDIR /app
+
+COPY --from=builder /build/build/out ./server
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y libgcc1 && \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 3000
+
+CMD ["./server"]
