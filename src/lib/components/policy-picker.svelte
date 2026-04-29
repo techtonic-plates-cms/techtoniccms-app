@@ -3,6 +3,7 @@
 	import { getPolicies } from '$lib/remotes/policies.remote';
 
 	let {
+		// eslint-disable-next-line no-useless-assignment
 		value = $bindable(''),
 		placeholder = 'Search policies...',
 		onSelect

@@ -9,6 +9,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { resolve } from '$app/paths';
 	import { getAudits } from '$lib/remotes/audit.remote';
 
 	const search = $derived(page.url.searchParams.get('search') ?? undefined);
@@ -157,7 +158,7 @@
 
 	<!-- Filters -->
 	<div class="flex flex-wrap items-end gap-3">
-		<div class="relative max-w-sm min-w-[200px] flex-1">
+		<div class="relative max-w-sm min-w-50 flex-1">
 			<SearchIcon class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 			<Input
 				placeholder="Search by user..."
@@ -167,7 +168,7 @@
 			/>
 		</div>
 		<Select.Root type="single" value={decision} onValueChange={(v) => updateFilter('decision', v)}>
-			<Select.Trigger class="w-[130px]">
+			<Select.Trigger class="w-32.5">
 				<span>
 					{#if decision === 'ALLOW'}
 						Allow
@@ -189,7 +190,7 @@
 			value={resourceType}
 			onValueChange={(v) => updateFilter('resourceType', v)}
 		>
-			<Select.Trigger class="w-[150px]">
+			<Select.Trigger class="w-37.5">
 				<span>
 					{#if resourceType}
 						{resourceType}
@@ -210,7 +211,7 @@
 			value={requestedAction}
 			onValueChange={(v) => updateFilter('requestedAction', v)}
 		>
-			<Select.Trigger class="w-[150px]">
+			<Select.Trigger class="w-37.5">
 				<span>
 					{#if requestedAction}
 						{requestedAction}
@@ -269,7 +270,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href="/settings/audit/{audit.id}"
+									href={resolve(('/settings/audit/' + audit.id) as Parameters<typeof resolve>[0])}
 									class="font-mono text-xs transition-colors hover:text-primary"
 								>
 									{new Date(audit.timestamp).toLocaleString()}
@@ -278,7 +279,9 @@
 							</td>
 							<td class="px-4 py-3">
 								<a
-									href="/settings/users/{audit.user.id}"
+									href={resolve(
+										('/settings/users/' + audit.user.id) as Parameters<typeof resolve>[0]
+									)}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{audit.user.name}
@@ -310,11 +313,16 @@
 		{#if auditsData.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href="/settings/audit?after={auditsData.pageInfo.endCursor}{search
-						? '&search=' + encodeURIComponent(search)
-						: ''}{decision ? '&decision=' + decision : ''}{resourceType
-						? '&resourceType=' + resourceType
-						: ''}{requestedAction ? '&requestedAction=' + requestedAction : ''}"
+					href={resolve(
+						('/settings/audit?after=' +
+							auditsData.pageInfo.endCursor +
+							(search ? '&search=' + encodeURIComponent(search) : '') +
+							(decision ? '&decision=' + decision : '') +
+							(resourceType ? '&resourceType=' + resourceType : '') +
+							(requestedAction ? '&requestedAction=' + requestedAction : '')) as Parameters<
+							typeof resolve
+						>[0]
+					)}
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

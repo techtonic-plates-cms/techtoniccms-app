@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { resolve } from '$app/paths';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 
 	await requireAuth();
@@ -8,7 +9,10 @@
 
 <div class="space-y-6">
 	<div class="flex items-center gap-3">
-		<a href="/settings/users" class="text-muted-foreground transition-colors hover:text-foreground">
+		<a
+			href={resolve('/settings/users')}
+			class="text-muted-foreground transition-colors hover:text-foreground"
+		>
 			<ArrowLeftIcon class="size-4" />
 		</a>
 		<div>
@@ -28,7 +32,7 @@
 			For now, you can review effective permissions by checking the user's roles and policies
 			directly.
 		</p>
-		<a href="/settings/users">
+		<a href={resolve('/settings/users')}>
 			<Button variant="outline">Go to Users</Button>
 		</a>
 	</div>

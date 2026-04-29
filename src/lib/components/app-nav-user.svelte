@@ -6,6 +6,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { logout } from '$lib/remotes/auth.remote';
+	import { resolve } from '$app/paths';
 
 	let { user }: { user: { id: string; name: string; status: string } } = $props();
 
@@ -66,7 +67,10 @@
 				<DropdownMenu.Group>
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
-							<a href="/settings/users/{user.id}" {...props}>
+							<a
+								href={resolve(('/settings/users/' + user.id) as Parameters<typeof resolve>[0])}
+								{...props}
+							>
 								<SettingsIcon class="size-4" />
 								Settings
 							</a>

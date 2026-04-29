@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import FilterIcon from '@lucide/svelte/icons/filter';
@@ -41,27 +42,6 @@
 	});
 
 	const RESOURCE_TYPES = ['ASSETS', 'COLLECTIONS', 'ENTRIES', 'USERS'];
-	const ACTION_TYPES = [
-		'ACTIVATE',
-		'ARCHIVE',
-		'BAN',
-		'CONFIGURE_FIELDS',
-		'CREATE',
-		'DEACTIVATE',
-		'DELETE',
-		'DOWNLOAD',
-		'DRAFT',
-		'MANAGE_SCHEMA',
-		'PUBLISH',
-		'READ',
-		'RESTORE',
-		'SCHEDULE',
-		'TRANSFORM',
-		'UNBAN',
-		'UNPUBLISH',
-		'UPDATE',
-		'UPLOAD'
-	];
 
 	let searchInput = $state(page.url.searchParams.get('search') ?? '');
 
@@ -97,7 +77,7 @@
 			<h1 class="text-2xl font-bold">Policies</h1>
 			<p class="text-sm text-muted-foreground">Define attribute-based access control rules</p>
 		</div>
-		<a href="/settings/policies/create">
+		<a href={resolve('/settings/policies/create')}>
 			<Button>
 				<PlusIcon class="mr-2 size-4" />
 				New Policy
@@ -200,7 +180,7 @@
 				<p class="mt-1 text-sm text-muted-foreground">Try adjusting your filters</p>
 			{:else}
 				<p class="mt-1 text-sm text-muted-foreground">Get started by creating your first policy</p>
-				<a href="/settings/policies/create" class="mt-4 inline-block">
+				<a href={resolve('/settings/policies/create')} class="mt-4 inline-block">
 					<Button>
 						<PlusIcon class="mr-2 size-4" />
 						Create Policy
@@ -233,7 +213,7 @@
 						>
 							<td class="px-4 py-3">
 								<a
-									href="/settings/policies/{policy.id}"
+									href={resolve(`/settings/policies/${policy.id}`)}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{policy.name}
@@ -282,11 +262,13 @@
 		{#if policiesData.pageInfo.hasNextPage}
 			<div class="flex justify-center border-t p-4">
 				<a
-					href="/settings/policies?after={policiesData.pageInfo.endCursor}{search
-						? '&search=' + encodeURIComponent(search)
-						: ''}{resourceType ? '&resourceType=' + resourceType : ''}{actionType
-						? '&actionType=' + actionType
-						: ''}{effect ? '&effect=' + effect : ''}{isActive ? '&isActive=' + isActive : ''}"
+					href={resolve(
+						`/settings/policies?after=${policiesData.pageInfo.endCursor}${
+							search ? '&search=' + encodeURIComponent(search) : ''
+						}${resourceType ? '&resourceType=' + resourceType : ''}${
+							actionType ? '&actionType=' + actionType : ''
+						}${effect ? '&effect=' + effect : ''}${isActive ? '&isActive=' + isActive : ''}`
+					)}
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

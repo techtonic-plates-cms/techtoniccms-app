@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import CopyIcon from '@lucide/svelte/icons/copy';
@@ -89,7 +90,7 @@
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
 			<a
-				href="/settings/api-keys"
+				href={resolve('/settings/api-keys')}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />

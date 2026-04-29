@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import FileTextIcon from '@lucide/svelte/icons/file-text';
@@ -31,7 +32,10 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
-			<a href="/collections" class="text-muted-foreground transition-colors hover:text-foreground">
+			<a
+				href={resolve('/collections')}
+				class="text-muted-foreground transition-colors hover:text-foreground"
+			>
 				<ArrowLeftIcon class="size-4" />
 			</a>
 			<div>
@@ -49,10 +53,10 @@
 			</div>
 		</div>
 		<div class="flex items-center gap-2">
-			<a href="/collections/{collection?.slug}/settings">
+			<a href={resolve('/collections/{collection?.slug}/settings')}>
 				<Button variant="outline" size="sm">Settings</Button>
 			</a>
-			<a href="/collections/{collection?.slug}/entries/new">
+			<a href={resolve('/collections/{collection?.slug}/entries/new')}>
 				<Button size="sm">
 					<PlusIcon class="mr-2 size-4" />
 					New Entry
@@ -70,7 +74,7 @@
 			<p class="mt-1 mb-4 text-sm text-muted-foreground">
 				Create your first entry for this collection
 			</p>
-			<a href="/collections/{collection?.slug}/entries/new">
+			<a href={resolve('/collections/{collection?.slug}/entries/new')}>
 				<Button size="sm">
 					<PlusIcon class="mr-2 size-4" />
 					New Entry
@@ -100,7 +104,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href="/collections/{collection?.slug}/entries/{entry.id}"
+									href={resolve('/collections/{collection?.slug}/entries/{entry.id}')}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{entry.name}
@@ -128,6 +132,7 @@
 
 		{#if entries.pageInfo.hasNextPage}
 			<div class="flex justify-center">
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 				<a href="?after={entries.pageInfo.endCursor}">
 					<Button variant="outline">Load more</Button>
 				</a>

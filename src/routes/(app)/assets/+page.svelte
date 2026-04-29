@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
@@ -84,7 +85,7 @@
 					</div>
 					<div class="absolute top-1 right-1 hidden gap-1 group-hover:flex">
 						<a
-							href="/assets/_api/{asset.id}"
+							href={resolve('/assets/_api/{asset.id}')}
 							download={asset.filename}
 							class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-background"
 							title="Download"
@@ -119,7 +120,7 @@
 
 		{#if assetsData.pageInfo.hasNextPage}
 			<div class="flex justify-center pt-4">
-				<a href="/assets?after={assetsData.pageInfo.endCursor}">
+				<a href={resolve('/assets?after={assetsData.pageInfo.endCursor}')}>
 					<Button variant="outline">Load more</Button>
 				</a>
 			</div>

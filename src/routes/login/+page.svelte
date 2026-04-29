@@ -32,7 +32,7 @@
 			<p class="text-sm text-muted-foreground">Techtonic CMS</p>
 		</div>
 
-		{#each login.fields.allIssues() as issue}
+		{#each login.fields.allIssues() as issue (issue.message)}
 			<div
 				class="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive"
 			>
@@ -43,7 +43,7 @@
 		<form {...login.preflight(preflight)} class="space-y-4">
 			<div class="space-y-1.5">
 				<Label for="name">Username</Label>
-				{#each login.fields.name.issues() as issue}
+				{#each login.fields.name.issues() as issue (issue.message)}
 					<p class="text-xs text-destructive">{issue.message}</p>
 				{/each}
 				<Input
@@ -56,7 +56,7 @@
 
 			<div class="space-y-1.5">
 				<Label for="password">Password</Label>
-				{#each login.fields._password.issues() as issue}
+				{#each login.fields._password.issues() as issue (issue.message)}
 					<p class="text-xs text-destructive">{issue.message}</p>
 				{/each}
 				<Input

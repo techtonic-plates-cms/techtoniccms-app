@@ -8,6 +8,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { resolve } from '$app/paths';
 	import { getRoles } from '$lib/remotes/roles.remote';
 
 	const search = $derived(page.url.searchParams.get('search') ?? undefined);
@@ -50,7 +51,7 @@
 			<h1 class="text-2xl font-bold">Roles</h1>
 			<p class="text-sm text-muted-foreground">Group permissions into reusable roles</p>
 		</div>
-		<a href="/settings/roles/create">
+		<a href={resolve('/settings/roles/create')}>
 			<Button>
 				<PlusIcon class="mr-2 size-4" />
 				New Role
@@ -116,7 +117,7 @@
 				<p class="mt-1 text-sm text-muted-foreground">Try a different search term</p>
 			{:else}
 				<p class="mt-1 text-sm text-muted-foreground">Get started by creating your first role</p>
-				<a href="/settings/roles/create" class="mt-4 inline-block">
+				<a href={resolve('/settings/roles/create')} class="mt-4 inline-block">
 					<Button>
 						<PlusIcon class="mr-2 size-4" />
 						Create Role
@@ -144,7 +145,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href="/settings/roles/{role.id}"
+									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}
@@ -213,7 +214,7 @@
 		</div>
 		{#if roles.pageInfo.hasNextPage}
 			<div class="flex justify-center">
-				<a href="?after={roles.pageInfo.endCursor}">
+				<a href={resolve(('?after=' + roles.pageInfo.endCursor) as Parameters<typeof resolve>[0])}>
 					<Button variant="outline">Load more</Button>
 				</a>
 			</div>

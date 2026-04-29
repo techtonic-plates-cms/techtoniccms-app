@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -16,7 +17,7 @@
 			<h1 class="text-2xl font-bold">API Keys</h1>
 			<p class="text-sm text-muted-foreground">Manage API keys for programmatic access</p>
 		</div>
-		<a href="/settings/api-keys/create">
+		<a href={resolve('/settings/api-keys/create')}>
 			<Button>
 				<PlusIcon class="mr-2 size-4" />
 				New API Key
@@ -44,7 +45,7 @@
 					<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 						<td class="px-4 py-3">
 							<a
-								href="/settings/api-keys/{apiKey.id}"
+								href={resolve('/settings/api-keys/{apiKey.id}')}
 								class="font-medium transition-colors hover:text-primary"
 							>
 								{apiKey.name}
@@ -79,6 +80,7 @@
 
 	{#if apiKeys.pageInfo.hasNextPage}
 		<div class="flex justify-center">
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a href="?after={apiKeys.pageInfo.endCursor}">
 				<Button variant="outline">Load more</Button>
 			</a>

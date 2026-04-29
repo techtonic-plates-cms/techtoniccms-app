@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
@@ -43,7 +44,7 @@
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
 			<a
-				href="/collections/{collection.slug}"
+				href={resolve('/collections/{collection.slug}')}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
@@ -247,7 +248,7 @@
 			<p class="text-sm text-muted-foreground">
 				Deleting this collection will permanently remove all entries and cannot be undone.
 			</p>
-			<a href="/collections">
+			<a href={resolve('/collections')}>
 				<Button variant="destructive" size="sm">Delete Collection</Button>
 			</a>
 		</section>

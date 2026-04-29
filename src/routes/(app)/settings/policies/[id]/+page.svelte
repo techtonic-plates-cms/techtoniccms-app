@@ -6,6 +6,7 @@
 	import InfoIcon from '@lucide/svelte/icons/info';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import ShieldIcon from '@lucide/svelte/icons/shield';
+	import { resolve } from '$app/paths';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -68,7 +69,7 @@
 		<div class="flex items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
 				<a
-					href="/settings/policies"
+					href={resolve('/settings/policies')}
 					class="text-muted-foreground transition-colors hover:text-foreground"
 				>
 					<ArrowLeftIcon class="size-4" />
@@ -355,7 +356,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToRoles as role (role.id)}
 								<a
-									href="/settings/roles/{role.id}"
+									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
 									{role.name}
@@ -379,7 +380,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToUsers as u (u.id)}
 								<a
-									href="/settings/users/{u.id}"
+									href={resolve(('/settings/users/' + u.id) as Parameters<typeof resolve>[0])}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
 									{u.name}

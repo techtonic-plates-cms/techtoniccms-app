@@ -3,6 +3,7 @@
 	import { getUsers } from '$lib/remotes/users.remote';
 
 	let {
+		// eslint-disable-next-line no-useless-assignment
 		value = $bindable(''),
 		placeholder = 'Search users...',
 		onSelect

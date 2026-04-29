@@ -6,6 +6,7 @@
 	import FolderIcon from '@lucide/svelte/icons/folder';
 	import ForwardIcon from '@lucide/svelte/icons/forward';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import { resolve } from '$app/paths';
 
 	let {
 		projects
@@ -29,7 +30,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
 					{#snippet child({ props })}
-						<a href={item.url} {...props}>
+						<a href={resolve(item.url as Parameters<typeof resolve>[0])} {...props}>
 							<item.icon />
 							<span>{item.name}</span>
 						</a>

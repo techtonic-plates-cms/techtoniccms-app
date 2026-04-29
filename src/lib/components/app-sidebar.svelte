@@ -11,6 +11,7 @@
 	import AppNavUser from '$lib/components/app-nav-user.svelte';
 	import NavCollections from '$lib/components/nav-collections.svelte';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	let {
 		user,
@@ -32,7 +33,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton class="data-[slot=sidebar-menu-button]:!p-1.5">
 					{#snippet child({ props })}
-						<a href="/" {...props}>
+						<a href={resolve('/')} {...props}>
 							<div
 								class="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground"
 							>
@@ -60,7 +61,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/" {...props}>
+								<a href={resolve('/')} {...props}>
 									<LayoutDashboardIcon />
 									<span>Dashboard</span>
 								</a>
@@ -85,7 +86,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/assets" {...props}>
+								<a href={resolve('/assets')} {...props}>
 									<ImageIcon />
 									<span>Assets</span>
 								</a>
@@ -109,7 +110,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/users" {...props}>
+								<a href={resolve('/settings/users')} {...props}>
 									<UsersIcon />
 									<span>Users</span>
 								</a>
@@ -125,7 +126,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/roles" {...props}>
+								<a href={resolve('/settings/roles')} {...props}>
 									<ShieldIcon />
 									<span>Roles</span>
 								</a>
@@ -141,7 +142,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/policies" {...props}>
+								<a href={resolve('/settings/policies')} {...props}>
 									<KeyIcon />
 									<span>Policies</span>
 								</a>
@@ -157,7 +158,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/api-keys" {...props}>
+								<a href={resolve('/settings/api-keys')} {...props}>
 									<KeyRoundIcon />
 									<span>API Keys</span>
 								</a>
@@ -173,7 +174,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/audit" {...props}>
+								<a href={resolve('/settings/audit')} {...props}>
 									<ClipboardListIcon />
 									<span>Activity Log</span>
 								</a>
@@ -189,7 +190,7 @@
 								: ''}
 						>
 							{#snippet child({ props })}
-								<a href="/settings/permissions/check" {...props}>
+								<a href={resolve('/settings/permissions/check')} {...props}>
 									<FlaskConicalIcon />
 									<span>Permission Check</span>
 								</a>

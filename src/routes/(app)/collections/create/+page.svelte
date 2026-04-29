@@ -2,6 +2,7 @@
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import { resolve } from '$app/paths';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -89,7 +90,10 @@
 	}
 
 	// Serialized for hidden inputs
-	const fieldsJson = $derived(JSON.stringify(fields.map(({ id, advancedOpen, ...rest }) => rest)));
+	const fieldsJson = $derived(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		JSON.stringify(fields.map(({ id: _id, advancedOpen: _advancedOpen, ...rest }) => rest))
+	);
 	const supportedLocalesStr = $derived(supportedLocales.join(','));
 
 	// Preflight validation
@@ -124,7 +128,7 @@
 	<!-- Header -->
 	<div class="space-y-2">
 		<a
-			href="/collections"
+			href={resolve('/collections')}
 			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
@@ -232,7 +236,7 @@
 							class="h-9 w-20 cursor-pointer"
 						/>
 						<div class="flex gap-1">
-							{#each COLOR_PRESETS as preset}
+							{#each COLOR_PRESETS as preset (preset)}
 								<button
 									type="button"
 									class="size-6 rounded transition-transform hover:scale-110"
@@ -268,7 +272,7 @@
 								<span>{defaultLocale}</span>
 							</Select.Trigger>
 							<Select.Content>
-								{#each LOCALES as locale}
+								{#each LOCALES as locale (locale)}
 									<Select.Item value={locale}>{locale}</Select.Item>
 								{/each}
 							</Select.Content>
@@ -278,7 +282,7 @@
 					<div class="space-y-2">
 						<Label>Supported Locales</Label>
 						<div class="flex flex-wrap gap-2">
-							{#each LOCALES as locale}
+							{#each LOCALES as locale (locale)}
 								<label class="flex cursor-pointer items-center gap-2 text-sm">
 									<Checkbox.Root
 										checked={supportedLocales.includes(locale)}
@@ -359,7 +363,7 @@
 											<span>{field.dataType}</span>
 										</Select.Trigger>
 										<Select.Content>
-											{#each DATA_TYPES as dt}
+											{#each DATA_TYPES as dt (dt.value)}
 												<Select.Item value={dt.value}>{dt.label}</Select.Item>
 											{/each}
 										</Select.Content>
@@ -462,7 +466,7 @@
 
 		<!-- Form actions -->
 		<div class="flex items-center justify-between border-t pt-4">
-			<a href="/collections">
+			<a href={resolve('/collections')}>
 				<Button type="button" variant="ghost">Cancel</Button>
 			</a>
 			<Button type="submit">Create Collection</Button>

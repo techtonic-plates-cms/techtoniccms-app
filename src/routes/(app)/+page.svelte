@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UsersIcon from '@lucide/svelte/icons/users';
@@ -58,7 +59,7 @@
 				<div>
 					<p class="text-2xl font-bold">—</p>
 					<p class="text-sm text-muted-foreground">Assets</p>
-					<a href="/assets" class="text-xs text-primary hover:underline">View library</a>
+					<a href={resolve('/assets')} class="text-xs text-primary hover:underline">View library</a>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -68,14 +69,17 @@
 		<div>
 			<div class="mb-3 flex items-center justify-between">
 				<h2 class="font-semibold">Collections</h2>
-				<a href="/collections" class="flex items-center gap-1 text-sm text-primary hover:underline">
+				<a
+					href={resolve('/collections')}
+					class="flex items-center gap-1 text-sm text-primary hover:underline"
+				>
 					View all <ArrowRightIcon class="size-3" />
 				</a>
 			</div>
 			<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{#each collections.slice(0, 6) as collection (collection.id)}
 					<a
-						href="/collections/{collection.slug}"
+						href={resolve('/collections/{collection.slug}')}
 						class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
 					>
 						{#if collection.icon}
@@ -110,7 +114,9 @@
 			<LayersIcon class="mx-auto mb-3 size-10 text-muted-foreground" />
 			<p class="font-medium">No collections yet</p>
 			<p class="mt-1 text-sm text-muted-foreground">
-				<a href="/collections" class="text-primary hover:underline">Create your first collection</a>
+				<a href={resolve('/collections')} class="text-primary hover:underline"
+					>Create your first collection</a
+				>
 				to start managing content.
 			</p>
 		</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
@@ -20,7 +21,7 @@
 			<h1 class="text-2xl font-bold">Collections</h1>
 			<p class="text-sm text-muted-foreground">Manage your content types and their entries</p>
 		</div>
-		<a href="/collections/create">
+		<a href={resolve('/collections/create')}>
 			<Button>
 				<PlusIcon class="mr-2 size-4" />
 				New Collection
@@ -66,7 +67,7 @@
 								{/if}
 								<div class="min-w-0">
 									<a
-										href="/collections/{collection.slug}"
+										href={resolve('/collections/{collection.slug}')}
 										class="block truncate font-semibold transition-colors hover:text-primary"
 									>
 										{collection.name}
@@ -75,7 +76,7 @@
 								</div>
 							</div>
 							<a
-								href="/collections/{collection.slug}/settings"
+								href={resolve('/collections/{collection.slug}/settings')}
 								class="shrink-0 p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
 							>
 								<SettingsIcon class="size-4" />

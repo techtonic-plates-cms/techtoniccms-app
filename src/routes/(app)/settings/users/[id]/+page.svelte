@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
+	import { resolve } from '$app/paths';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -61,7 +62,7 @@
 		<div class="flex items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
 				<a
-					href="/settings/users"
+					href={resolve('/settings/users')}
 					class="text-muted-foreground transition-colors hover:text-foreground"
 				>
 					<ArrowLeftIcon class="size-4" />
@@ -117,7 +118,7 @@
 						<div class="flex items-center justify-between px-4 py-3">
 							<div>
 								<a
-									href="/settings/roles/{role.id}"
+									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}

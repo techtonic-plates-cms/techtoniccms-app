@@ -7,6 +7,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as v from 'valibot';
+	import { resolve } from '$app/paths';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createRole } from '$lib/remotes/roles.remote';
 	import { getPolicies } from '$lib/remotes/policies.remote';
@@ -74,7 +75,7 @@
 <div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
 	<div class="space-y-2">
 		<a
-			href="/settings/roles"
+			href={resolve('/settings/roles')}
 			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
@@ -195,7 +196,7 @@
 		</div>
 
 		<div class="flex items-center justify-between border-t pt-4">
-			<a href="/settings/roles">
+			<a href={resolve('/settings/roles')}>
 				<Button type="button" variant="ghost">Cancel</Button>
 			</a>
 			<Button type="submit">Create Role</Button>

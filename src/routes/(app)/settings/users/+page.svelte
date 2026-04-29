@@ -10,6 +10,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
+	import { resolve } from '$app/paths';
 	import { getUsers } from '$lib/remotes/users.remote';
 
 	const search = $derived(page.url.searchParams.get('search') ?? undefined);
@@ -65,7 +66,7 @@
 			<h1 class="text-2xl font-bold">Users</h1>
 			<p class="text-sm text-muted-foreground">Manage user accounts and roles</p>
 		</div>
-		<a href="/settings/users/create">
+		<a href={resolve('/settings/users/create')}>
 			<Button>
 				<PlusIcon class="mr-2 size-4" />
 				New User
@@ -117,7 +118,7 @@
 			/>
 		</div>
 		<Select.Root type="single" value={status} onValueChange={(v) => updateFilter('status', v)}>
-			<Select.Trigger class="w-[140px]">
+			<Select.Trigger class="w-35">
 				<span>
 					{#if status === 'ACTIVE'}
 						Active
@@ -149,7 +150,7 @@
 				<p class="mt-1 text-sm text-muted-foreground">Try adjusting your filters</p>
 			{:else}
 				<p class="mt-1 text-sm text-muted-foreground">Get started by creating your first user</p>
-				<a href="/settings/users/create" class="mt-4 inline-block">
+				<a href={resolve('/settings/users/create')} class="mt-4 inline-block">
 					<Button>
 						<PlusIcon class="mr-2 size-4" />
 						Create User
@@ -177,7 +178,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href="/settings/users/{user.id}"
+									href={resolve(('/settings/users/' + user.id) as Parameters<typeof resolve>[0])}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{user.name}
@@ -210,9 +211,12 @@
 		{#if users.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href="?after={users.pageInfo.endCursor}{search
-						? '&search=' + encodeURIComponent(search)
-						: ''}{status ? '&status=' + status : ''}"
+					href={resolve(
+						('?after=' +
+							users.pageInfo.endCursor +
+							(search ? '&search=' + encodeURIComponent(search) : '') +
+							(status ? '&status=' + status : '')) as Parameters<typeof resolve>[0]
+					)}
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

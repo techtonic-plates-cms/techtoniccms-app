@@ -18,6 +18,7 @@
 	} from '$lib/remotes/entries.remote';
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 	import EntriesCombobox from '$lib/components/entries-combobox.svelte';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		collection: Collection;
@@ -78,7 +79,7 @@
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
 			<a
-				href="/collections/{collectionSlug}"
+				href={resolve(('/collections/' + collectionSlug) as Parameters<typeof resolve>[0])}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
@@ -192,7 +193,11 @@
 										/>
 										<p class="text-xs text-muted-foreground">
 											Relates to: <a
-												href="/collections/{field.relatedCollection.slug}"
+												href={resolve(
+													('/collections/' + field.relatedCollection.slug) as Parameters<
+														typeof resolve
+													>[0]
+												)}
 												class="hover:underline">{field.relatedCollection.name}</a
 											>
 										</p>

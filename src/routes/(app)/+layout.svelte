@@ -5,7 +5,6 @@
 	import { getCollections } from '$lib/remotes/collections.remote';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
-	import RockTexture from '$lib/components/rock-texture.svelte';
 
 	let { children } = $props();
 

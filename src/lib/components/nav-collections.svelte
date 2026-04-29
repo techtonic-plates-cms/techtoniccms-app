@@ -4,6 +4,7 @@
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	let {
 		collections
@@ -27,7 +28,7 @@
 				: ''}
 		>
 			{#snippet child({ props })}
-				<a href="/collections" {...props}>
+				<a href={resolve('/collections')} {...props}>
 					<LayersIcon />
 					<span>Collections</span>
 				</a>
@@ -46,7 +47,7 @@
 						: ''}
 				>
 					{#snippet child({ props })}
-						<a href="/collections" {...props}>
+						<a href={resolve('/collections')} {...props}>
 							<LayersIcon />
 							<span>Collections</span>
 						</a>
@@ -74,7 +75,12 @@
 										: ''}
 								>
 									{#snippet child({ props })}
-										<a href="/collections/{collection.slug}" {...props}>
+										<a
+											href={resolve(
+												('/collections/' + collection.slug) as Parameters<typeof resolve>[0]
+											)}
+											{...props}
+										>
 											<span>{collection.name}</span>
 										</a>
 									{/snippet}

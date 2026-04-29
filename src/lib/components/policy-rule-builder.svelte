@@ -8,14 +8,10 @@
 	import HelpTooltip from '$lib/components/help-tooltip.svelte';
 	import {
 		ATTRIBUTE_PATHS,
-		OPERATOR_LABELS,
-		CONTEXT_REF_LABELS,
 		getNaturalType,
-		getAttributeLabel,
 		getOperatorLabel,
 		getContextRefLabel,
 		buildValue,
-		readValue,
 		ruleToSentence,
 		type RuleValue
 	} from './policy-rule-utils';
@@ -33,8 +29,6 @@
 	let { rules = $bindable([]) }: { rules?: RuleRow[] } = $props();
 
 	let nextId = 0;
-
-	const ALL_OPERATORS = Object.keys(OPERATOR_LABELS);
 
 	const OPERATORS_FOR_TYPE: Record<string, string[]> = {
 		string: [
@@ -300,8 +294,7 @@
 										checked={Boolean(rule.rawValue)}
 										onCheckedChange={(c) => updateRuleValue(i, !!c)}
 									/>
-									<span class="text-sm">{Boolean(rule.rawValue) ? 'Yes / True' : 'No / False'}</span
-									>
+									<span class="text-sm">{rule.rawValue ? 'Yes / True' : 'No / False'}</span>
 								</div>
 							{:else if getNaturalType(rule.attributePath) === 'number'}
 								<div class="flex items-center gap-1.5">

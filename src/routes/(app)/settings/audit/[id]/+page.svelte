@@ -5,6 +5,7 @@
 	import ClockIcon from '@lucide/svelte/icons/clock';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { resolve } from '$app/paths';
 	import { getAudit } from '$lib/remotes/audit.remote';
 	import type { PageProps } from './$types';
 
@@ -33,7 +34,7 @@
 	<div class="space-y-6">
 		<div class="flex items-center gap-3">
 			<a
-				href="/settings/audit"
+				href={resolve('/settings/audit')}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
@@ -44,7 +45,7 @@
 			</div>
 		</div>
 		<p class="text-muted-foreground">This audit entry could not be found.</p>
-		<a href="/settings/audit">
+		<a href={resolve('/settings/audit')}>
 			<Button variant="outline">Back to Activity Log</Button>
 		</a>
 	</div>
@@ -52,7 +53,7 @@
 	<div class="space-y-6">
 		<div class="flex items-center gap-3">
 			<a
-				href="/settings/audit"
+				href={resolve('/settings/audit')}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
@@ -81,7 +82,7 @@
 					</div>
 					<p class="text-sm">
 						<a
-							href="/settings/users/{audit.user.id}"
+							href={resolve(('/settings/users/' + audit.user.id) as Parameters<typeof resolve>[0])}
 							class="font-medium transition-colors hover:text-primary"
 						>
 							{audit.user.name}
@@ -142,7 +143,7 @@
 				<h2 class="mb-3 font-semibold">Policies Evaluated</h2>
 				<div class="flex flex-wrap gap-2">
 					{#each audit.evaluatedPolicyIds as policyId (policyId)}
-						<a href="/settings/policies/{policyId}">
+						<a href={resolve(('/settings/policies/' + policyId) as Parameters<typeof resolve>[0])}>
 							<Badge variant="outline" class="font-mono">{policyId}</Badge>
 						</a>
 					{/each}
@@ -155,7 +156,7 @@
 				<h2 class="mb-3 font-semibold">Policies Matched</h2>
 				<div class="flex flex-wrap gap-2">
 					{#each audit.matchingPolicyIds as policyId (policyId)}
-						<a href="/settings/policies/{policyId}">
+						<a href={resolve(('/settings/policies/' + policyId) as Parameters<typeof resolve>[0])}>
 							<Badge variant="outline" class="font-mono">{policyId}</Badge>
 						</a>
 					{/each}

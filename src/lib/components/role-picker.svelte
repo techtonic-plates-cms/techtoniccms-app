@@ -3,6 +3,7 @@
 	import { getRoles } from '$lib/remotes/roles.remote';
 
 	let {
+		// eslint-disable-next-line no-useless-assignment
 		value = $bindable(''),
 		placeholder = 'Search roles...',
 		onSelect

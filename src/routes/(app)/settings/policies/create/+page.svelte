@@ -1,8 +1,7 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import InfoIcon from '@lucide/svelte/icons/info';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
-	import ChevronUpIcon from '@lucide/svelte/icons/chevron-up';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -158,7 +157,7 @@
 		actionType = template.actionType;
 		effect = template.effect;
 		priority = template.priority;
-		rules = template.rules.map((r, i) => ({
+		rules = template.rules.map((r) => ({
 			_id: nextId++,
 			attributePath: r.attributePath,
 			operator: r.operator,
@@ -222,7 +221,7 @@
 <div class="mx-auto max-w-3xl space-y-8 px-4 py-8">
 	<div class="space-y-2">
 		<a
-			href="/settings/policies"
+			href={resolve('/settings/policies')}
 			class="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
 		>
 			<ArrowLeftIcon class="size-4" />
@@ -525,7 +524,7 @@
 			<PolicyRuleBuilder bind:rules />
 
 			<div class="flex items-center justify-between border-t pt-4">
-				<a href="/settings/policies">
+				<a href={resolve('/settings/policies')}>
 					<Button type="button" variant="ghost">Cancel</Button>
 				</a>
 				<Button type="submit">Create Policy</Button>
