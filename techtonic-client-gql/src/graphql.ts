@@ -23,6 +23,44 @@ export type Scalars = {
 	UUID: { input: any; output: any };
 };
 
+export type AbacAuditFilterInput = {
+	and?: InputMaybe<Array<AbacAuditFilterInput>>;
+	decision?: InputMaybe<PermissionEffectOperationFilterInput>;
+	decisionReason?: InputMaybe<StringOperationFilterInput>;
+	evaluatedPolicyIds?: InputMaybe<ListUuidOperationFilterInput>;
+	evaluationTimeMs?: InputMaybe<IntOperationFilterInput>;
+	id?: InputMaybe<UuidOperationFilterInput>;
+	ipAddress?: InputMaybe<StringOperationFilterInput>;
+	matchingPolicyIds?: InputMaybe<ListUuidOperationFilterInput>;
+	or?: InputMaybe<Array<AbacAuditFilterInput>>;
+	requestContext?: InputMaybe<StringOperationFilterInput>;
+	requestedAction?: InputMaybe<PermissionActionOperationFilterInput>;
+	resourceId?: InputMaybe<UuidOperationFilterInput>;
+	resourceType?: InputMaybe<BaseResourceOperationFilterInput>;
+	sessionId?: InputMaybe<StringOperationFilterInput>;
+	timestamp?: InputMaybe<DateTimeOperationFilterInput>;
+	user?: InputMaybe<UserFilterInput>;
+	userAgent?: InputMaybe<StringOperationFilterInput>;
+	userId?: InputMaybe<UuidOperationFilterInput>;
+};
+
+export type AbacAuditSortInput = {
+	decision?: InputMaybe<SortEnumType>;
+	decisionReason?: InputMaybe<SortEnumType>;
+	evaluationTimeMs?: InputMaybe<SortEnumType>;
+	id?: InputMaybe<SortEnumType>;
+	ipAddress?: InputMaybe<SortEnumType>;
+	requestContext?: InputMaybe<SortEnumType>;
+	requestedAction?: InputMaybe<SortEnumType>;
+	resourceId?: InputMaybe<SortEnumType>;
+	resourceType?: InputMaybe<SortEnumType>;
+	sessionId?: InputMaybe<SortEnumType>;
+	timestamp?: InputMaybe<SortEnumType>;
+	user?: InputMaybe<UserSortInput>;
+	userAgent?: InputMaybe<SortEnumType>;
+	userId?: InputMaybe<SortEnumType>;
+};
+
 export type AbacPolicyFilterInput = {
 	actionType?: InputMaybe<PermissionActionOperationFilterInput>;
 	and?: InputMaybe<Array<AbacPolicyFilterInput>>;
@@ -357,6 +395,62 @@ export type AttributePathOperationFilterInput = {
 	nin?: InputMaybe<Array<AttributePath>>;
 };
 
+export type Audit = {
+	__typename?: 'Audit';
+	decision: PermissionEffect;
+	decisionReason: Scalars['String']['output'];
+	evaluatedPolicyIds?: Maybe<Array<Scalars['UUID']['output']>>;
+	evaluationTimeMs: Scalars['Int']['output'];
+	id: Scalars['ID']['output'];
+	ipAddress?: Maybe<Scalars['String']['output']>;
+	matchingPolicyIds?: Maybe<Array<Scalars['UUID']['output']>>;
+	requestedAction: PermissionAction;
+	resourceType: BaseResource;
+	sessionId?: Maybe<Scalars['String']['output']>;
+	timestamp: Scalars['DateTime']['output'];
+	user: User;
+	userAgent?: Maybe<Scalars['String']['output']>;
+};
+
+export type AuditQuery = {
+	__typename?: 'AuditQuery';
+	audit?: Maybe<Audit>;
+	audits?: Maybe<AuditsConnection>;
+};
+
+export type AuditQueryAuditArgs = {
+	id: Scalars['UUID']['input'];
+};
+
+export type AuditQueryAuditsArgs = {
+	after?: InputMaybe<Scalars['String']['input']>;
+	before?: InputMaybe<Scalars['String']['input']>;
+	first?: InputMaybe<Scalars['Int']['input']>;
+	last?: InputMaybe<Scalars['Int']['input']>;
+	order?: InputMaybe<Array<AbacAuditSortInput>>;
+	where?: InputMaybe<AbacAuditFilterInput>;
+};
+
+/** A connection to a list of items. */
+export type AuditsConnection = {
+	__typename?: 'AuditsConnection';
+	/** A list of edges. */
+	edges?: Maybe<Array<AuditsEdge>>;
+	/** A flattened list of the nodes. */
+	nodes?: Maybe<Array<Audit>>;
+	/** Information to aid in pagination. */
+	pageInfo: PageInfo;
+};
+
+/** An edge in a connection. */
+export type AuditsEdge = {
+	__typename?: 'AuditsEdge';
+	/** A cursor for use in pagination. */
+	cursor: Scalars['String']['output'];
+	/** The item at the end of the edge. */
+	node: Audit;
+};
+
 export type AuthMutation = {
 	__typename?: 'AuthMutation';
 	login: LoginPayload;
@@ -377,11 +471,22 @@ export type AuthMutationRefreshArgs = {
 export type AuthQuery = {
 	__typename?: 'AuthQuery';
 	me?: Maybe<User>;
+	myKeys?: Maybe<MyKeysConnection>;
+};
+
+export type AuthQueryMyKeysArgs = {
+	after?: InputMaybe<Scalars['String']['input']>;
+	before?: InputMaybe<Scalars['String']['input']>;
+	first?: InputMaybe<Scalars['Int']['input']>;
+	last?: InputMaybe<Scalars['Int']['input']>;
+	order?: InputMaybe<Array<ApiKeySortInput>>;
+	where?: InputMaybe<ApiKeyFilterInput>;
 };
 
 export enum BaseResource {
 	ApiKeys = 'API_KEYS',
 	Assets = 'ASSETS',
+	Audits = 'AUDITS',
 	Collections = 'COLLECTIONS',
 	Entries = 'ENTRIES',
 	Policies = 'POLICIES',
@@ -837,6 +942,13 @@ export type ListStringOperationFilterInput = {
 	some?: InputMaybe<StringOperationFilterInput>;
 };
 
+export type ListUuidOperationFilterInput = {
+	all?: InputMaybe<UuidOperationFilterInput>;
+	any?: InputMaybe<Scalars['Boolean']['input']>;
+	none?: InputMaybe<UuidOperationFilterInput>;
+	some?: InputMaybe<UuidOperationFilterInput>;
+};
+
 export enum Locale {
 	Ar = 'AR',
 	De = 'DE',
@@ -892,6 +1004,26 @@ export type Mutation = {
 	policy: PolicyMutation;
 	roles: RoleMutation;
 	users: UserMutation;
+};
+
+/** A connection to a list of items. */
+export type MyKeysConnection = {
+	__typename?: 'MyKeysConnection';
+	/** A list of edges. */
+	edges?: Maybe<Array<MyKeysEdge>>;
+	/** A flattened list of the nodes. */
+	nodes?: Maybe<Array<ApiKey>>;
+	/** Information to aid in pagination. */
+	pageInfo: PageInfo;
+};
+
+/** An edge in a connection. */
+export type MyKeysEdge = {
+	__typename?: 'MyKeysEdge';
+	/** A cursor for use in pagination. */
+	cursor: Scalars['String']['output'];
+	/** The item at the end of the edge. */
+	node: ApiKey;
 };
 
 export type NullableOfAttributePathOperationFilterInput = {
@@ -1122,6 +1254,7 @@ export type Query = {
 	__typename?: 'Query';
 	apiKeys: ApiKeyQuery;
 	assets: AssetQuery;
+	audit: AuditQuery;
 	auth: AuthQuery;
 	collections: CollectionQuery;
 	helloWorld: Scalars['String']['output'];
@@ -1341,8 +1474,8 @@ export type StringOperationFilterInput = {
 
 /** Input type for creating entries in the 'test' collection */
 export type TestCreateEntryDataInput = {
-	/** Field 'test' */
-	test?: InputMaybe<Scalars['String']['input']>;
+	/** Field 'teste' */
+	teste?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Dynamic entry type for the 'test' collection */
@@ -1380,7 +1513,7 @@ export type TestEntryConnection = {
 /** Dynamic data type for the 'test' collection */
 export type TestEntryData = {
 	__typename?: 'TestEntryData';
-	test?: Maybe<Scalars['String']['output']>;
+	teste?: Maybe<Scalars['String']['output']>;
 };
 
 /** An edge in a connection. */
@@ -1400,7 +1533,7 @@ export type TestEntryFilterInput = {
 	publishedAt?: InputMaybe<DateTimeOperationFilterInput>;
 	slug?: InputMaybe<StringOperationFilterInput>;
 	status?: InputMaybe<EntryStatusOperationFilterInput>;
-	test?: InputMaybe<StringOperationFilterInput>;
+	teste?: InputMaybe<StringOperationFilterInput>;
 	updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
 };
 
@@ -1410,7 +1543,7 @@ export type TestEntrySortInput = {
 	publishedAt?: InputMaybe<SortEnumType>;
 	slug?: InputMaybe<SortEnumType>;
 	status?: InputMaybe<SortEnumType>;
-	test?: InputMaybe<SortEnumType>;
+	teste?: InputMaybe<SortEnumType>;
 	updatedAt?: InputMaybe<SortEnumType>;
 };
 
@@ -1486,8 +1619,8 @@ export type TestMutationsUpdateArgs = {
 
 /** Input type for updating entries in the 'test' collection (all fields optional) */
 export type TestUpdateEntryDataInput = {
-	/** Field 'test' */
-	test?: InputMaybe<Scalars['String']['input']>;
+	/** Field 'teste' */
+	teste?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Token = {

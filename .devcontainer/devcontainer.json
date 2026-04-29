@@ -16,7 +16,12 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"customizations": {
 		"vscode": {
-			"extensions": ["svelte.svelte-vscode", "esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+			"extensions": [
+				"svelte.svelte-vscode",
+				"esbenp.prettier-vscode",
+				"bradlc.vscode-tailwindcss",
+				"dbaeumer.vscode-eslint"
+			]
 		}
 	}
 
