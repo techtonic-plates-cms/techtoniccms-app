@@ -28,6 +28,10 @@ RUN apt-get update && \
     apt-get install -y libgcc1 && \
     rm -rf /var/lib/apt/lists/*
 
+# Create non-root user
+RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
+
 EXPOSE 3000
 
+USER appuser
 CMD ["./server"]
