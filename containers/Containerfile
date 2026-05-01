@@ -37,8 +37,9 @@ COPY --from=builder /build/node_modules ./node_modules
 COPY containers/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Create non-root user
-RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
+# Create non-root user and grant read access
+RUN useradd -l -u 10001 -s /sbin/nologin -M appuser \
+    && chown -R appuser:appuser /app
 
 EXPOSE 8443 3000
 
