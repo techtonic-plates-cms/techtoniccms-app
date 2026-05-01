@@ -233,7 +233,7 @@
 									{/if}
 								</div>
 								<form
-									{...deletePolicyRule}
+									{...deletePolicyRule.for(rule.id)}
 									class="ml-4"
 									onsubmit={(e) => {
 										if (!confirm('Delete this rule?')) e.preventDefault();

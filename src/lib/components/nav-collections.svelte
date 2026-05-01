@@ -77,7 +77,7 @@
 									{#snippet child({ props })}
 										<a
 											href={resolve(
-												('/collections/' + collection.slug) as Parameters<typeof resolve>[0]
+												`/collections/${collection.slug}`
 											)}
 											{...props}
 										>

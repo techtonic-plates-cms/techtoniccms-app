@@ -100,7 +100,7 @@
 							<PencilIcon class="size-3" />
 						</button>
 						<form
-							{...deleteAsset}
+							{...deleteAsset.for(asset.id)}
 							onsubmit={(e) => {
 								if (!confirmDelete(asset.filename)) e.preventDefault();
 							}}

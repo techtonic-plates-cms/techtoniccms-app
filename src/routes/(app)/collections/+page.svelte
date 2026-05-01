@@ -104,7 +104,7 @@
 					</Card.Content>
 					<Card.Footer class="border-t px-5 py-3">
 						<form
-							{...deleteCollection}
+							{...deleteCollection.for(collection.id)}
 							class="ml-auto"
 							onsubmit={(e) => {
 								if (!confirmDelete(collection.name)) e.preventDefault();

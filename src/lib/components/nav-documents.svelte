@@ -7,9 +7,7 @@
 
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import { resolve } from '$app/paths';
-
-	let { items }: { items: { name: string; url: string; icon: Icon }[] } = $props();
+	let { items }: { items: { name: string; href: string; icon: Icon }[] } = $props();
 
 	const sidebar = Sidebar.useSidebar();
 </script>
@@ -21,7 +19,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
 					{#snippet child({ props })}
-						<a {...props} href={resolve(item.url as Parameters<typeof resolve>[0])}>
+						<a {...props} href={item.href}>
 							<item.icon />
 							<span>{item.name}</span>
 						</a>

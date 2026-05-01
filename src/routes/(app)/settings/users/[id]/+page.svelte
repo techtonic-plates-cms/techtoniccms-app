@@ -143,7 +143,7 @@
 									<p class="text-xs text-muted-foreground">Since {formatDate(role.assignedAt)}</p>
 								{/if}
 							</div>
-							<form {...unassignRole}>
+							<form {...unassignRole.for(role.id)}>
 								<input type="hidden" name="userId" value={user.id} />
 								<input type="hidden" name="roleId" value={role.id} />
 								<Button type="submit" variant="ghost" size="sm">Remove</Button>
@@ -209,7 +209,7 @@
 									{/if}
 								</p>
 							</div>
-							<form {...unassignPolicyFromUser}>
+							<form {...unassignPolicyFromUser.for(userPolicy.id)}>
 								<input type="hidden" name="userId" value={user.id} />
 								<input type="hidden" name="policyId" value={userPolicy.policy.id} />
 								<Button type="submit" variant="ghost" size="sm">Remove</Button>

@@ -142,7 +142,7 @@
 								</div>
 							</div>
 							<form
-								{...deleteCollectionField}
+								{...deleteCollectionField.for(field.id)}
 								onsubmit={(e) => {
 									if (!confirmDeleteField(field.name)) e.preventDefault();
 								}}

@@ -187,7 +187,7 @@
 									{/if}
 								</p>
 							</div>
-							<form {...unassignPolicyFromRole}>
+							<form {...unassignPolicyFromRole.for(policy.id)}>
 								<input type="hidden" name="roleId" value={role.id} />
 								<input type="hidden" name="policyId" value={policy.id} />
 								<Button type="submit" variant="ghost" size="sm">Remove</Button>

@@ -82,7 +82,7 @@
 					</div>
 					<p class="text-sm">
 						<a
-							href={resolve(('/settings/users/' + audit.user.id) as Parameters<typeof resolve>[0])}
+							href={resolve(`/settings/users/${audit.user.id}`)}
 							class="font-medium transition-colors hover:text-primary"
 						>
 							{audit.user.name}
@@ -143,7 +143,7 @@
 				<h2 class="mb-3 font-semibold">Policies Evaluated</h2>
 				<div class="flex flex-wrap gap-2">
 					{#each audit.evaluatedPolicyIds as policyId (policyId)}
-						<a href={resolve(('/settings/policies/' + policyId) as Parameters<typeof resolve>[0])}>
+						<a href={resolve(`/settings/policies/${policyId}`)}>
 							<Badge variant="outline" class="font-mono">{policyId}</Badge>
 						</a>
 					{/each}
@@ -156,7 +156,7 @@
 				<h2 class="mb-3 font-semibold">Policies Matched</h2>
 				<div class="flex flex-wrap gap-2">
 					{#each audit.matchingPolicyIds as policyId (policyId)}
-						<a href={resolve(('/settings/policies/' + policyId) as Parameters<typeof resolve>[0])}>
+						<a href={resolve(`/settings/policies/${policyId}`)}>
 							<Badge variant="outline" class="font-mono">{policyId}</Badge>
 						</a>
 					{/each}
