@@ -2,21 +2,20 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
-	import { resolve } from '$app/paths';
+	import type { ResolvedPathname } from '$app/types';
+	import type { LucideIcon } from '@lucide/svelte';
 
 	let {
 		items
 	}: {
 		items: {
 			title: string;
-			url: string;
-			// this should be `Component` after @lucide/svelte updates types
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			icon?: any;
+			url: ResolvedPathname;
+			icon?: LucideIcon;
 			isActive?: boolean;
 			items?: {
 				title: string;
-				url: string;
+				url: ResolvedPathname;
 			}[];
 		}[];
 	} = $props();
@@ -48,7 +47,7 @@
 									<Sidebar.MenuSubItem>
 										<Sidebar.MenuSubButton>
 											{#snippet child({ props })}
-												<a href={resolve(subItem.url as Parameters<typeof resolve>[0])} {...props}>
+												<a href={subItem.url} {...props}>
 													<span>{subItem.title}</span>
 												</a>
 											{/snippet}

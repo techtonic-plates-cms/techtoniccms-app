@@ -75,12 +75,7 @@
 										: ''}
 								>
 									{#snippet child({ props })}
-										<a
-											href={resolve(
-												`/collections/${collection.slug}`
-											)}
-											{...props}
-										>
+										<a href={resolve(`/collections/${collection.slug}`)} {...props}>
 											<span>{collection.name}</span>
 										</a>
 									{/snippet}

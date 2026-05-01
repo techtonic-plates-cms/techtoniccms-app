@@ -119,7 +119,7 @@
 
 	<!-- Filters -->
 	<div class="flex flex-wrap items-end gap-3">
-		<div class="relative max-w-sm min-w-[200px] flex-1">
+		<div class="relative max-w-sm min-w-50 flex-1">
 			<SearchIcon class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 			<Input
 				placeholder="Search policies..."
@@ -133,7 +133,7 @@
 			value={resourceType}
 			onValueChange={(v) => updateFilter('resourceType', v)}
 		>
-			<Select.Trigger class="w-[140px]">
+			<Select.Trigger class="w-35">
 				<span
 					>{resourceType
 						? resourceType.charAt(0) + resourceType.slice(1).toLowerCase()
@@ -148,7 +148,7 @@
 			</Select.Content>
 		</Select.Root>
 		<Select.Root type="single" value={effect} onValueChange={(v) => updateFilter('effect', v)}>
-			<Select.Trigger class="w-[130px]">
+			<Select.Trigger class="w-32.5">
 				<span>
 					{#if effect === 'ALLOW'}
 						Allow

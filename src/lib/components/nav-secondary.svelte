@@ -20,7 +20,7 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href={resolve(item.url as Parameters<typeof resolve>[0])} {...props}>
+							<a href={resolve(item.url as any)} {...props}>
 								<item.icon />
 								<span>{item.title}</span>
 							</a>

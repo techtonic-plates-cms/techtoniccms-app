@@ -10,6 +10,8 @@
 	import Settings2Icon from '@lucide/svelte/icons/settings-2';
 	import SquareTerminalIcon from '@lucide/svelte/icons/square-terminal';
 
+	import type { ResolvedPathname } from '$app/types';
+
 	// This is sample data.
 	const data = {
 		user: {
@@ -37,86 +39,86 @@
 		navMain: [
 			{
 				title: 'Playground',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: SquareTerminalIcon,
 				isActive: true,
 				items: [
 					{
 						title: 'History',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Starred',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Settings',
-						url: '#'
+						url: '#' as ResolvedPathname
 					}
 				]
 			},
 			{
 				title: 'Models',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: BotIcon,
 				items: [
 					{
 						title: 'Genesis',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Explorer',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Quantum',
-						url: '#'
+						url: '#' as ResolvedPathname
 					}
 				]
 			},
 			{
 				title: 'Documentation',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: BookOpenIcon,
 				items: [
 					{
 						title: 'Introduction',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Get Started',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Tutorials',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Changelog',
-						url: '#'
+						url: '#' as ResolvedPathname
 					}
 				]
 			},
 			{
 				title: 'Settings',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: Settings2Icon,
 				items: [
 					{
 						title: 'General',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Team',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Billing',
-						url: '#'
+						url: '#' as ResolvedPathname
 					},
 					{
 						title: 'Limits',
-						url: '#'
+						url: '#' as ResolvedPathname
 					}
 				]
 			}
@@ -124,17 +126,17 @@
 		projects: [
 			{
 				name: 'Design Engineering',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: FrameIcon
 			},
 			{
 				name: 'Sales & Marketing',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: ChartPieIcon
 			},
 			{
 				name: 'Travel',
-				url: '#',
+				url: '#' as ResolvedPathname,
 				icon: MapIcon
 			}
 		]

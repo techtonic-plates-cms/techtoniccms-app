@@ -7,7 +7,9 @@
 
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	let { items }: { items: { name: string; href: string; icon: Icon }[] } = $props();
+	import type { ResolvedPathname } from '$app/types';
+
+	let { items }: { items: { name: string; url: ResolvedPathname; icon: Icon }[] } = $props();
 
 	const sidebar = Sidebar.useSidebar();
 </script>
@@ -19,7 +21,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
 					{#snippet child({ props })}
-						<a {...props} href={item.href}>
+						<a {...props} href={item.url}>
 							<item.icon />
 							<span>{item.name}</span>
 						</a>

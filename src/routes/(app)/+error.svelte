@@ -59,7 +59,9 @@
 					<Card.Title class="text-sm font-medium text-destructive">Error details</Card.Title>
 				</Card.Header>
 				<Card.Content>
-					<p class="font-mono text-xs break-words text-muted-foreground">{page.error.message}</p>
+					<p class="font-mono text-xs wrap-break-word text-muted-foreground">
+						{page.error.message}
+					</p>
 				</Card.Content>
 			</Card.Root>
 		{/if}

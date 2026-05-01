@@ -6,17 +6,16 @@
 	import FolderIcon from '@lucide/svelte/icons/folder';
 	import ForwardIcon from '@lucide/svelte/icons/forward';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
-	import { resolve } from '$app/paths';
+	import type { ResolvedPathname } from '$app/types';
+	import type { LucideIcon } from '@lucide/svelte';
 
 	let {
 		projects
 	}: {
 		projects: {
 			name: string;
-			url: string;
-			// This should be `Component` after @lucide/svelte updates types
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			icon: any;
+			url: ResolvedPathname;
+			icon: LucideIcon;
 		}[];
 	} = $props();
 
@@ -30,7 +29,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
 					{#snippet child({ props })}
-						<a href={resolve(item.url as Parameters<typeof resolve>[0])} {...props}>
+						<a href={item.url} {...props}>
 							<item.icon />
 							<span>{item.name}</span>
 						</a>
