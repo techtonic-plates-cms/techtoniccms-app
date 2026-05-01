@@ -1,27 +1,43 @@
-
-FROM docker.io/denoland/deno:latest AS builder
+FROM node:lts AS builder
 
 # Set working directory
 WORKDIR /build
 
-# Copy application source code
-ADD . .
+# Copy package manifests
+COPY package.json package-lock.json ./
+RUN npm ci
 
-RUN deno i
-RUN deno task build
+# Copy application source code and build
+COPY . .
+RUN npm run build
 
-FROM docker.io/denoland/deno:latest
+FROM node:lts-slim
 WORKDIR /app
+
+# Install Caddy and dependencies for HTTPS
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg \
+    debian-keyring \
+    debian-archive-keyring \
+    apt-transport-https \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list \
+    && apt-get update && apt-get install -y --no-install-recommends caddy \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /build/build ./build
 COPY --from=builder /build/package.json ./package.json
+RUN npm ci --omit=dev
 
-RUN deno i
+COPY containers/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Create non-root user
 RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
 
-EXPOSE 3000
+EXPOSE 8443 3000
 
 USER appuser
-CMD ["deno", "run", "--allow-all", "--unstable-bare-node-builtins", "build/index.js"]
+CMD ["/app/start.sh"]
