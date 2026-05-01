@@ -32,8 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /build/build ./build
-COPY --from=builder /build/package.json ./package.json
-RUN npm ci --omit=dev
+COPY --from=builder /build/node_modules ./node_modules
 
 COPY containers/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
