@@ -18,10 +18,6 @@ const config = {
 		},
 		experimental: {
 			remoteFunctions: true
-		},
-		csrf: {
-			checkOrigin: true,
-			trustedOrigins: ['http://172.16.30.163:8080']
 		}
 	},
 	preprocess: [mdsvex({ extensions: ['.svx', '.md'] })],

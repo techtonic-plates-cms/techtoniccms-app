@@ -16,5 +16,7 @@ else
 }" > /app/Caddyfile
 fi
 
+export ORIGIN="${ORIGIN:-https://localhost:8443}"
+
 node build/index.js &
 caddy run --config /app/Caddyfile
