@@ -35,6 +35,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>TechtonicCMS</title>
+</svelte:head>
+
 <Sidebar.Provider
 	style="--sidebar-width: calc(var(--spacing) * 72); --header-height: calc(var(--spacing) * 12);"
 >

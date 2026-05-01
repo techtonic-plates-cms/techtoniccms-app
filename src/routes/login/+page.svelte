@@ -6,6 +6,8 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import logo from '$lib/assets/techtoniccms-logo.svg';
+	import logoDark from '$lib/assets/techtoniccms-logo-dark.svg';
 
 	const user = await getMe();
 	if (user) redirect(302, '/');
@@ -23,13 +25,9 @@
 
 	<div class="w-full max-w-sm space-y-6">
 		<div class="space-y-1 text-center">
-			<div
-				class="mx-auto mb-4 flex size-10 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground"
-			>
-				T
-			</div>
+			<img src={logo} alt="Techtonic CMS" class="mx-auto mb-4 h-10 w-auto dark:hidden" />
+			<img src={logoDark} alt="Techtonic CMS" class="mx-auto mb-4 hidden h-10 w-auto dark:block" />
 			<h1 class="text-2xl font-semibold tracking-tight">Sign in</h1>
-			<p class="text-sm text-muted-foreground">Techtonic CMS</p>
 		</div>
 
 		{#each login.fields.allIssues() as issue (issue.message)}

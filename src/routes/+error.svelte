@@ -4,6 +4,8 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import logo from '$lib/assets/techtoniccms-logo.svg';
+	import logoDark from '$lib/assets/techtoniccms-logo-dark.svg';
 
 	const errors: Record<number, { title: string; description: string; emoji: string }> = {
 		404: {
@@ -41,12 +43,8 @@
 <div class="flex min-h-screen flex-col bg-background text-foreground">
 	<header class="flex items-center justify-between p-4">
 		<div class="flex items-center gap-2">
-			<div
-				class="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground"
-			>
-				T
-			</div>
-			<span class="text-sm font-semibold">Techtonic CMS</span>
+			<img src={logo} alt="Techtonic CMS" class="h-7 w-auto dark:hidden" />
+			<img src={logoDark} alt="Techtonic CMS" class="hidden h-7 w-auto dark:block" />
 		</div>
 		<ModeToggle />
 	</header>

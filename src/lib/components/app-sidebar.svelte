@@ -12,6 +12,8 @@
 	import NavCollections from '$lib/components/nav-collections.svelte';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import logo from '$lib/assets/techtoniccms-logo.svg';
+	import logoDark from '$lib/assets/techtoniccms-logo-dark.svg';
 
 	let {
 		user,
@@ -34,12 +36,8 @@
 				<Sidebar.MenuButton class="data-[slot=sidebar-menu-button]:!p-1.5">
 					{#snippet child({ props })}
 						<a href={resolve('/')} {...props}>
-							<div
-								class="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground"
-							>
-								T
-							</div>
-							<span class="text-base font-semibold">Techtonic CMS</span>
+							<img src={logo} alt="Techtonic CMS" class="h-8 w-auto dark:hidden" />
+							<img src={logoDark} alt="Techtonic CMS" class="hidden h-8 w-auto dark:block" />
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
