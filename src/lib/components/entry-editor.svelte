@@ -79,7 +79,7 @@
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex items-center gap-3">
 			<a
-				href={resolve(('/collections/' + collectionSlug) as Parameters<typeof resolve>[0])}
+				href={resolve(`/collections/${collectionSlug}`)}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />
@@ -193,11 +193,7 @@
 										/>
 										<p class="text-xs text-muted-foreground">
 											Relates to: <a
-												href={resolve(
-													('/collections/' + field.relatedCollection.slug) as Parameters<
-														typeof resolve
-													>[0]
-												)}
+												href={resolve(`/collections/${field.relatedCollection.slug}`)}
 												class="hover:underline">{field.relatedCollection.name}</a
 											>
 										</p>

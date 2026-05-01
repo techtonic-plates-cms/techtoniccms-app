@@ -68,7 +68,7 @@
 					<DropdownMenu.Item>
 						{#snippet child({ props })}
 							<a
-								href={resolve(('/settings/users/' + user.id) as Parameters<typeof resolve>[0])}
+								href={resolve(`/settings/users/${user.id}`)}
 								{...props}
 							>
 								<SettingsIcon class="size-4" />

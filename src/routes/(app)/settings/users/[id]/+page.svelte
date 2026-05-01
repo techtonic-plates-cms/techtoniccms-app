@@ -181,27 +181,29 @@
 			</p>
 			{#if user.policies.length > 0}
 				<div class="divide-y rounded-md border">
-					{#each user.policies as policy (policy.id)}
+					{#each user.policies as userPolicy (userPolicy.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<div class="min-w-0 flex-1">
 								<div class="flex flex-wrap items-center gap-2">
 									<a
-										href={resolve(`/settings/policies/${policy.id}`)}
-										
+										href={resolve(`/settings/policies/${userPolicy.policy.id}`)}
 										class="font-medium transition-colors hover:text-primary"
 									>
-										{policy.name}
+										{userPolicy.policy.name}
 									</a>
-									<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
-										{policy.effect.toLowerCase()}
+									<Badge
+										variant={EFFECT_VARIANT[userPolicy.policy.effect] ?? 'outline'}
+										class="text-xs"
+									>
+										{userPolicy.policy.effect.toLowerCase()}
 									</Badge>
 								</div>
 								<p class="text-xs text-muted-foreground">
-									{policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}
-									{#if policy.expiresAt}
-										<span class:text-destructive={isExpired(policy.expiresAt)}>
-											— {isExpired(policy.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
-												policy.expiresAt
+									{userPolicy.policy.actionType.toLowerCase()} · {userPolicy.policy.resourceType.toLowerCase()}
+									{#if userPolicy.expiresAt}
+										<span class:text-destructive={isExpired(userPolicy.expiresAt)}>
+											— {isExpired(userPolicy.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
+												userPolicy.expiresAt
 											)}
 										</span>
 									{/if}
@@ -209,7 +211,7 @@
 							</div>
 							<form {...unassignPolicyFromUser}>
 								<input type="hidden" name="userId" value={user.id} />
-								<input type="hidden" name="policyId" value={policy.id} />
+								<input type="hidden" name="policyId" value={userPolicy.policy.id} />
 								<Button type="submit" variant="ghost" size="sm">Remove</Button>
 							</form>
 						</div>

@@ -552,8 +552,6 @@ export type CollectionMutation = {
 	__typename?: 'CollectionMutation';
 	create: Collection;
 	delete: Scalars['Boolean']['output'];
-	/** Mutations for all entries */
-	entries: EntriesMutations;
 	update: Collection;
 };
 
@@ -573,8 +571,6 @@ export type CollectionQuery = {
 	__typename?: 'CollectionQuery';
 	collectionData?: Maybe<Collection>;
 	collectionsData?: Maybe<CollectionsDataConnection>;
-	/** List of all entries for collections */
-	entries: Entries;
 };
 
 export type CollectionQueryCollectionDataArgs = {
@@ -701,30 +697,6 @@ export type DateTimeOperationFilterInput = {
 	nlte?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
-/** Root type for all entries */
-export type Entries = {
-	__typename?: 'Entries';
-	/** Access entries from the 'test' collection */
-	test?: Maybe<TestEntryConnection>;
-};
-
-/** Root type for all entries */
-export type EntriesTestArgs = {
-	after?: InputMaybe<Scalars['String']['input']>;
-	before?: InputMaybe<Scalars['String']['input']>;
-	first?: InputMaybe<Scalars['Int']['input']>;
-	last?: InputMaybe<Scalars['Int']['input']>;
-	order?: InputMaybe<Array<TestEntrySortInput>>;
-	where?: InputMaybe<TestEntryFilterInput>;
-};
-
-/** Root type for all entry mutations */
-export type EntriesMutations = {
-	__typename?: 'EntriesMutations';
-	/** Mutations for the 'test' collection */
-	test: TestMutations;
-};
-
 export type Entry = {
 	__typename?: 'Entry';
 	collection?: Maybe<Collection>;
@@ -742,15 +714,36 @@ export type Entry = {
 	updatedAt: Scalars['DateTime']['output'];
 };
 
+export type EntryFilterInput = {
+	and?: InputMaybe<Array<EntryFilterInput>>;
+	collection?: InputMaybe<CollectionFilterInput>;
+	collectionId?: InputMaybe<UuidOperationFilterInput>;
+	createdAt?: InputMaybe<DateTimeOperationFilterInput>;
+	createdBy?: InputMaybe<UuidOperationFilterInput>;
+	createdByUser?: InputMaybe<UserFilterInput>;
+	data?: InputMaybe<JsonDocumentFilterInput>;
+	defaultLocale?: InputMaybe<LocaleOperationFilterInput>;
+	fromRelations?: InputMaybe<ListFilterInputTypeOfEntryRelationFilterInput>;
+	id?: InputMaybe<UuidOperationFilterInput>;
+	locale?: InputMaybe<LocaleOperationFilterInput>;
+	name?: InputMaybe<StringOperationFilterInput>;
+	or?: InputMaybe<Array<EntryFilterInput>>;
+	publishedAt?: InputMaybe<DateTimeOperationFilterInput>;
+	slug?: InputMaybe<StringOperationFilterInput>;
+	status?: InputMaybe<EntryStatusOperationFilterInput>;
+	toRelations?: InputMaybe<ListFilterInputTypeOfEntryRelationFilterInput>;
+	updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
+};
+
 export type EntryRelationFilterInput = {
 	and?: InputMaybe<Array<EntryRelationFilterInput>>;
-	entry?: InputMaybe<TestEntryFilterInput>;
+	entry?: InputMaybe<EntryFilterInput>;
 	entryId?: InputMaybe<UuidOperationFilterInput>;
 	field?: InputMaybe<FieldFilterInput>;
 	fieldId?: InputMaybe<UuidOperationFilterInput>;
 	id?: InputMaybe<UuidOperationFilterInput>;
 	or?: InputMaybe<Array<EntryRelationFilterInput>>;
-	targetEntry?: InputMaybe<TestEntryFilterInput>;
+	targetEntry?: InputMaybe<EntryFilterInput>;
 	targetEntryId?: InputMaybe<UuidOperationFilterInput>;
 };
 
@@ -886,6 +879,36 @@ export type IntOperationFilterInput = {
 	nlte?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type JsonDocumentFilterInput = {
+	and?: InputMaybe<Array<JsonDocumentFilterInput>>;
+	or?: InputMaybe<Array<JsonDocumentFilterInput>>;
+	rootElement?: InputMaybe<JsonElementFilterInput>;
+};
+
+export type JsonElementFilterInput = {
+	and?: InputMaybe<Array<JsonElementFilterInput>>;
+	or?: InputMaybe<Array<JsonElementFilterInput>>;
+	valueKind?: InputMaybe<JsonValueKindOperationFilterInput>;
+};
+
+export enum JsonValueKind {
+	Array = 'ARRAY',
+	False = 'FALSE',
+	Null = 'NULL',
+	Number = 'NUMBER',
+	Object = 'OBJECT',
+	String = 'STRING',
+	True = 'TRUE',
+	Undefined = 'UNDEFINED'
+}
+
+export type JsonValueKindOperationFilterInput = {
+	eq?: InputMaybe<JsonValueKind>;
+	in?: InputMaybe<Array<JsonValueKind>>;
+	neq?: InputMaybe<JsonValueKind>;
+	nin?: InputMaybe<Array<JsonValueKind>>;
+};
+
 export type ListFilterInputTypeOfAbacPolicyRuleFilterInput = {
 	all?: InputMaybe<AbacPolicyRuleFilterInput>;
 	any?: InputMaybe<Scalars['Boolean']['input']>;
@@ -894,10 +917,10 @@ export type ListFilterInputTypeOfAbacPolicyRuleFilterInput = {
 };
 
 export type ListFilterInputTypeOfEntryFilterInput = {
-	all?: InputMaybe<TestEntryFilterInput>;
+	all?: InputMaybe<EntryFilterInput>;
 	any?: InputMaybe<Scalars['Boolean']['input']>;
-	none?: InputMaybe<TestEntryFilterInput>;
-	some?: InputMaybe<TestEntryFilterInput>;
+	none?: InputMaybe<EntryFilterInput>;
+	some?: InputMaybe<EntryFilterInput>;
 };
 
 export type ListFilterInputTypeOfEntryRelationFilterInput = {
@@ -1472,157 +1495,6 @@ export type StringOperationFilterInput = {
 	startsWith?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** Input type for creating entries in the 'test' collection */
-export type TestCreateEntryDataInput = {
-	/** Field 'teste' */
-	teste?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Dynamic entry type for the 'test' collection */
-export type TestEntry = {
-	__typename?: 'TestEntry';
-	/** Creation timestamp */
-	createdAt: Scalars['DateTime']['output'];
-	/** Dynamic data for the 'test' collection */
-	data: TestEntryData;
-	/** Unique identifier */
-	id: Scalars['ID']['output'];
-	/** Entry name */
-	name: Scalars['String']['output'];
-	/** Publication timestamp */
-	publishedAt?: Maybe<Scalars['DateTime']['output']>;
-	/** URL-friendly identifier */
-	slug?: Maybe<Scalars['String']['output']>;
-	/** Entry status */
-	status: EntryStatus;
-	/** Last update timestamp */
-	updatedAt: Scalars['DateTime']['output'];
-};
-
-/** A connection to a list of items. */
-export type TestEntryConnection = {
-	__typename?: 'TestEntryConnection';
-	/** A list of edges. */
-	edges?: Maybe<Array<TestEntryEdge>>;
-	/** A flattened list of the nodes. */
-	nodes?: Maybe<Array<Maybe<TestEntry>>>;
-	/** Information to aid in pagination. */
-	pageInfo: PageInfo;
-};
-
-/** Dynamic data type for the 'test' collection */
-export type TestEntryData = {
-	__typename?: 'TestEntryData';
-	teste?: Maybe<Scalars['String']['output']>;
-};
-
-/** An edge in a connection. */
-export type TestEntryEdge = {
-	__typename?: 'TestEntryEdge';
-	/** A cursor for use in pagination. */
-	cursor: Scalars['String']['output'];
-	/** The item at the end of the edge. */
-	node?: Maybe<TestEntry>;
-};
-
-export type TestEntryFilterInput = {
-	and?: InputMaybe<Array<TestEntryFilterInput>>;
-	createdAt?: InputMaybe<DateTimeOperationFilterInput>;
-	name?: InputMaybe<StringOperationFilterInput>;
-	or?: InputMaybe<Array<TestEntryFilterInput>>;
-	publishedAt?: InputMaybe<DateTimeOperationFilterInput>;
-	slug?: InputMaybe<StringOperationFilterInput>;
-	status?: InputMaybe<EntryStatusOperationFilterInput>;
-	teste?: InputMaybe<StringOperationFilterInput>;
-	updatedAt?: InputMaybe<DateTimeOperationFilterInput>;
-};
-
-export type TestEntrySortInput = {
-	createdAt?: InputMaybe<SortEnumType>;
-	name?: InputMaybe<SortEnumType>;
-	publishedAt?: InputMaybe<SortEnumType>;
-	slug?: InputMaybe<SortEnumType>;
-	status?: InputMaybe<SortEnumType>;
-	teste?: InputMaybe<SortEnumType>;
-	updatedAt?: InputMaybe<SortEnumType>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutations = {
-	__typename?: 'TestMutations';
-	/** Archive an entry in the 'test' collection */
-	archive: TestEntry;
-	/** Create a new entry in the 'test' collection */
-	create: TestEntry;
-	/** Soft-delete an entry in the 'test' collection */
-	delete: TestEntry;
-	/** Publish an entry in the 'test' collection */
-	publish: TestEntry;
-	/** Restore an archived or deleted entry to draft in the 'test' collection */
-	restore: TestEntry;
-	/** Revert a published entry to draft in the 'test' collection */
-	unpublish: TestEntry;
-	/** Update an existing entry in the 'test' collection */
-	update: TestEntry;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsArchiveArgs = {
-	id: Scalars['ID']['input'];
-	scheduleFor?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsCreateArgs = {
-	data: TestCreateEntryDataInput;
-	locale?: InputMaybe<Locale>;
-	name: Scalars['String']['input'];
-	schedulePublishFor?: InputMaybe<Scalars['DateTime']['input']>;
-	slug?: InputMaybe<Scalars['String']['input']>;
-	status?: InputMaybe<EntryStatus>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsDeleteArgs = {
-	id: Scalars['ID']['input'];
-	scheduleFor?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsPublishArgs = {
-	id: Scalars['ID']['input'];
-	scheduleFor?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsRestoreArgs = {
-	id: Scalars['ID']['input'];
-	scheduleFor?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsUnpublishArgs = {
-	id: Scalars['ID']['input'];
-	scheduleFor?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-/** Mutations for the 'test' collection */
-export type TestMutationsUpdateArgs = {
-	data?: InputMaybe<TestUpdateEntryDataInput>;
-	id: Scalars['ID']['input'];
-	locale?: InputMaybe<Locale>;
-	name?: InputMaybe<Scalars['String']['input']>;
-	schedulePublishFor?: InputMaybe<Scalars['DateTime']['input']>;
-	slug?: InputMaybe<Scalars['String']['input']>;
-	status?: InputMaybe<EntryStatus>;
-};
-
-/** Input type for updating entries in the 'test' collection (all fields optional) */
-export type TestUpdateEntryDataInput = {
-	/** Field 'teste' */
-	teste?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type Token = {
 	__typename?: 'Token';
 	expiresAt: Scalars['DateTime']['output'];
@@ -1693,11 +1565,13 @@ export type UpdateUserInput = {
 
 export type User = {
 	__typename?: 'User';
+	apiKeys: Array<ApiKey>;
 	creationTime: Scalars['DateTime']['output'];
 	id: Scalars['ID']['output'];
 	lastEditTime: Scalars['DateTime']['output'];
 	lastLoginTime: Scalars['DateTime']['output'];
 	name: Scalars['String']['output'];
+	policies: Array<UserPolicy>;
 	roles: Array<RoleRef>;
 	status: UserStatus;
 };
@@ -1791,6 +1665,20 @@ export type UserMutationUpdateRoleExpirationArgs = {
 	expiresAt?: InputMaybe<Scalars['String']['input']>;
 	roleId: Scalars['UUID']['input'];
 	userId: Scalars['UUID']['input'];
+};
+
+export type UserPolicy = {
+	__typename?: 'UserPolicy';
+	assignedAt: Scalars['DateTime']['output'];
+	assignedBy: Scalars['UUID']['output'];
+	assignedByUser: User;
+	expiresAt?: Maybe<Scalars['DateTime']['output']>;
+	id: Scalars['UUID']['output'];
+	policy: Policy;
+	policyId: Scalars['UUID']['output'];
+	reason?: Maybe<Scalars['String']['output']>;
+	user: User;
+	userId: Scalars['UUID']['output'];
 };
 
 export type UserPolicyFilterInput = {
