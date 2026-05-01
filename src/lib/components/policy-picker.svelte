@@ -27,7 +27,7 @@
 	>([]);
 
 	async function loadPolicies() {
-		const result = await getPolicies({});
+		const result = await getPolicies({}).run();
 		policies = result.nodes;
 	}
 

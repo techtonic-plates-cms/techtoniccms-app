@@ -18,7 +18,7 @@
 	let users = $state<Array<{ id: string; name: string; status: string }>>([]);
 
 	async function loadUsers() {
-		const result = await getUsers({});
+		const result = await getUsers({}).run();
 		users = result.nodes;
 	}
 

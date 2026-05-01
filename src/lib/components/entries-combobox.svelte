@@ -33,7 +33,7 @@
 		const q = search;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
-			results = await getEntriesForCombobox({ slug: collectionSlug, search: q || undefined });
+			results = await getEntriesForCombobox({ slug: collectionSlug, search: q || undefined }).run();
 		}, 300);
 		return () => clearTimeout(debounceTimer);
 	});

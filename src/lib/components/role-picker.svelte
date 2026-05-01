@@ -25,7 +25,7 @@
 	let roles = $state<Array<{ id: string; name: string; description: string | null }>>([]);
 
 	async function loadRoles() {
-		const result = await getRoles({});
+		const result = await getRoles({}).run();
 		roles = result.nodes;
 	}
 
