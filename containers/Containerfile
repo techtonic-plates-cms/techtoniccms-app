@@ -1,8 +1,6 @@
 
 FROM docker.io/denoland/deno:latest AS builder
 
-ENV API_URL="http://localhost:5095"
-
 # Set working directory
 WORKDIR /build
 
@@ -14,8 +12,6 @@ RUN deno task build
 
 FROM docker.io/denoland/deno:latest
 WORKDIR /app
-
-ENV API_URL="http://localhost:5095"
 
 COPY --from=builder /build/build ./build
 COPY --from=builder /build/deno.json ./deno.json
