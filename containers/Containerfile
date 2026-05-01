@@ -29,4 +29,4 @@ RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
 EXPOSE 3000
 
 USER appuser
-CMD ["deno", "run", "--allow-all", "build/index.js"]
+CMD ["deno", "run", "--allow-all", "--unstable-bare-node-builtins", "build/index.js"]
