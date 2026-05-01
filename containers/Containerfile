@@ -5,36 +5,24 @@ ENV API_URL="http://localhost:5095"
 
 # Set working directory
 WORKDIR /build
-RUN apt-get update && \
-    apt-get install -y curl nodejs npm
-
 
 # Copy application source code
 ADD . .
 
 RUN deno i
-RUN ls
-RUN deno task compile
+RUN deno task build
 
-FROM debian:bookworm-slim
+FROM docker.io/denoland/deno:latest
 WORKDIR /app
 
 ENV API_URL="http://localhost:5095"
 
-COPY --from=builder /build/build/out ./server
-COPY --from=builder /build/build/client ./build/client
-COPY --from=builder /build/build/server ./build/server
-
-# Install runtime dependencies
-RUN apt-get update && \
-    apt-get install -y libgcc1 && \
-    rm -rf /var/lib/apt/lists/*
+COPY --from=builder /build/build ./build
 
 # Create non-root user
 RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
 
-
 EXPOSE 3000
 
 USER appuser
-CMD ["./server"]
+CMD ["deno", "run", "--allow-all", "build/index.js"]
