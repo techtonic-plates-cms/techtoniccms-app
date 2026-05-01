@@ -6,7 +6,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import PolicyPicker from '$lib/components/policy-picker.svelte';
+	import PolicyCombobox from '$lib/components/policy-combobox.svelte';
 	import {
 		getRole,
 		updateRole,
@@ -165,9 +165,9 @@
 							<div class="min-w-0 flex-1">
 								<div class="flex flex-wrap items-center gap-2">
 									<a
-										href={resolve(
-											('/settings/policies/' + policy.id) as Parameters<typeof resolve>[0]
-										)}
+										href={resolve('/(app)/settings/policies/[id]', {
+											id: policy.id
+										})}
 										class="font-medium transition-colors hover:text-primary"
 									>
 										{policy.name}
@@ -205,7 +205,7 @@
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Add policy</Label>
-						<PolicyPicker bind:value={selectedPolicyId} placeholder="Search for a policy..." />
+						<PolicyCombobox bind:value={selectedPolicyId} placeholder="Search for a policy..." />
 					</div>
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Optional expiration</Label>
@@ -225,7 +225,9 @@
 					{#each role.users as u (u.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<a
-								href={resolve(('/settings/users/' + u.id) as Parameters<typeof resolve>[0])}
+								href={resolve('/(app)/settings/users/[id]', {
+									id: u.id
+								})}
 								class="font-medium transition-colors hover:text-primary"
 							>
 								{u.name}

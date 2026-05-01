@@ -178,7 +178,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve(('/settings/users/' + user.id) as Parameters<typeof resolve>[0])}
+									href={resolve(`/settings/users/${user.id}`)}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{user.name}
@@ -211,12 +211,8 @@
 		{#if users.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href={resolve(
-						('?after=' +
-							users.pageInfo.endCursor +
-							(search ? '&search=' + encodeURIComponent(search) : '') +
-							(status ? '&status=' + status : '')) as Parameters<typeof resolve>[0]
-					)}
+					href={resolve(`/(app)/settings/users?after=${users.pageInfo.endCursor}&search=${search || undefined}&status=${status || undefined}`)}
+
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

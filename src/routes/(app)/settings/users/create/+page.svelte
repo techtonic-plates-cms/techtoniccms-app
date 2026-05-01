@@ -9,19 +9,13 @@
 	import { resolve } from '$app/paths';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createUser } from '$lib/remotes/users.remote';
-	import { getRoles } from '$lib/remotes/roles.remote';
-	import { getPolicies } from '$lib/remotes/policies.remote';
-	import RolePicker from '$lib/components/role-picker.svelte';
-	import PolicyPicker from '$lib/components/policy-picker.svelte';
+	import RoleCombobox from '$lib/components/role-combobox.svelte';
+	import PolicyCombobox from '$lib/components/policy-combobox.svelte';
 
 	await requireAuth();
 
 	const nameField = createUser.fields.name.as('text');
 	const passwordField = createUser.fields._password.as('password');
-
-	const roles = await getRoles({});
-	const policiesData = await getPolicies({});
-	const policies = policiesData.nodes;
 
 	let selectedRoleIds = $state<string[]>([]);
 	const roleIdsStr = $derived(selectedRoleIds.join(','));
@@ -122,11 +116,11 @@
 			</div>
 			<Separator />
 
-			{#if policies.length === 0}
-				<p class="text-sm text-muted-foreground italic">No policies available</p>
-			{:else}
-				<PolicyPicker multiple bind:selectedIds={selectedPolicyIds} placeholder="Search policies..." />
-			{/if}
+			<PolicyCombobox
+				multiple
+				bind:selectedIds={selectedPolicyIds}
+				placeholder="Search policies..."
+			/>
 		</div>
 
 		<!-- Section 3: Roles -->
@@ -141,11 +135,7 @@
 			</div>
 			<Separator />
 
-			{#if roles.nodes.length === 0}
-				<p class="text-sm text-muted-foreground italic">No roles available</p>
-			{:else}
-				<RolePicker multiple bind:selectedIds={selectedRoleIds} placeholder="Search roles..." />
-			{/if}
+			<RoleCombobox multiple bind:selectedIds={selectedRoleIds} placeholder="Search roles..." />
 		</div>
 
 		<!-- Form actions -->

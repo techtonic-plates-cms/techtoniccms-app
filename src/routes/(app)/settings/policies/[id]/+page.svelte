@@ -356,7 +356,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToRoles as role (role.id)}
 								<a
-									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
+									href={resolve(`/(app)/settings/roles/[id]`, { id: role.id })}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
 									{role.name}
@@ -380,7 +380,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToUsers as u (u.id)}
 								<a
-									href={resolve(('/settings/users/' + u.id) as Parameters<typeof resolve>[0])}
+									href={resolve("/(app)/settings/users/[id]", { id: u.id })}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
 									{u.name}

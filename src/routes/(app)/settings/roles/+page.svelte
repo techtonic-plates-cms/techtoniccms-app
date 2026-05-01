@@ -145,7 +145,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
+									href={resolve("/(app)/settings/roles/[id]", { id: role.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}
@@ -214,7 +214,7 @@
 		</div>
 		{#if roles.pageInfo.hasNextPage}
 			<div class="flex justify-center">
-				<a href={resolve(('?after=' + roles.pageInfo.endCursor) as Parameters<typeof resolve>[0])}>
+				<a href={resolve(`/(app)/settings/roles?after=${roles.pageInfo.endCursor}`)}>
 					<Button variant="outline">Load more</Button>
 				</a>
 			</div>

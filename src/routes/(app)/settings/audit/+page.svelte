@@ -270,7 +270,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve(('/settings/audit/' + audit.id) as Parameters<typeof resolve>[0])}
+									href={resolve(`/settings/audit/${audit.id}`)}
 									class="font-mono text-xs transition-colors hover:text-primary"
 								>
 									{new Date(audit.timestamp).toLocaleString()}
@@ -280,7 +280,8 @@
 							<td class="px-4 py-3">
 								<a
 									href={resolve(
-										('/settings/users/' + audit.user.id) as Parameters<typeof resolve>[0]
+										"/(app)/settings/users/[id]",
+										{ id: audit.user.id }
 									)}
 									class="font-medium transition-colors hover:text-primary"
 								>
@@ -313,16 +314,10 @@
 		{#if auditsData.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href={resolve(
-						('/settings/audit?after=' +
-							auditsData.pageInfo.endCursor +
-							(search ? '&search=' + encodeURIComponent(search) : '') +
-							(decision ? '&decision=' + decision : '') +
-							(resourceType ? '&resourceType=' + resourceType : '') +
-							(requestedAction ? '&requestedAction=' + requestedAction : '')) as Parameters<
-							typeof resolve
-						>[0]
-					)}
+					href={resolve(`/(app)/settings/audit?after=${auditsData.pageInfo.endCursor}&search=${search || undefined}&decision=${decision || undefined}&resourceType=${resourceType || undefined}&requestedAction=${requestedAction || undefined}`)}
+						
+						
+					
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

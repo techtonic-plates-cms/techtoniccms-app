@@ -5,8 +5,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import RolePicker from '$lib/components/role-picker.svelte';
-	import PolicyPicker from '$lib/components/policy-picker.svelte';
+	import RoleCombobox from '$lib/components/role-combobox.svelte';
+	import PolicyCombobox from '$lib/components/policy-combobox.svelte';
 	import {
 		getUser,
 		updateUser,
@@ -119,7 +119,7 @@
 						<div class="flex items-center justify-between px-4 py-3">
 							<div>
 								<a
-									href={resolve(('/settings/roles/' + role.id) as Parameters<typeof resolve>[0])}
+									href={resolve("/(app)/settings/roles/[id]", { id: role.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}
@@ -156,7 +156,7 @@
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Add role</Label>
-						<RolePicker bind:value={selectedRoleId} placeholder="Search for a role..." />
+						<RoleCombobox bind:value={selectedRoleId} placeholder="Search for a role..." />
 					</div>
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Optional expiration</Label>
@@ -180,7 +180,7 @@
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Add policy</Label>
-						<PolicyPicker bind:value={selectedPolicyId} placeholder="Search for a policy..." />
+						<PolicyCombobox bind:value={selectedPolicyId} placeholder="Search for a policy..." />
 					</div>
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Optional expiration</Label>

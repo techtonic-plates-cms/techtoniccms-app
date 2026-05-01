@@ -89,6 +89,38 @@ const UNASSIGN_POLICY_MUTATION = `
 	}
 `;
 
+const ROLES_COMBOBOX_QUERY = `
+	query RolesForCombobox($first: Int, $where: RoleFilterInput) {
+		roles {
+			roles(first: $first, where: $where) {
+				nodes { id name description }
+			}
+		}
+	}
+`;
+
+export const getRolesForCombobox = query(
+	v.object({ search: v.optional(v.string()) }),
+	async ({ search }) => {
+		const { locals } = getRequestEvent();
+		const where: Record<string, unknown> = {};
+		if (search) where.name = { contains: search };
+		const result = await gqlFetch<
+			{
+				roles: {
+					roles: { nodes: Array<{ id: string; name: string; description: string | null }> };
+				};
+			},
+			{ first: number; where?: Record<string, unknown> }
+		>(
+			ROLES_COMBOBOX_QUERY,
+			{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		return result.roles.roles?.nodes ?? [];
+	}
+);
+
 export const getRoles = query(
 	v.object({
 		search: v.optional(v.string()),

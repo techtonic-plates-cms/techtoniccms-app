@@ -108,6 +108,46 @@ const DELETE_POLICY_MUTATION = `
 	}
 `;
 
+const POLICIES_COMBOBOX_QUERY = `
+	query PoliciesForCombobox($first: Int, $where: AbacPolicyFilterInput) {
+		policy {
+			policies(first: $first, where: $where) {
+				nodes { id name effect resourceType actionType }
+			}
+		}
+	}
+`;
+
+export const getPoliciesForCombobox = query(
+	v.object({ search: v.optional(v.string()) }),
+	async ({ search }) => {
+		const { locals } = getRequestEvent();
+		const where: Record<string, unknown> = {};
+		if (search) where.name = { contains: search };
+		const result = await gqlFetch<
+			{
+				policy: {
+					policies: {
+						nodes: Array<{
+							id: string;
+							name: string;
+							effect: string;
+							resourceType: string;
+							actionType: string;
+						}>;
+					};
+				};
+			},
+			{ first: number; where?: Record<string, unknown> }
+		>(
+			POLICIES_COMBOBOX_QUERY,
+			{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
+			{ token: locals.accessToken?.tokenValue }
+		);
+		return result.policy.policies?.nodes ?? [];
+	}
+);
+
 export const getPolicies = query(
 	v.object({
 		search: v.optional(v.string()),
