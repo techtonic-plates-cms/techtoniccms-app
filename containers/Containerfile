@@ -18,6 +18,10 @@ WORKDIR /app
 ENV API_URL="http://localhost:5095"
 
 COPY --from=builder /build/build ./build
+COPY --from=builder /build/deno.json ./deno.json
+COPY --from=builder /build/package.json ./package.json
+
+RUN deno i
 
 # Create non-root user
 RUN useradd -l -u 10001 -s /sbin/nologin -M appuser
