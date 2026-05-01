@@ -14,7 +14,6 @@ FROM docker.io/denoland/deno:latest
 WORKDIR /app
 
 COPY --from=builder /build/build ./build
-COPY --from=builder /build/deno.json ./deno.json
 COPY --from=builder /build/package.json ./package.json
 
 RUN deno i
