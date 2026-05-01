@@ -380,7 +380,7 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToUsers as u (u.id)}
 								<a
-									href={resolve("/(app)/settings/users/[id]", { id: u.id })}
+									href={resolve('/(app)/settings/users/[id]', { id: u.id })}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
 									{u.name}

@@ -16,6 +16,8 @@ export type UserPolicy = {
 	effect: string;
 	actionType: string;
 	resourceType: string;
+	assignedAt?: string | null;
+	expiresAt?: string | null;
 };
 
 export type User = {
@@ -26,6 +28,7 @@ export type User = {
 	lastLoginTime: string | null;
 	lastEditTime: string | null;
 	roles: UserRole[];
+	policies: UserPolicy[];
 };
 
 const USERS_QUERY = `
@@ -48,6 +51,7 @@ const USER_QUERY = `
 			user(id: $id) {
 				id name status creationTime lastLoginTime lastEditTime
 				roles { id name assignedAt expiresAt }
+				policies { id name effect resourceType actionType assignedAt expiresAt }
 			}
 		}
 	}

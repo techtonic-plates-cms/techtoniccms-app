@@ -145,7 +145,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve("/(app)/settings/roles/[id]", { id: role.id })}
+									href={resolve('/(app)/settings/roles/[id]', { id: role.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}

@@ -211,8 +211,9 @@
 		{#if users.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href={resolve(`/(app)/settings/users?after=${users.pageInfo.endCursor}&search=${search || undefined}&status=${status || undefined}`)}
-
+					href={resolve(
+						`/(app)/settings/users?after=${users.pageInfo.endCursor}&search=${search || undefined}&status=${status || undefined}`
+					)}
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

@@ -279,10 +279,7 @@
 							</td>
 							<td class="px-4 py-3">
 								<a
-									href={resolve(
-										"/(app)/settings/users/[id]",
-										{ id: audit.user.id }
-									)}
+									href={resolve('/(app)/settings/users/[id]', { id: audit.user.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{audit.user.name}
@@ -314,10 +311,9 @@
 		{#if auditsData.pageInfo.hasNextPage}
 			<div class="flex justify-center">
 				<a
-					href={resolve(`/(app)/settings/audit?after=${auditsData.pageInfo.endCursor}&search=${search || undefined}&decision=${decision || undefined}&resourceType=${resourceType || undefined}&requestedAction=${requestedAction || undefined}`)}
-						
-						
-					
+					href={resolve(
+						`/(app)/settings/audit?after=${auditsData.pageInfo.endCursor}&search=${search || undefined}&decision=${decision || undefined}&resourceType=${resourceType || undefined}&requestedAction=${requestedAction || undefined}`
+					)}
 				>
 					<Button variant="outline">Load more</Button>
 				</a>

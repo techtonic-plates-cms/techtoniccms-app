@@ -32,6 +32,11 @@
 		BANNED: 'destructive'
 	};
 
+	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
+		ALLOW: 'default',
+		DENY: 'destructive'
+	};
+
 	function formatDate(dateStr: string | null | undefined): string {
 		if (!dateStr) return '';
 		try {
@@ -119,7 +124,7 @@
 						<div class="flex items-center justify-between px-4 py-3">
 							<div>
 								<a
-									href={resolve("/(app)/settings/roles/[id]", { id: role.id })}
+									href={resolve('/(app)/settings/roles/[id]', { id: role.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{role.name}
@@ -174,7 +179,47 @@
 			<p class="text-sm text-muted-foreground">
 				Assign policies directly to this user for one-off exceptions.
 			</p>
-			<form {...assignPolicyToUser} class="space-y-3">
+			{#if user.policies.length > 0}
+				<div class="divide-y rounded-md border">
+					{#each user.policies as policy (policy.id)}
+						<div class="flex items-center justify-between px-4 py-3">
+							<div class="min-w-0 flex-1">
+								<div class="flex flex-wrap items-center gap-2">
+									<a
+										href={resolve(`/settings/policies/${policy.id}`)}
+										
+										class="font-medium transition-colors hover:text-primary"
+									>
+										{policy.name}
+									</a>
+									<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
+										{policy.effect.toLowerCase()}
+									</Badge>
+								</div>
+								<p class="text-xs text-muted-foreground">
+									{policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}
+									{#if policy.expiresAt}
+										<span class:text-destructive={isExpired(policy.expiresAt)}>
+											— {isExpired(policy.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
+												policy.expiresAt
+											)}
+										</span>
+									{/if}
+								</p>
+							</div>
+							<form {...unassignPolicyFromUser}>
+								<input type="hidden" name="userId" value={user.id} />
+								<input type="hidden" name="policyId" value={policy.id} />
+								<Button type="submit" variant="ghost" size="sm">Remove</Button>
+							</form>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p class="text-sm text-muted-foreground">No policies assigned.</p>
+			{/if}
+
+			<form {...assignPolicyToUser} class="space-y-3 border-t pt-3">
 				<input type="hidden" name="userId" value={user.id} />
 				<input type="hidden" name="policyId" value={selectedPolicyId} />
 				<div class="grid gap-3 sm:grid-cols-2">
@@ -190,12 +235,6 @@
 				<Button type="submit" variant="outline" size="sm" disabled={!selectedPolicyId}
 					>Assign Policy</Button
 				>
-			</form>
-
-			<form {...unassignPolicyFromUser} class="flex gap-2 pt-2">
-				<input type="hidden" name="userId" value={user.id} />
-				<Input name="policyId" placeholder="Policy ID to remove" class="flex-1" />
-				<Button type="submit" variant="ghost">Unassign</Button>
 			</form>
 		</section>
 
