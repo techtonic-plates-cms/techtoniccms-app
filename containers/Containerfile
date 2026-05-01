@@ -22,6 +22,8 @@ WORKDIR /app
 ENV API_URL="http://localhost:5095"
 
 COPY --from=builder /build/build/out ./server
+COPY --from=builder /build/build/client ./build/client
+COPY --from=builder /build/build/server ./build/server
 
 # Install runtime dependencies
 RUN apt-get update && \
