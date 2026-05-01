@@ -1,15 +1,19 @@
-FROM node:lts AS builder
+FROM docker.io/denoland/deno:latest AS builder
+
+# Install Node.js (needed for deno task build which runs vite build)
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /build
 
-# Copy package manifests
-COPY package.json package-lock.json ./
-RUN npm ci
+# Copy application source code
+ADD . .
 
-# Copy application source code and build
-COPY . .
-RUN npm run build
+RUN deno i
+RUN deno task build
 
 FROM node:lts-slim
 WORKDIR /app
