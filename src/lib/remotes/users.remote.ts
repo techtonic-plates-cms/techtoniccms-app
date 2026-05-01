@@ -173,8 +173,8 @@ export const createUser = form(
 					name,
 					password: _password,
 					status: status || 'ACTIVE',
-					roleIds: roleIds ? roleIds.split(',').filter(Boolean) : undefined,
-					policyIds: policyIds ? policyIds.split(',').filter(Boolean) : undefined
+					roles: roleIds ? { ids: roleIds.split(',').filter(Boolean) } : undefined,
+					policies: policyIds ? { ids: policyIds.split(',').filter(Boolean) } : undefined
 				}
 			},
 			{ token: locals.accessToken?.tokenValue }

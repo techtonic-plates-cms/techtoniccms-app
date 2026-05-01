@@ -6,6 +6,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import RolePicker from '$lib/components/role-picker.svelte';
+	import PolicyPicker from '$lib/components/policy-picker.svelte';
 	import {
 		getUser,
 		updateUser,
@@ -179,8 +180,7 @@
 				<div class="grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Add policy</Label>
-						<!-- For now we use a simple text input since PolicyPicker needs integration -->
-						<Input name="policyId" placeholder="Policy ID" bind:value={selectedPolicyId} />
+						<PolicyPicker bind:value={selectedPolicyId} placeholder="Search for a policy..." />
 					</div>
 					<div class="space-y-1.5">
 						<Label class="text-xs text-muted-foreground">Optional expiration</Label>

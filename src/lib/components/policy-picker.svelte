@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
+	import XIcon from '@lucide/svelte/icons/x';
 	import { getPolicies } from '$lib/remotes/policies.remote';
 
 	let {
 		// eslint-disable-next-line no-useless-assignment
 		value = $bindable(''),
+		// eslint-disable-next-line no-useless-assignment
+		selectedIds = $bindable<string[]>([]),
+		multiple = false,
 		placeholder = 'Search policies...',
 		onSelect
 	}: {
 		value?: string;
+		selectedIds?: string[];
+		multiple?: boolean;
 		placeholder?: string;
 		onSelect?: (policyId: string, policyName: string) => void;
 	} = $props();
@@ -25,14 +32,31 @@
 	}
 
 	const filtered = $derived(
-		policies.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())).slice(0, 8)
+		policies
+			.filter((p) => {
+				const matches = p.name.toLowerCase().includes(search.toLowerCase());
+				if (!multiple) return matches;
+				return matches && !selectedIds.includes(p.id);
+			})
+			.slice(0, 8)
 	);
 
 	function selectPolicy(policy: { id: string; name: string }) {
-		value = policy.id;
-		search = policy.name;
+		if (multiple) {
+			if (!selectedIds.includes(policy.id)) {
+				selectedIds = [...selectedIds, policy.id];
+			}
+			search = '';
+		} else {
+			value = policy.id;
+			search = policy.name;
+		}
 		open = false;
 		onSelect?.(policy.id, policy.name);
+	}
+
+	function removePolicy(policyId: string) {
+		selectedIds = selectedIds.filter((id) => id !== policyId);
 	}
 
 	function handleFocus() {
@@ -47,7 +71,7 @@
 	}
 </script>
 
-<div class="relative">
+<div class="relative space-y-2">
 	<Input
 		{placeholder}
 		value={search}
@@ -76,6 +100,26 @@
 							.replace(/_/g, ' ')}
 					</span>
 				</button>
+			{/each}
+		</div>
+	{/if}
+
+	{#if multiple && selectedIds.length > 0}
+		<div class="flex flex-wrap gap-1.5">
+			{#each selectedIds as policyId (policyId)}
+				{@const policy = policies.find((p) => p.id === policyId)}
+				{#if policy}
+					<Badge variant="secondary" class="gap-1 pr-1.5">
+						{policy.name}
+						<button
+							type="button"
+							class="rounded-full hover:bg-muted"
+							onclick={() => removePolicy(policyId)}
+						>
+							<XIcon class="size-3" />
+						</button>
+					</Badge>
+				{/if}
 			{/each}
 		</div>
 	{/if}

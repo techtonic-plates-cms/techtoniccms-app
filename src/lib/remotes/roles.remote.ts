@@ -147,7 +147,7 @@ export const createRole = form(
 				input: {
 					name,
 					description: description || undefined,
-					policyIds: ids.length ? ids : undefined
+					policies: ids.length ? { ids } : undefined
 				}
 			},
 			{ token: locals.accessToken?.tokenValue }
