@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { isHttpError } from '@sveltejs/kit';
 	import { getUsers } from '$lib/remotes/users.remote';
 
 	let {
@@ -18,8 +19,16 @@
 	let users = $state<Array<{ id: string; name: string; status: string }>>([]);
 
 	async function loadUsers() {
-		const result = await getUsers({}).run();
-		users = result.nodes;
+		try {
+			const result = await getUsers({}).run();
+			users = result.nodes;
+		} catch (err) {
+			if (isHttpError(err, 403)) {
+				users = [];
+			} else {
+				throw err;
+			}
+		}
 	}
 
 	const filtered = $derived(

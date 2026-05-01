@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -105,19 +105,23 @@ export const getRolesForCombobox = query(
 		const { locals } = getRequestEvent();
 		const where: Record<string, unknown> = {};
 		if (search) where.name = { contains: search };
-		const result = await gqlFetch<
-			{
-				roles: {
-					roles: { nodes: Array<{ id: string; name: string; description: string | null }> };
-				};
-			},
-			{ first: number; where?: Record<string, unknown> }
-		>(
-			ROLES_COMBOBOX_QUERY,
-			{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.roles.roles?.nodes ?? [];
+		try {
+			const result = await gqlFetch<
+				{
+					roles: {
+						roles: { nodes: Array<{ id: string; name: string; description: string | null }> };
+					};
+				},
+				{ first: number; where?: Record<string, unknown> }
+			>(
+				ROLES_COMBOBOX_QUERY,
+				{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.roles.roles?.nodes ?? [];
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -130,19 +134,23 @@ export const getRoles = query(
 		const { locals } = getRequestEvent();
 		const where: Record<string, unknown> = {};
 		if (search) where.name = { contains: search };
-		const result = await gqlFetch<
-			{
-				roles: {
-					roles: { nodes: Role[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
-				};
-			},
-			Record<string, unknown>
-		>(
-			ROLES_QUERY,
-			{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.roles.roles ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		try {
+			const result = await gqlFetch<
+				{
+					roles: {
+						roles: { nodes: Role[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+					};
+				},
+				Record<string, unknown>
+			>(
+				ROLES_QUERY,
+				{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.roles.roles ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -152,12 +160,16 @@ export const getRole = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ roles: { role: Role | null } }, { id: string }>(
-			ROLE_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.roles.role;
+		try {
+			const result = await gqlFetch<{ roles: { role: Role | null } }, { id: string }>(
+				ROLE_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.roles.role;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -214,23 +214,27 @@ export const getEntriesForCombobox = query(
 	}),
 	async ({ slug, search }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{
-				collections: {
-					entries: Record<
-						string,
-						{ nodes: Array<{ id: string; name: string; slug: string | null }> }
-					>;
-				};
-			},
-			{ search?: string }
-		>(
-			buildEntriesComboboxQuery(slug),
-			{ search: search ?? '' },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		const field = slugToFieldName(slug);
-		return result.collections.entries[field]?.nodes ?? [];
+		try {
+			const result = await gqlFetch<
+				{
+					collections: {
+						entries: Record<
+							string,
+							{ nodes: Array<{ id: string; name: string; slug: string | null }> }
+						>;
+					};
+				},
+				{ search?: string }
+			>(
+				buildEntriesComboboxQuery(slug),
+				{ search: search ?? '' },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			const field = slugToFieldName(slug);
+			return result.collections.entries[field]?.nodes ?? [];
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -242,19 +246,23 @@ export const getEntries = query(
 	async ({ slug, after }) => {
 		const { locals } = getRequestEvent();
 		const first = 20;
-		const dataFields = await fetchCollectionFieldNames(slug, locals.accessToken?.tokenValue);
-		const result = await gqlFetch<EntriesResult, { first: number; after?: string }>(
-			buildEntriesQuery(slug, dataFields),
-			{ first, after },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		const field = slugToFieldName(slug);
-		return (
-			result.collections.entries[field] ?? {
-				nodes: [],
-				pageInfo: { hasNextPage: false, endCursor: null }
-			}
-		);
+		try {
+			const dataFields = await fetchCollectionFieldNames(slug, locals.accessToken?.tokenValue);
+			const result = await gqlFetch<EntriesResult, { first: number; after?: string }>(
+				buildEntriesQuery(slug, dataFields),
+				{ first, after },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			const field = slugToFieldName(slug);
+			return (
+				result.collections.entries[field] ?? {
+					nodes: [],
+					pageInfo: { hasNextPage: false, endCursor: null }
+				}
+			);
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -266,16 +274,20 @@ export const getEntry = query(
 	async ({ slug, id }) => {
 		const { locals } = getRequestEvent();
 		const field = slugToFieldName(slug);
-		const dataFields = await fetchCollectionFieldNames(slug, locals.accessToken?.tokenValue);
+		try {
+			const dataFields = await fetchCollectionFieldNames(slug, locals.accessToken?.tokenValue);
 
-		// Fetch by querying entries and filtering client-side, since filter types are per-collection
-		const result = await gqlFetch<EntriesResult, { first: number }>(
-			buildEntriesQuery(slug, dataFields),
-			{ first: 100 },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		const entries = result.collections.entries[field]?.nodes ?? [];
-		return entries.find((e) => e.id === id) ?? null;
+			// Fetch by querying entries and filtering client-side, since filter types are per-collection
+			const result = await gqlFetch<EntriesResult, { first: number }>(
+				buildEntriesQuery(slug, dataFields),
+				{ first: 100 },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			const entries = result.collections.entries[field]?.nodes ?? [];
+			return entries.find((e) => e.id === id) ?? null;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

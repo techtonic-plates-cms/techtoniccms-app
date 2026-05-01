@@ -3,6 +3,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import { logout } from '$lib/remotes/auth.remote';
 
 	const errors: Record<number, { title: string; description: string; emoji: string }> = {
 		404: {
@@ -70,6 +72,12 @@
 		<div class="flex justify-center gap-3">
 			<Button href="/" class="gap-2">Back to dashboard</Button>
 			<Button variant="outline" onclick={() => history.back()}>Go back</Button>
+			<form {...logout} class="contents">
+				<Button type="submit" variant="outline" class="gap-2">
+					<LogOutIcon class="size-4" />
+					Log out
+				</Button>
+			</form>
 		</div>
 	</div>
 </div>

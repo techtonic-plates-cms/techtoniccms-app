@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { isHttpError } from '@sveltejs/kit';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UsersIcon from '@lucide/svelte/icons/users';
@@ -11,7 +12,12 @@
 
 	const { user } = await requireAuth();
 	const collections = await getCollections();
-	const usersPage = await getUsers({});
+	const usersPage = await getUsers({}).catch((err) => {
+		if (isHttpError(err, 403)) {
+			return { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		}
+		throw err;
+	});
 
 	const totalEntries = collections.reduce((sum, c) => sum + c.entryCount, 0);
 </script>

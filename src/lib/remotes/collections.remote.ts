@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -122,36 +122,44 @@ export const getCollectionsForCombobox = query(
 	async ({ search }) => {
 		const { locals } = getRequestEvent();
 		const token = locals.accessToken?.tokenValue;
-		const result = await gqlFetch<
-			{
-				collections: {
-					collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> };
-				};
-			},
-			{ search?: string }
-		>(COLLECTIONS_COMBOBOX_QUERY, { search: search ?? '' }, { token });
-		return result.collections.collectionsData?.nodes ?? [];
+		try {
+			const result = await gqlFetch<
+				{
+					collections: {
+						collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> };
+					};
+				},
+				{ search?: string }
+			>(COLLECTIONS_COMBOBOX_QUERY, { search: search ?? '' }, { token });
+			return result.collections.collectionsData?.nodes ?? [];
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
 export const getCollections = query(async () => {
 	const { locals } = getRequestEvent();
 	const token = locals.accessToken?.tokenValue;
-	const result = await gqlFetch<
-		{
-			collections: {
-				collectionsData: {
-					nodes: Array<
-						Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & {
-							fields: Array<{ id: string }>;
-						}
-					>;
+	try {
+		const result = await gqlFetch<
+			{
+				collections: {
+					collectionsData: {
+						nodes: Array<
+							Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & {
+								fields: Array<{ id: string }>;
+							}
+						>;
+					};
 				};
-			};
-		},
-		Record<string, never>
-	>(COLLECTIONS_QUERY, {}, { token });
-	return result.collections.collectionsData?.nodes ?? [];
+			},
+			Record<string, never>
+		>(COLLECTIONS_QUERY, {}, { token });
+		return result.collections.collectionsData?.nodes ?? [];
+	} catch (err) {
+		handleGraphQLError(err);
+	}
 });
 
 export const getCollection = query(
@@ -161,11 +169,15 @@ export const getCollection = query(
 	async ({ slug }) => {
 		const { locals } = getRequestEvent();
 		const token = locals.accessToken?.tokenValue;
-		const result = await gqlFetch<
-			{ collections: { collectionData: Collection | null } },
-			{ slug: string }
-		>(COLLECTION_QUERY, { slug }, { token });
-		return result.collections.collectionData;
+		try {
+			const result = await gqlFetch<
+				{ collections: { collectionData: Collection | null } },
+				{ slug: string }
+			>(COLLECTION_QUERY, { slug }, { token });
+			return result.collections.collectionData;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

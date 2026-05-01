@@ -3,6 +3,7 @@
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import { cn } from '$lib/utils.js';
+	import { isHttpError } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { getEntriesForCombobox } from '$lib/remotes/entries.remote';
 
@@ -24,8 +25,16 @@
 	let open = $state(false);
 
 	onMount(async () => {
-		results = await getEntriesForCombobox({ slug: collectionSlug });
-		selectedItem = results.find((e) => e.id === value);
+		try {
+			results = await getEntriesForCombobox({ slug: collectionSlug });
+			selectedItem = results.find((e) => e.id === value);
+		} catch (err) {
+			if (isHttpError(err, 403)) {
+				results = [];
+			} else {
+				throw err;
+			}
+		}
 	});
 
 	let debounceTimer: ReturnType<typeof setTimeout>;
@@ -33,7 +42,18 @@
 		const q = search;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
-			results = await getEntriesForCombobox({ slug: collectionSlug, search: q || undefined }).run();
+			try {
+				results = await getEntriesForCombobox({
+					slug: collectionSlug,
+					search: q || undefined
+				}).run();
+			} catch (err) {
+				if (isHttpError(err, 403)) {
+					results = [];
+				} else {
+					throw err;
+				}
+			}
 		}, 300);
 		return () => clearTimeout(debounceTimer);
 	});

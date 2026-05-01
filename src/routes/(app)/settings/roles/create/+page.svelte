@@ -8,6 +8,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as v from 'valibot';
 	import { resolve } from '$app/paths';
+	import { isHttpError } from '@sveltejs/kit';
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { createRole } from '$lib/remotes/roles.remote';
 	import { getPolicies } from '$lib/remotes/policies.remote';
@@ -17,7 +18,12 @@
 
 	const nameField = createRole.fields.name.as('text');
 
-	const policiesData = await getPolicies({});
+	const policiesData = await getPolicies({}).catch((err) => {
+		if (isHttpError(err, 403)) {
+			return { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		}
+		throw err;
+	});
 	const policies = policiesData.nodes;
 
 	let selectedPolicyIds = $state<string[]>([]);

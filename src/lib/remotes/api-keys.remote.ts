@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -76,20 +76,24 @@ export const getApiKeys = query(
 	}),
 	async ({ after }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{
-				apiKeys: {
+		try {
+			const result = await gqlFetch<
+				{
 					apiKeys: {
-						nodes: ApiKey[];
-						pageInfo: { hasNextPage: boolean; endCursor: string | null };
+						apiKeys: {
+							nodes: ApiKey[];
+							pageInfo: { hasNextPage: boolean; endCursor: string | null };
+						};
 					};
-				};
-			},
-			Record<string, unknown>
-		>(API_KEYS_QUERY, { first: 25, after }, { token: locals.accessToken?.tokenValue });
-		return (
-			result.apiKeys.apiKeys ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
-		);
+				},
+				Record<string, unknown>
+			>(API_KEYS_QUERY, { first: 25, after }, { token: locals.accessToken?.tokenValue });
+			return (
+				result.apiKeys.apiKeys ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+			);
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -99,12 +103,16 @@ export const getApiKey = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ apiKeys: { apiKey: ApiKey | null } }, { id: string }>(
-			API_KEY_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.apiKeys.apiKey;
+		try {
+			const result = await gqlFetch<{ apiKeys: { apiKey: ApiKey | null } }, { id: string }>(
+				API_KEY_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.apiKeys.apiKey;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

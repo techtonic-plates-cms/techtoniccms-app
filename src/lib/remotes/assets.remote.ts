@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -67,15 +67,24 @@ export const getAssets = query(
 	}),
 	async ({ after }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{
-				assets: {
-					assets: { nodes: Asset[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
-				};
-			},
-			{ first: number; after?: string }
-		>(ASSETS_QUERY, { first: 24, after }, { token: locals.accessToken?.tokenValue });
-		return result.assets.assets ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		try {
+			const result = await gqlFetch<
+				{
+					assets: {
+						assets: {
+							nodes: Asset[];
+							pageInfo: { hasNextPage: boolean; endCursor: string | null };
+						};
+					};
+				},
+				{ first: number; after?: string }
+			>(ASSETS_QUERY, { first: 24, after }, { token: locals.accessToken?.tokenValue });
+			return (
+				result.assets.assets ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+			);
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -83,19 +92,23 @@ export const getAssetsForCombobox = query(
 	v.object({ search: v.optional(v.string()) }),
 	async ({ search }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{
-				assets: {
-					assets: { nodes: Array<{ id: string; filename: string; caption: string | null }> };
-				};
-			},
-			{ search?: string; first: number }
-		>(
-			ASSETS_COMBOBOX_QUERY,
-			{ search: search ?? '', first: 20 },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.assets.assets?.nodes ?? [];
+		try {
+			const result = await gqlFetch<
+				{
+					assets: {
+						assets: { nodes: Array<{ id: string; filename: string; caption: string | null }> };
+					};
+				},
+				{ search?: string; first: number }
+			>(
+				ASSETS_COMBOBOX_QUERY,
+				{ search: search ?? '', first: 20 },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.assets.assets?.nodes ?? [];
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

@@ -2,6 +2,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import XIcon from '@lucide/svelte/icons/x';
+	import { isHttpError } from '@sveltejs/kit';
 	import { getRoles } from '$lib/remotes/roles.remote';
 
 	let {
@@ -21,8 +22,16 @@
 	let roles = $state<Array<{ id: string; name: string; description: string | null }>>([]);
 
 	async function loadRoles() {
-		const result = await getRoles({}).run();
-		roles = result.nodes;
+		try {
+			const result = await getRoles({}).run();
+			roles = result.nodes;
+		} catch (err) {
+			if (isHttpError(err, 403)) {
+				roles = [];
+			} else {
+				throw err;
+			}
+		}
 	}
 
 	const filtered = $derived(

@@ -5,6 +5,7 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { cn } from '$lib/utils.js';
+	import { isHttpError } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { getPoliciesForCombobox } from '$lib/remotes/policies.remote';
 
@@ -36,9 +37,17 @@
 	let open = $state(false);
 
 	onMount(async () => {
-		results = await getPoliciesForCombobox({});
-		if (!multiple) {
-			selectedItem = results.find((p) => p.id === value);
+		try {
+			results = await getPoliciesForCombobox({});
+			if (!multiple) {
+				selectedItem = results.find((p) => p.id === value);
+			}
+		} catch (err) {
+			if (isHttpError(err, 403)) {
+				results = [];
+			} else {
+				throw err;
+			}
 		}
 	});
 
@@ -47,7 +56,15 @@
 		const q = search;
 		clearTimeout(debounceTimer);
 		debounceTimer = setTimeout(async () => {
-			results = await getPoliciesForCombobox({ search: q || undefined }).run();
+			try {
+				results = await getPoliciesForCombobox({ search: q || undefined }).run();
+			} catch (err) {
+				if (isHttpError(err, 403)) {
+					results = [];
+				} else {
+					throw err;
+				}
+			}
 		}, 300);
 		return () => clearTimeout(debounceTimer);
 	});

@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -130,19 +130,23 @@ export const getUsers = query(
 		const where: Record<string, unknown> = {};
 		if (search) where.name = { contains: search };
 		if (status) where.status = { eq: status };
-		const result = await gqlFetch<
-			{
-				users: {
-					users: { nodes: User[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
-				};
-			},
-			Record<string, unknown>
-		>(
-			USERS_QUERY,
-			{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.users.users ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		try {
+			const result = await gqlFetch<
+				{
+					users: {
+						users: { nodes: User[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+					};
+				},
+				Record<string, unknown>
+			>(
+				USERS_QUERY,
+				{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.users.users ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -152,12 +156,16 @@ export const getUser = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ users: { user: User | null } }, { id: string }>(
-			USER_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.users.user;
+		try {
+			const result = await gqlFetch<{ users: { user: User | null } }, { id: string }>(
+				USER_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.users.user;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 

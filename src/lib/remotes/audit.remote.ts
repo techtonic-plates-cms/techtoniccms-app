@@ -1,5 +1,5 @@
 import { query, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 
 export type Audit = {
@@ -81,27 +81,33 @@ export const getAudits = query(
 		if (resourceType) where.resourceType = { eq: resourceType };
 		if (requestedAction) where.requestedAction = { eq: requestedAction };
 
-		const result = await gqlFetch<
-			{
-				audit: {
-					audits: {
-						nodes: Audit[];
-						pageInfo: { hasNextPage: boolean; endCursor: string | null };
+		try {
+			const result = await gqlFetch<
+				{
+					audit: {
+						audits: {
+							nodes: Audit[];
+							pageInfo: { hasNextPage: boolean; endCursor: string | null };
+						};
 					};
-				};
-			},
-			Record<string, unknown>
-		>(
-			AUDITS_QUERY,
-			{
-				first: 25,
-				after,
-				where: Object.keys(where).length > 0 ? where : undefined,
-				order: [{ timestamp: 'DESC' }]
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.audit.audits ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+				},
+				Record<string, unknown>
+			>(
+				AUDITS_QUERY,
+				{
+					first: 25,
+					after,
+					where: Object.keys(where).length > 0 ? where : undefined,
+					order: [{ timestamp: 'DESC' }]
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return (
+				result.audit.audits ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+			);
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -111,11 +117,15 @@ export const getAudit = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ audit: { audit: Audit | null } }, { id: string }>(
-			AUDIT_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.audit.audit;
+		try {
+			const result = await gqlFetch<{ audit: { audit: Audit | null } }, { id: string }>(
+				AUDIT_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.audit.audit;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );

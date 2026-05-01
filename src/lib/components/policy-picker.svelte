@@ -2,6 +2,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import XIcon from '@lucide/svelte/icons/x';
+	import { isHttpError } from '@sveltejs/kit';
 	import { getPolicies } from '$lib/remotes/policies.remote';
 
 	let {
@@ -25,8 +26,16 @@
 	>([]);
 
 	async function loadPolicies() {
-		const result = await getPolicies({}).run();
-		policies = result.nodes;
+		try {
+			const result = await getPolicies({}).run();
+			policies = result.nodes;
+		} catch (err) {
+			if (isHttpError(err, 403)) {
+				policies = [];
+			} else {
+				throw err;
+			}
+		}
 	}
 
 	const filtered = $derived(

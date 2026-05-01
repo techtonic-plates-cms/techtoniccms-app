@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -124,27 +124,31 @@ export const getPoliciesForCombobox = query(
 		const { locals } = getRequestEvent();
 		const where: Record<string, unknown> = {};
 		if (search) where.name = { contains: search };
-		const result = await gqlFetch<
-			{
-				policy: {
-					policies: {
-						nodes: Array<{
-							id: string;
-							name: string;
-							effect: string;
-							resourceType: string;
-							actionType: string;
-						}>;
+		try {
+			const result = await gqlFetch<
+				{
+					policy: {
+						policies: {
+							nodes: Array<{
+								id: string;
+								name: string;
+								effect: string;
+								resourceType: string;
+								actionType: string;
+							}>;
+						};
 					};
-				};
-			},
-			{ first: number; where?: Record<string, unknown> }
-		>(
-			POLICIES_COMBOBOX_QUERY,
-			{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.policy.policies?.nodes ?? [];
+				},
+				{ first: number; where?: Record<string, unknown> }
+			>(
+				POLICIES_COMBOBOX_QUERY,
+				{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.policy.policies?.nodes ?? [];
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -165,28 +169,32 @@ export const getPolicies = query(
 		if (actionType) where.actionType = { eq: actionType };
 		if (effect) where.effect = { eq: effect };
 		if (isActive !== undefined && isActive !== null) where.isActive = { eq: isActive === 'true' };
-		const result = await gqlFetch<
-			{
-				policy: {
-					policies: {
-						nodes: Policy[];
-						pageInfo: { hasNextPage: boolean; endCursor: string | null };
+		try {
+			const result = await gqlFetch<
+				{
+					policy: {
+						policies: {
+							nodes: Policy[];
+							pageInfo: { hasNextPage: boolean; endCursor: string | null };
+						};
 					};
-				};
-			},
-			Record<string, unknown>
-		>(
-			POLICIES_QUERY,
-			{
-				first: 25,
-				after,
-				where: Object.keys(where).length > 0 ? where : undefined
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return (
-			result.policy.policies ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
-		);
+				},
+				Record<string, unknown>
+			>(
+				POLICIES_QUERY,
+				{
+					first: 25,
+					after,
+					where: Object.keys(where).length > 0 ? where : undefined
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return (
+				result.policy.policies ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+			);
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
@@ -196,12 +204,16 @@ export const getPolicy = query(
 	}),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
-			POLICY_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		return result.policy.policy;
+		try {
+			const result = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
+				POLICY_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			return result.policy.policy;
+		} catch (err) {
+			handleGraphQLError(err);
+		}
 	}
 );
 
