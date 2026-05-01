@@ -1,8 +1,8 @@
 import type { RequestHandler } from './$types';
-import { API_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
-	const upstream = await fetch(`${API_URL}/assets/${params.slug}`, {
+	const upstream = await fetch(`${env.API_URL}/assets/${params.slug}`, {
 		headers: locals.accessToken?.tokenValue
 			? { Authorization: `Bearer ${locals.accessToken.tokenValue}` }
 			: {}

@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { API_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { redirect } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -21,7 +21,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if (caption) upstream.append('caption', caption as string);
 	upstream.append('isPublic', isPublic === 'on' ? 'true' : 'false');
 
-	const res = await fetch(`${API_URL}/assets/upload`, {
+	const res = await fetch(`${env.API_URL}/assets/upload`, {
 		method: 'POST',
 		headers: { Authorization: `Bearer ${locals.accessToken?.tokenValue}` },
 		body: upstream
