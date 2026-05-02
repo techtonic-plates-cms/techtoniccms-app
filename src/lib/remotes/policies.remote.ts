@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -241,28 +241,33 @@ export const createPolicy = form(
 		rulesJson
 	}) => {
 		const { locals } = getRequestEvent();
-		const rules = rulesJson ? JSON.parse(rulesJson) : [];
-		const result = await gqlFetch<
-			{ policy: { create: { id: string } } },
-			{ input: Record<string, unknown> }
-		>(
-			CREATE_POLICY_MUTATION,
-			{
-				input: {
-					name,
-					description: description || undefined,
-					actionType,
-					effect,
-					resourceType,
-					isActive: isActive === 'on',
-					priority: priority ? parseInt(priority, 10) : 0,
-					ruleConnector: ruleConnector || 'AND',
-					rules
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/policies/${result.policy.create.id}`);
+		try {
+			const rules = rulesJson ? JSON.parse(rulesJson) : [];
+			const result = await gqlFetch<
+				{ policy: { create: { id: string } } },
+				{ input: Record<string, unknown> }
+			>(
+				CREATE_POLICY_MUTATION,
+				{
+					input: {
+						name,
+						description: description || undefined,
+						actionType,
+						effect,
+						resourceType,
+						isActive: isActive === 'on',
+						priority: priority ? parseInt(priority, 10) : 0,
+						ruleConnector: ruleConnector || 'AND',
+						rules
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/policies/${result.policy.create.id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -278,22 +283,27 @@ export const updatePolicy = form(
 	}),
 	async ({ id, name, description, isActive, priority, effect, ruleConnector }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_POLICY_MUTATION,
-			{
-				input: {
-					id,
-					name: name || undefined,
-					description: description || undefined,
-					isActive: isActive === 'on',
-					priority: priority ? parseInt(priority, 10) : undefined,
-					effect: effect || undefined,
-					ruleConnector: ruleConnector || undefined
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/policies/${id}`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_POLICY_MUTATION,
+				{
+					input: {
+						id,
+						name: name || undefined,
+						description: description || undefined,
+						isActive: isActive === 'on',
+						priority: priority ? parseInt(priority, 10) : undefined,
+						effect: effect || undefined,
+						ruleConnector: ruleConnector || undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/policies/${id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -301,12 +311,17 @@ export const deletePolicy = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			DELETE_POLICY_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, '/settings/policies');
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				DELETE_POLICY_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, '/settings/policies');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -321,27 +336,32 @@ export const addPolicyRule = form(
 	}),
 	async ({ policyId, attributePath, operator, valueJson, isActive, description }) => {
 		const { locals } = getRequestEvent();
-		const value = valueJson ? JSON.parse(valueJson) : undefined;
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_POLICY_MUTATION,
-			{
-				input: {
-					id: policyId,
-					rules: [
-						{
-							attributePath,
-							operator,
-							value,
-							isActive: isActive === 'on',
-							description: description || undefined,
-							order: 0
-						}
-					]
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/policies/${policyId}`);
+		try {
+			const value = valueJson ? JSON.parse(valueJson) : undefined;
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_POLICY_MUTATION,
+				{
+					input: {
+						id: policyId,
+						rules: [
+							{
+								attributePath,
+								operator,
+								value,
+								isActive: isActive === 'on',
+								description: description || undefined,
+								order: 0
+							}
+						]
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/policies/${policyId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -352,12 +372,17 @@ export const deletePolicyRule = form(
 	}),
 	async ({ policyId, ruleId }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_POLICY_MUTATION,
-			{ input: { id: policyId, deleteRuleIds: [ruleId] } },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/policies/${policyId}`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_POLICY_MUTATION,
+				{ input: { id: policyId, deleteRuleIds: [ruleId] } },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/policies/${policyId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -365,42 +390,47 @@ export const duplicatePolicy = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		const policy = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
-			POLICY_QUERY,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		if (!policy.policy?.policy) {
-			redirect(303, '/settings/policies');
+		try {
+			const policy = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
+				POLICY_QUERY,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			if (!policy.policy?.policy) {
+				redirect(303, '/settings/policies');
+			}
+			const p = policy.policy.policy;
+			const result = await gqlFetch<
+				{ policy: { create: { id: string } } },
+				{ input: Record<string, unknown> }
+			>(
+				CREATE_POLICY_MUTATION,
+				{
+					input: {
+						name: `Copy of ${p.name}`,
+						description: p.description || undefined,
+						actionType: p.actionType,
+						effect: p.effect,
+						resourceType: p.resourceType,
+						isActive: p.isActive,
+						priority: p.priority,
+						ruleConnector: p.ruleConnector,
+						rules: p.rules.map((r, i) => ({
+							attributePath: r.attributePath,
+							operator: r.operator,
+							value: r.value,
+							isActive: r.isActive,
+							description: r.description || undefined,
+							order: i
+						}))
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/policies/${result.policy.create.id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
 		}
-		const p = policy.policy.policy;
-		const result = await gqlFetch<
-			{ policy: { create: { id: string } } },
-			{ input: Record<string, unknown> }
-		>(
-			CREATE_POLICY_MUTATION,
-			{
-				input: {
-					name: `Copy of ${p.name}`,
-					description: p.description || undefined,
-					actionType: p.actionType,
-					effect: p.effect,
-					resourceType: p.resourceType,
-					isActive: p.isActive,
-					priority: p.priority,
-					ruleConnector: p.ruleConnector,
-					rules: p.rules.map((r, i) => ({
-						attributePath: r.attributePath,
-						operator: r.operator,
-						value: r.value,
-						isActive: r.isActive,
-						description: r.description || undefined,
-						order: i
-					}))
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/policies/${result.policy.create.id}`);
 	}
 );

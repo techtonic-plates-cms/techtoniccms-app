@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -259,8 +259,8 @@ export const createCollection = form(
 
 			redirect(303, `/collections/${result.collections.create.slug}`);
 		} catch (err) {
-			if ((err as { status?: number }).status) throw err;
-			throw err;
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
 		}
 	}
 );
@@ -269,13 +269,18 @@ export const deleteCollection = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			DELETE_COLLECTION_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		getCollections().refresh();
-		redirect(303, '/collections');
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				DELETE_COLLECTION_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			getCollections().refresh();
+			redirect(303, '/collections');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -289,24 +294,29 @@ export const updateCollectionMeta = form(
 	}),
 	async ({ id, name, description, icon, color }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{ collections: { update: { id: string; slug: string } } },
-			{ input: Record<string, unknown> }
-		>(
-			UPDATE_COLLECTION_MUTATION,
-			{
-				input: {
-					id,
-					name: name || undefined,
-					description: description || undefined,
-					icon: icon || undefined,
-					color: color || undefined
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		getCollection({ slug: result.collections.update.slug }).refresh();
-		redirect(303, `/collections/${result.collections.update.slug}/settings`);
+		try {
+			const result = await gqlFetch<
+				{ collections: { update: { id: string; slug: string } } },
+				{ input: Record<string, unknown> }
+			>(
+				UPDATE_COLLECTION_MUTATION,
+				{
+					input: {
+						id,
+						name: name || undefined,
+						description: description || undefined,
+						icon: icon || undefined,
+						color: color || undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			getCollection({ slug: result.collections.update.slug }).refresh();
+			redirect(303, `/collections/${result.collections.update.slug}/settings`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -342,32 +352,37 @@ export const addCollectionField = form(
 		const config = isRelation
 			? { relation: { relatedCollectionId: relatedCollectionId! } }
 			: { simple: { dataType } };
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_COLLECTION_MUTATION,
-			{
-				input: {
-					id: collectionId,
-					fields: [
-						{
-							name,
-							label: label || undefined,
-							dataType: isRelation ? undefined : dataType,
-							isRequired: isRequired === 'on',
-							isUnique: isUnique === 'on',
-							defaultValue: defaultValue || undefined,
-							description: description || undefined,
-							helpText: helpText || undefined,
-							relatedCollectionId: relatedCollectionId || undefined,
-							config
-						}
-					]
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_COLLECTION_MUTATION,
+				{
+					input: {
+						id: collectionId,
+						fields: [
+							{
+								name,
+								label: label || undefined,
+								dataType: isRelation ? undefined : dataType,
+								isRequired: isRequired === 'on',
+								isUnique: isUnique === 'on',
+								defaultValue: defaultValue || undefined,
+								description: description || undefined,
+								helpText: helpText || undefined,
+								relatedCollectionId: relatedCollectionId || undefined,
+								config
+							}
+						]
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
 
-		getCollection({ slug: collectionSlug }).refresh();
-		redirect(303, `/collections/${collectionSlug}/settings`);
+			getCollection({ slug: collectionSlug }).refresh();
+			redirect(303, `/collections/${collectionSlug}/settings`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -379,12 +394,17 @@ export const deleteCollectionField = form(
 	}),
 	async ({ collectionId, collectionSlug, fieldId }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_COLLECTION_MUTATION,
-			{ input: { id: collectionId, deleteFieldIds: [fieldId] } },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		getCollection({ slug: collectionSlug }).refresh();
-		redirect(303, `/collections/${collectionSlug}/settings`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_COLLECTION_MUTATION,
+				{ input: { id: collectionId, deleteFieldIds: [fieldId] } },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			getCollection({ slug: collectionSlug }).refresh();
+			redirect(303, `/collections/${collectionSlug}/settings`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );

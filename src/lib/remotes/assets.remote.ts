@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -121,19 +121,24 @@ export const updateAsset = form(
 	}),
 	async ({ id, alt, caption, isPublic }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_ASSET_MUTATION,
-			{
-				input: {
-					id,
-					alt: alt || undefined,
-					caption: caption || undefined,
-					isPublic: isPublic === 'on'
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, '/assets');
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_ASSET_MUTATION,
+				{
+					input: {
+						id,
+						alt: alt || undefined,
+						caption: caption || undefined,
+						isPublic: isPublic === 'on'
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, '/assets');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -141,11 +146,16 @@ export const deleteAsset = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			DELETE_ASSET_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, '/assets');
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				DELETE_ASSET_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, '/assets');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );

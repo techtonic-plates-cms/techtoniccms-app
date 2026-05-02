@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -181,22 +181,27 @@ export const createRole = form(
 	}),
 	async ({ name, description, policyIds }) => {
 		const { locals } = getRequestEvent();
-		const ids = policyIds ? policyIds.split(',').filter(Boolean) : [];
-		const result = await gqlFetch<
-			{ roles: { create: { id: string } } },
-			{ input: Record<string, unknown> }
-		>(
-			CREATE_ROLE_MUTATION,
-			{
-				input: {
-					name,
-					description: description || undefined,
-					policies: ids.length ? { ids } : undefined
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/roles/${result.roles.create.id}`);
+		try {
+			const ids = policyIds ? policyIds.split(',').filter(Boolean) : [];
+			const result = await gqlFetch<
+				{ roles: { create: { id: string } } },
+				{ input: Record<string, unknown> }
+			>(
+				CREATE_ROLE_MUTATION,
+				{
+					input: {
+						name,
+						description: description || undefined,
+						policies: ids.length ? { ids } : undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/roles/${result.roles.create.id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -208,12 +213,17 @@ export const updateRole = form(
 	}),
 	async ({ id, name, description }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_ROLE_MUTATION,
-			{ input: { id, name: name || undefined, description: description || undefined } },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/roles/${id}`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_ROLE_MUTATION,
+				{ input: { id, name: name || undefined, description: description || undefined } },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/roles/${id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -221,12 +231,17 @@ export const deleteRole = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			DELETE_ROLE_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, '/settings/roles');
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				DELETE_ROLE_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, '/settings/roles');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -238,12 +253,17 @@ export const assignPolicyToRole = form(
 	}),
 	async ({ roleId, policyId, expiresAt }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			ASSIGN_POLICY_MUTATION,
-			{ input: { roleId, policyId, expiresAt: expiresAt || undefined } },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/roles/${roleId}`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				ASSIGN_POLICY_MUTATION,
+				{ input: { roleId, policyId, expiresAt: expiresAt || undefined } },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/roles/${roleId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -254,11 +274,16 @@ export const unassignPolicyFromRole = form(
 	}),
 	async ({ roleId, policyId }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { policyId: string; roleId: string }>(
-			UNASSIGN_POLICY_MUTATION,
-			{ policyId, roleId },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/roles/${roleId}`);
+		try {
+			await gqlFetch<unknown, { policyId: string; roleId: string }>(
+				UNASSIGN_POLICY_MUTATION,
+				{ policyId, roleId },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/roles/${roleId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );

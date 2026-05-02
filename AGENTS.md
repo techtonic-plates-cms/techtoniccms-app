@@ -51,6 +51,46 @@ const result = await gqlFetch<MyQuery, MyQueryVariables>(
 
 The schema of the api is usualy located in `$API_URL/graphql`.
 
+#### Error handling
+
+This GraphQL API does not return HTTP status codes — all errors are returned as structured GraphQL extension errors with codes like `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `BAD_REQUEST`, and `INVALID_ENUM`.
+
+Always handle GraphQL errors using the helpers in `src/lib/server/gql.ts`:
+
+- **`handleGraphQLError(err)`** — for `query` functions. Maps GraphQL error codes to SvelteKit HTTP errors (`error(401)`, `error(403)`, `error(404)`, `error(409)`, `error(400)`).
+- **`handleGraphQLErrorForm(err)`** — for `form` functions. Maps GraphQL error codes to form-level errors via `invalid(message)` or redirects to `/login` for `UNAUTHENTICATED`.
+
+**Pattern for `query` functions:**
+
+```ts
+export const getData = query(async () => {
+	try {
+		const result = await gqlFetch<MyQuery, MyQueryVariables>(...);
+		return result;
+	} catch (err) {
+		handleGraphQLError(err);
+	}
+});
+```
+
+**Pattern for `form` functions:**
+
+```ts
+export const createX = form(v.object({ ... }), async (data) => {
+	const { locals } = getRequestEvent();
+	try {
+		await gqlFetch<...>(..., { token: locals.accessToken?.tokenValue });
+		redirect(303, '/success');
+	} catch (err) {
+		// Re-throw SvelteKit redirects to avoid catching them as GraphQL errors
+		if ((err as { status?: number }).status !== undefined) throw err;
+		handleGraphQLErrorForm(err);
+	}
+});
+```
+
+**Auth special case:** `login` distinguishes `UNAUTHENTICATED` (shows "Invalid username or password") from other errors (shows the actual API message via `handleGraphQLErrorForm`).
+
 ### Remote Functions (NOT load functions)
 
 This project uses SvelteKit's experimental remote functions (`kit.experimental.remoteFunctions: true` in `svelte.config.js`). **Do not use `load` functions or `+page.server.ts` files.** Instead:

@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -302,24 +302,29 @@ export const createEntry = form(
 	}),
 	async ({ collectionSlug, name, slug, status, data, schedulePublishFor }) => {
 		const { locals } = getRequestEvent();
-		const fieldData = data ? JSON.parse(data) : {};
-		const result = await gqlFetch<
-			{ collections: { entries: Record<string, { create: { id: string } }> } },
-			Record<string, unknown>
-		>(
-			buildCreateMutation(collectionSlug),
-			{
-				name,
-				slug: slug || undefined,
-				status: status || 'DRAFT',
-				data: fieldData,
-				schedulePublishFor: schedulePublishFor || undefined
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		const field = slugToFieldName(collectionSlug);
-		const entry = result.collections.entries[field].create;
-		redirect(303, `/collections/${collectionSlug}/entries/${entry.id}`);
+		try {
+			const fieldData = data ? JSON.parse(data) : {};
+			const result = await gqlFetch<
+				{ collections: { entries: Record<string, { create: { id: string } }> } },
+				Record<string, unknown>
+			>(
+				buildCreateMutation(collectionSlug),
+				{
+					name,
+					slug: slug || undefined,
+					status: status || 'DRAFT',
+					data: fieldData,
+					schedulePublishFor: schedulePublishFor || undefined
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			const field = slugToFieldName(collectionSlug);
+			const entry = result.collections.entries[field].create;
+			redirect(303, `/collections/${collectionSlug}/entries/${entry.id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -336,22 +341,27 @@ export const updateEntry = form(
 	}),
 	async ({ collectionSlug, entryId, oldSlug, name, slug, status, data, schedulePublishFor }) => {
 		const { locals } = getRequestEvent();
-		const parsedData = data ? JSON.parse(data) : null;
-		const fieldData = parsedData && Object.keys(parsedData).length > 0 ? parsedData : undefined;
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildUpdateMutation(collectionSlug),
-			{
-				id: entryId,
-				name: name || undefined,
-				slug: slug || undefined,
-				status: status || undefined,
-				data: fieldData,
-				schedulePublishFor: schedulePublishFor || undefined
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		getEntry({ slug: oldSlug, id: entryId }).refresh();
-		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		try {
+			const parsedData = data ? JSON.parse(data) : null;
+			const fieldData = parsedData && Object.keys(parsedData).length > 0 ? parsedData : undefined;
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildUpdateMutation(collectionSlug),
+				{
+					id: entryId,
+					name: name || undefined,
+					slug: slug || undefined,
+					status: status || undefined,
+					data: fieldData,
+					schedulePublishFor: schedulePublishFor || undefined
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			getEntry({ slug: oldSlug, id: entryId }).refresh();
+			redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -363,12 +373,17 @@ export const publishEntry = form(
 	}),
 	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildPublishMutation(collectionSlug),
-			{ id: entryId, scheduleFor: scheduleFor || undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		try {
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildPublishMutation(collectionSlug),
+				{ id: entryId, scheduleFor: scheduleFor || undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -380,12 +395,17 @@ export const unpublishEntry = form(
 	}),
 	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildUnpublishMutation(collectionSlug),
-			{ id: entryId, scheduleFor: scheduleFor || undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		try {
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildUnpublishMutation(collectionSlug),
+				{ id: entryId, scheduleFor: scheduleFor || undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -397,12 +417,17 @@ export const archiveEntry = form(
 	}),
 	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildArchiveMutation(collectionSlug),
-			{ id: entryId, scheduleFor: scheduleFor || undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		try {
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildArchiveMutation(collectionSlug),
+				{ id: entryId, scheduleFor: scheduleFor || undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -414,12 +439,17 @@ export const restoreEntry = form(
 	}),
 	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildRestoreMutation(collectionSlug),
-			{ id: entryId, scheduleFor: scheduleFor || undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		try {
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildRestoreMutation(collectionSlug),
+				{ id: entryId, scheduleFor: scheduleFor || undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/collections/${collectionSlug}/entries/${entryId}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -431,11 +461,16 @@ export const deleteEntry = form(
 	}),
 	async ({ collectionSlug, entryId, scheduleFor }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, Record<string, unknown>>(
-			buildDeleteMutation(collectionSlug),
-			{ id: entryId, scheduleFor: scheduleFor || undefined },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/collections/${collectionSlug}`);
+		try {
+			await gqlFetch<unknown, Record<string, unknown>>(
+				buildDeleteMutation(collectionSlug),
+				{ id: entryId, scheduleFor: scheduleFor || undefined },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/collections/${collectionSlug}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );

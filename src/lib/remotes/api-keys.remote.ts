@@ -1,5 +1,5 @@
 import { query, form, getRequestEvent } from '$app/server';
-import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
+import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
 
@@ -123,21 +123,26 @@ export const createApiKey = form(
 	}),
 	async ({ name, expiresAt }) => {
 		const { locals } = getRequestEvent();
-		const result = await gqlFetch<
-			{ apiKeys: { createApiKey: { apiKey: { id: string }; key: string } } },
-			{ input: Record<string, unknown> }
-		>(
-			CREATE_API_KEY_MUTATION,
-			{
-				input: {
-					name,
-					expiresAt: expiresAt || undefined
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		const { apiKey, key } = result.apiKeys.createApiKey;
-		redirect(303, `/settings/api-keys/${apiKey.id}?key=${encodeURIComponent(key)}`);
+		try {
+			const result = await gqlFetch<
+				{ apiKeys: { createApiKey: { apiKey: { id: string }; key: string } } },
+				{ input: Record<string, unknown> }
+			>(
+				CREATE_API_KEY_MUTATION,
+				{
+					input: {
+						name,
+						expiresAt: expiresAt || undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			const { apiKey, key } = result.apiKeys.createApiKey;
+			redirect(303, `/settings/api-keys/${apiKey.id}?key=${encodeURIComponent(key)}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -150,19 +155,24 @@ export const updateApiKey = form(
 	}),
 	async ({ id, name, expiresAt, isActive }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { input: Record<string, unknown> }>(
-			UPDATE_API_KEY_MUTATION,
-			{
-				input: {
-					id,
-					name: name || undefined,
-					expiresAt: expiresAt || undefined,
-					isActive: isActive !== undefined ? isActive === 'true' : undefined
-				}
-			},
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/api-keys/${id}`);
+		try {
+			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+				UPDATE_API_KEY_MUTATION,
+				{
+					input: {
+						id,
+						name: name || undefined,
+						expiresAt: expiresAt || undefined,
+						isActive: isActive !== undefined ? isActive === 'true' : undefined
+					}
+				},
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/api-keys/${id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -170,12 +180,17 @@ export const revokeApiKey = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			REVOKE_API_KEY_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, `/settings/api-keys/${id}`);
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				REVOKE_API_KEY_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, `/settings/api-keys/${id}`);
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );
 
@@ -183,11 +198,16 @@ export const deleteApiKey = form(
 	v.object({ id: v.pipe(v.string(), v.nonEmpty()) }),
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
-		await gqlFetch<unknown, { id: string }>(
-			DELETE_API_KEY_MUTATION,
-			{ id },
-			{ token: locals.accessToken?.tokenValue }
-		);
-		redirect(303, '/settings/api-keys');
+		try {
+			await gqlFetch<unknown, { id: string }>(
+				DELETE_API_KEY_MUTATION,
+				{ id },
+				{ token: locals.accessToken?.tokenValue }
+			);
+			redirect(303, '/settings/api-keys');
+		} catch (err) {
+			if ((err as { status?: number }).status !== undefined) throw err;
+			handleGraphQLErrorForm(err);
+		}
 	}
 );

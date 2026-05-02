@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 import { redirect, invalid } from '@sveltejs/kit';
 import { getRequestEvent, query, form, command } from '$app/server';
-import { gqlFetch } from '$lib/server/gql';
+import { gqlFetch, getGraphQLErrorCode, handleGraphQLErrorForm } from '$lib/server/gql';
 import { LOGIN_MUTATION, LOGOUT_MUTATION, REFRESH_MUTATION } from '$lib/server/auth.operations';
 import type {
 	LoginMutation,
@@ -60,7 +60,12 @@ export const refreshAuth = command(async () => {
 			expiresAt: refreshToken.expiresAt
 		};
 		return { accessToken: locals.accessToken };
-	} catch {
+	} catch (err) {
+		const code = getGraphQLErrorCode(err);
+		if (code === 'UNAUTHENTICATED') {
+			return null;
+		}
+		console.error('[auth] Refresh failed:', err);
 		return null;
 	}
 });
@@ -91,12 +96,16 @@ export const login = form(
 			const redirectTo = url.searchParams.get('redirectTo') ?? '/';
 			redirect(303, redirectTo.startsWith('/') ? redirectTo : '/');
 		} catch (err) {
-			console.log(err);
 			// Re-throw SvelteKit redirects
 			if (err instanceof Response || (err as { status?: number }).status !== undefined) {
 				throw err;
 			}
-			invalid('Invalid username or password');
+			const code = getGraphQLErrorCode(err);
+			if (code === 'UNAUTHENTICATED') {
+				invalid('Invalid username or password');
+			} else {
+				handleGraphQLErrorForm(err);
+			}
 		}
 	}
 );
