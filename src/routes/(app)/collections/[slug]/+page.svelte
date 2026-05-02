@@ -104,7 +104,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve(`/collections/${collection?.slug}/entries/{entry.id}`)}
+									href={resolve(`/collections/${collection?.slug}/entries/${entry.id}`)}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{entry.name}

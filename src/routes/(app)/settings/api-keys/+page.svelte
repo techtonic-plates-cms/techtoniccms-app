@@ -45,7 +45,7 @@
 					<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 						<td class="px-4 py-3">
 							<a
-								href={resolve('/settings/api-keys/{apiKey.id}')}
+								href={resolve(`/settings/api-keys/${apiKey.id}`)}
 								class="font-medium transition-colors hover:text-primary"
 							>
 								{apiKey.name}
