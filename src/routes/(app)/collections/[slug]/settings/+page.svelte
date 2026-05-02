@@ -44,7 +44,7 @@
 	<div class="space-y-8">
 		<div class="flex items-center gap-3">
 			<a
-				href={resolve('/collections/{collection.slug}')}
+				href={resolve(`/collections/${collection.slug}`)}
 				class="text-muted-foreground transition-colors hover:text-foreground"
 			>
 				<ArrowLeftIcon class="size-4" />

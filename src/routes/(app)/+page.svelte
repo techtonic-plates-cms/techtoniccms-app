@@ -117,7 +117,7 @@
 				<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 					{#each collections.slice(0, 6) as collection (collection.id)}
 						<a
-							href={resolve('/collections/{collection.slug}')}
+							href={resolve(`/collections/${collection.slug}`)}
 							class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
 						>
 							{#if collection.icon}

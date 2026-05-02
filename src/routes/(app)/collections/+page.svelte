@@ -76,7 +76,7 @@
 								</div>
 							</div>
 							<a
-								href={resolve('/collections/{collection.slug}/settings')}
+								href={resolve(`/collections/${collection.slug}/settings`)}
 								class="shrink-0 p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
 							>
 								<SettingsIcon class="size-4" />
