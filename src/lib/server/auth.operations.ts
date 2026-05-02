@@ -18,7 +18,30 @@ export const LOGIN_MUTATION = graphql(`
 					status
 					roles {
 						id
-						name
+						assignedAt
+						expiresAt
+						role {
+							id
+							name
+							policies {
+								id
+								assignedAt
+								expiresAt
+								policy {
+									resourceType
+									actionType
+									effect
+								}
+							}
+						}
+					}
+					policies {
+						expiresAt
+						policy {
+							resourceType
+							actionType
+							effect
+						}
 					}
 				}
 			}
@@ -37,7 +60,30 @@ export const ME_QUERY = graphql(`
 				lastLoginTime
 				roles {
 					id
-					name
+					assignedAt
+					expiresAt
+					role {
+						id
+						name
+						policies {
+							id
+							assignedAt
+							expiresAt
+							policy {
+								resourceType
+								actionType
+								effect
+							}
+						}
+					}
+				}
+				policies {
+					expiresAt
+					policy {
+						resourceType
+						actionType
+						effect
+					}
 				}
 			}
 		}

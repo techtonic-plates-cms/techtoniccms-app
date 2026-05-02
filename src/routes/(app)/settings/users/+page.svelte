@@ -194,7 +194,7 @@
 							</td>
 							<td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
 								{#if user.roles.length > 0}
-									{user.roles.map((r) => r.name).join(', ')}
+									{user.roles.map((r) => r.role.name).join(', ')}
 								{:else}
 									<span class="italic">No roles</span>
 								{/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { isHttpError } from '@sveltejs/kit';
+	import { BaseResource, PermissionAction } from 'techtonic-client-gql';
 	import LayersIcon from '@lucide/svelte/icons/layers';
 	import ImageIcon from '@lucide/svelte/icons/image';
 	import UsersIcon from '@lucide/svelte/icons/users';
@@ -9,15 +10,31 @@
 	import { requireAuth } from '$lib/remotes/auth.remote';
 	import { getCollections } from '$lib/remotes/collections.remote';
 	import { getUsers } from '$lib/remotes/users.remote';
+	import { hasPermission } from '$lib/permissions';
 
 	const { user } = await requireAuth();
-	const collections = await getCollections();
-	const usersPage = await getUsers({}).catch((err) => {
-		if (isHttpError(err, 403)) {
-			return { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
-		}
-		throw err;
-	});
+
+	const canReadCollections = hasPermission(user, BaseResource.Collections, PermissionAction.Read);
+	const canReadUsers = hasPermission(user, BaseResource.Users, PermissionAction.Read);
+	const canReadAssets = hasPermission(user, BaseResource.Assets, PermissionAction.Read);
+
+	const collections = canReadCollections
+		? await getCollections().catch((err) => {
+				if (isHttpError(err, 403)) {
+					return [];
+				}
+				throw err;
+			})
+		: [];
+
+	const usersPage = canReadUsers
+		? await getUsers({}).catch((err) => {
+				if (isHttpError(err, 403)) {
+					return { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
+				}
+				throw err;
+			})
+		: { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } };
 
 	const totalEntries = collections.reduce((sum, c) => sum + c.entryCount, 0);
 </script>
@@ -29,102 +46,118 @@
 	</div>
 
 	<div class="grid gap-4 sm:grid-cols-3">
-		<Card.Root>
-			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-					<LayersIcon class="size-5" />
-				</div>
-				<div>
-					<p class="text-2xl font-bold">{collections.length}</p>
-					<p class="text-sm text-muted-foreground">Collections</p>
-					<p class="text-xs text-muted-foreground">{totalEntries} total entries</p>
-				</div>
-			</Card.Content>
-		</Card.Root>
+		{#if canReadCollections}
+			<Card.Root>
+				<Card.Content class="flex items-center gap-4 p-6">
+					<div
+						class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+					>
+						<LayersIcon class="size-5" />
+					</div>
+					<div>
+						<p class="text-2xl font-bold">{collections.length}</p>
+						<p class="text-sm text-muted-foreground">Collections</p>
+						<p class="text-xs text-muted-foreground">{totalEntries} total entries</p>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		{/if}
 
-		<Card.Root>
-			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-					<UsersIcon class="size-5" />
-				</div>
-				<div>
-					<p class="text-2xl font-bold">{usersPage.nodes.length}</p>
-					<p class="text-sm text-muted-foreground">Users</p>
-					<p class="text-xs text-muted-foreground">
-						{usersPage.nodes.filter((u) => u.status === 'ACTIVE').length} active
-					</p>
-				</div>
-			</Card.Content>
-		</Card.Root>
+		{#if canReadUsers}
+			<Card.Root>
+				<Card.Content class="flex items-center gap-4 p-6">
+					<div
+						class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+					>
+						<UsersIcon class="size-5" />
+					</div>
+					<div>
+						<p class="text-2xl font-bold">{usersPage.nodes.length}</p>
+						<p class="text-sm text-muted-foreground">Users</p>
+						<p class="text-xs text-muted-foreground">
+							{usersPage.nodes.filter((u) => u.status === 'ACTIVE').length} active
+						</p>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		{/if}
 
-		<Card.Root>
-			<Card.Content class="flex items-center gap-4 p-6">
-				<div class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-					<ImageIcon class="size-5" />
-				</div>
-				<div>
-					<p class="text-2xl font-bold">—</p>
-					<p class="text-sm text-muted-foreground">Assets</p>
-					<a href={resolve('/assets')} class="text-xs text-primary hover:underline">View library</a>
-				</div>
-			</Card.Content>
-		</Card.Root>
+		{#if canReadAssets}
+			<Card.Root>
+				<Card.Content class="flex items-center gap-4 p-6">
+					<div
+						class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+					>
+						<ImageIcon class="size-5" />
+					</div>
+					<div>
+						<p class="text-2xl font-bold">—</p>
+						<p class="text-sm text-muted-foreground">Assets</p>
+						<a href={resolve('/assets')} class="text-xs text-primary hover:underline"
+							>View library</a
+						>
+					</div>
+				</Card.Content>
+			</Card.Root>
+		{/if}
 	</div>
 
-	{#if collections.length > 0}
-		<div>
-			<div class="mb-3 flex items-center justify-between">
-				<h2 class="font-semibold">Collections</h2>
-				<a
-					href={resolve('/collections')}
-					class="flex items-center gap-1 text-sm text-primary hover:underline"
-				>
-					View all <ArrowRightIcon class="size-3" />
-				</a>
-			</div>
-			<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-				{#each collections.slice(0, 6) as collection (collection.id)}
+	{#if canReadCollections}
+		{#if collections.length > 0}
+			<div>
+				<div class="mb-3 flex items-center justify-between">
+					<h2 class="font-semibold">Collections</h2>
 					<a
-						href={resolve('/collections/{collection.slug}')}
-						class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+						href={resolve('/collections')}
+						class="flex items-center gap-1 text-sm text-primary hover:underline"
 					>
-						{#if collection.icon}
-							<img
-								src="/assets/_api/{collection.icon.id}"
-								alt={collection.icon.filename}
-								class="size-8 rounded-md object-cover"
-							/>
-						{:else}
-							<div
-								class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-primary-foreground"
-								style={collection.color
-									? `background-color: ${collection.color}`
-									: 'background-color: hsl(var(--primary))'}
-							>
-								{collection.name.charAt(0).toUpperCase()}
-							</div>
-						{/if}
-						<div class="min-w-0">
-							<p class="truncate font-medium">{collection.name}</p>
-							<p class="text-xs text-muted-foreground">
-								{collection.entryCount}
-								{collection.entryCount === 1 ? 'entry' : 'entries'}
-							</p>
-						</div>
+						View all <ArrowRightIcon class="size-3" />
 					</a>
-				{/each}
+				</div>
+				<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+					{#each collections.slice(0, 6) as collection (collection.id)}
+						<a
+							href={resolve('/collections/{collection.slug}')}
+							class="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+						>
+							{#if collection.icon}
+								<img
+									src="/assets/_api/{collection.icon.id}"
+									alt={collection.icon.filename}
+									class="size-8 rounded-md object-cover"
+								/>
+							{:else}
+								<div
+									class="flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-primary-foreground"
+									style={collection.color
+										? `background-color: ${collection.color}`
+										: 'background-color: hsl(var(--primary))'}
+								>
+									{collection.name.charAt(0).toUpperCase()}
+								</div>
+							{/if}
+							<div class="min-w-0">
+								<p class="truncate font-medium">{collection.name}</p>
+								<p class="text-xs text-muted-foreground">
+									{collection.entryCount}
+									{collection.entryCount === 1 ? 'entry' : 'entries'}
+								</p>
+							</div>
+						</a>
+					{/each}
+				</div>
 			</div>
-		</div>
-	{:else}
-		<div class="rounded-lg border border-dashed p-8 text-center">
-			<LayersIcon class="mx-auto mb-3 size-10 text-muted-foreground" />
-			<p class="font-medium">No collections yet</p>
-			<p class="mt-1 text-sm text-muted-foreground">
-				<a href={resolve('/collections')} class="text-primary hover:underline"
-					>Create your first collection</a
-				>
-				to start managing content.
-			</p>
-		</div>
+		{:else}
+			<div class="rounded-lg border border-dashed p-8 text-center">
+				<LayersIcon class="mx-auto mb-3 size-10 text-muted-foreground" />
+				<p class="font-medium">No collections yet</p>
+				<p class="mt-1 text-sm text-muted-foreground">
+					<a href={resolve('/collections')} class="text-primary hover:underline"
+						>Create your first collection</a
+					>
+					to start managing content.
+				</p>
+			</div>
+		{/if}
 	{/if}
 </div>

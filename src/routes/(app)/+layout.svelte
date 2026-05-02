@@ -1,16 +1,27 @@
 <script lang="ts">
+	import { isHttpError } from '@sveltejs/kit';
+	import { BaseResource, PermissionAction } from 'techtonic-client-gql';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { requireAuth, refreshAuth } from '$lib/remotes/auth.remote';
 	import { getCollections } from '$lib/remotes/collections.remote';
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import { hasPermission } from '$lib/permissions';
 
 	let { children } = $props();
 
 	const authData = await requireAuth();
 	const user = authData.user;
-	const collections = await getCollections();
+	const canReadCollections = hasPermission(user, BaseResource.Collections, PermissionAction.Read);
+	const collections = canReadCollections
+		? await getCollections().catch((err) => {
+				if (isHttpError(err, 403)) {
+					return [];
+				}
+				throw err;
+			})
+		: [];
 
 	let accessTokenExpiresAt = $state(authData.accessToken?.expiresAt ?? null);
 

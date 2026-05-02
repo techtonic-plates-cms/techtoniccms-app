@@ -2,10 +2,10 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import type { Role } from './roles.remote';
 
 export type UserRole = {
-	id: string;
-	name: string;
+	role: Role;
 	assignedAt?: string | null;
 	expiresAt?: string | null;
 };
@@ -41,7 +41,7 @@ const USERS_QUERY = `
 			users(first: $first, after: $after, where: $where) {
 				nodes {
 					id name status creationTime lastLoginTime
-					roles { id name }
+					roles { role { id name } }
 				}
 				pageInfo { hasNextPage endCursor }
 			}
@@ -54,7 +54,7 @@ const USER_QUERY = `
 		users {
 			user(id: $id) {
 				id name status creationTime lastLoginTime lastEditTime
-				roles { id name assignedAt expiresAt }
+				roles { role {id name} assignedAt expiresAt }
 				policies { id assignedAt expiresAt reason policy { id name effect resourceType actionType } }
 			}
 		}

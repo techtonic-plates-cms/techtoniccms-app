@@ -120,14 +120,14 @@
 			<h2 class="font-semibold">Roles</h2>
 			{#if user.roles.length > 0}
 				<div class="divide-y rounded-md border">
-					{#each user.roles as role (role.id)}
+					{#each user.roles as role (role.role.id)}
 						<div class="flex items-center justify-between px-4 py-3">
 							<div>
 								<a
-									href={resolve('/(app)/settings/roles/[id]', { id: role.id })}
+									href={resolve('/(app)/settings/roles/[id]', { id: role.role.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
-									{role.name}
+									{role.role.name}
 								</a>
 								{#if role.expiresAt}
 									<p
@@ -143,9 +143,9 @@
 									<p class="text-xs text-muted-foreground">Since {formatDate(role.assignedAt)}</p>
 								{/if}
 							</div>
-							<form {...unassignRole.for(role.id)}>
+							<form {...unassignRole.for(role.role.id)}>
 								<input type="hidden" name="userId" value={user.id} />
-								<input type="hidden" name="roleId" value={role.id} />
+								<input type="hidden" name="roleId" value={role.role.id} />
 								<Button type="submit" variant="ghost" size="sm">Remove</Button>
 							</form>
 						</div>
