@@ -2,22 +2,11 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import type { AssetsComboboxQuery, GetAssetsQuery, AssetsComboboxQueryVariables, GetAssetsQueryVariables } from 'techtonic-client-gql';
+import { graphql } from 'techtonic-client-gql';
 
-export type Asset = {
-	id: string;
-	filename: string;
-	mimeType: string;
-	fileSize: number;
-	url: string;
-	alt: string | null;
-	caption: string | null;
-	isPublic: boolean;
-	uploadedAt: string;
-	uploadedByUser: { id: string; name: string } | null;
-};
-
-const ASSETS_QUERY = `
-	query Assets($first: Int, $after: String) {
+const ASSETS_QUERY = graphql(`
+	query GetAssets($first: Int, $after: String) {
 		assets {
 			assets(first: $first, after: $after) {
 				nodes {
@@ -28,9 +17,9 @@ const ASSETS_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const ASSETS_COMBOBOX_QUERY = `
+const ASSETS_COMBOBOX_QUERY = graphql(`
 	query AssetsCombobox($search: String, $first: Int) {
 		assets {
 			assets(first: $first, where: {
@@ -43,23 +32,23 @@ const ASSETS_COMBOBOX_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const UPDATE_ASSET_MUTATION = `
+const UPDATE_ASSET_MUTATION = graphql(`
 	mutation UpdateAsset($input: UpdateAssetInput!) {
 		assets {
 			update(input: $input) { id filename alt caption isPublic }
 		}
 	}
-`;
+`);
 
-const DELETE_ASSET_MUTATION = `
+const DELETE_ASSET_MUTATION = graphql(`
 	mutation DeleteAsset($id: UUID!) {
 		assets {
 			delete(id: $id)
 		}
 	}
-`;
+`);
 
 export const getAssets = query(
 	v.object({
@@ -68,17 +57,11 @@ export const getAssets = query(
 	async ({ after }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<
-				{
-					assets: {
-						assets: {
-							nodes: Asset[];
-							pageInfo: { hasNextPage: boolean; endCursor: string | null };
-						};
-					};
-				},
-				{ first: number; after?: string }
-			>(ASSETS_QUERY, { first: 24, after }, { token: locals.accessToken?.tokenValue });
+			const result = await gqlFetch<GetAssetsQuery, GetAssetsQueryVariables>(
+				ASSETS_QUERY,
+				{ first: 24, after },
+				{ token: locals.accessToken?.tokenValue }
+			);
 			return (
 				result.assets.assets ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
 			);
@@ -93,14 +76,7 @@ export const getAssetsForCombobox = query(
 	async ({ search }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<
-				{
-					assets: {
-						assets: { nodes: Array<{ id: string; filename: string; caption: string | null }> };
-					};
-				},
-				{ search?: string; first: number }
-			>(
+			const result = await gqlFetch<AssetsComboboxQuery, AssetsComboboxQueryVariables>(
 				ASSETS_COMBOBOX_QUERY,
 				{ search: search ?? '', first: 20 },
 				{ token: locals.accessToken?.tokenValue }
@@ -122,7 +98,7 @@ export const updateAsset = form(
 	async ({ id, alt, caption, isPublic }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch(
 				UPDATE_ASSET_MUTATION,
 				{
 					input: {
@@ -147,7 +123,7 @@ export const deleteAsset = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch(
 				DELETE_ASSET_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }

@@ -1,25 +1,10 @@
 import { query, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError } from '$lib/server/gql';
 import * as v from 'valibot';
+import { graphql, SortEnumType, type GetAuditQuery, type GetAuditQueryVariables, type GetAuditsQuery, type GetAuditsQueryVariables } from 'techtonic-client-gql';
 
-export type Audit = {
-	id: string;
-	requestedAction: string;
-	resourceType: string;
-	decision: 'ALLOW' | 'DENY';
-	decisionReason: string;
-	evaluationTimeMs: number;
-	timestamp: string;
-	ipAddress?: string | null;
-	userAgent?: string | null;
-	sessionId?: string | null;
-	user: { id: string; name: string };
-	evaluatedPolicyIds?: string[] | null;
-	matchingPolicyIds?: string[] | null;
-};
-
-const AUDITS_QUERY = `
-	query Audits($first: Int, $after: String, $where: AbacAuditFilterInput, $order: [AbacAuditSortInput!]) {
+const AUDITS_QUERY = graphql(`
+	query GetAudits($first: Int, $after: String, $where: AbacAuditFilterInput, $order: [AbacAuditSortInput!]) {
 		audit {
 			audits(first: $first, after: $after, where: $where, order: $order) {
 				nodes {
@@ -41,10 +26,10 @@ const AUDITS_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const AUDIT_QUERY = `
-	query Audit($id: UUID!) {
+const AUDIT_QUERY = graphql(`
+	query GetAudit($id: UUID!) {
 		audit {
 			audit(id: $id) {
 				id
@@ -63,7 +48,7 @@ const AUDIT_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
 export const getAudits = query(
 	v.object({
@@ -83,27 +68,19 @@ export const getAudits = query(
 
 		try {
 			const result = await gqlFetch<
-				{
-					audit: {
-						audits: {
-							nodes: Audit[];
-							pageInfo: { hasNextPage: boolean; endCursor: string | null };
-						};
-					};
-				},
-				Record<string, unknown>
+				GetAuditsQuery, GetAuditsQueryVariables
 			>(
 				AUDITS_QUERY,
 				{
 					first: 25,
 					after,
 					where: Object.keys(where).length > 0 ? where : undefined,
-					order: [{ timestamp: 'DESC' }]
+					order: [{ timestamp: SortEnumType.Desc }]
 				},
 				{ token: locals.accessToken?.tokenValue }
 			);
 			return (
-				result.audit.audits ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
+				result.audit.audits! ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
 			);
 		} catch (err) {
 			handleGraphQLError(err);
@@ -118,12 +95,12 @@ export const getAudit = query(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<{ audit: { audit: Audit | null } }, { id: string }>(
+			const result = await gqlFetch<GetAuditQuery, GetAuditQueryVariables>(
 				AUDIT_QUERY,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
 			);
-			return result.audit.audit;
+			return result.audit!;
 		} catch (err) {
 			handleGraphQLError(err);
 		}

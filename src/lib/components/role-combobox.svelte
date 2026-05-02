@@ -25,8 +25,11 @@
 		class: className
 	}: Props = $props();
 
-	let results = $state<Array<{ id: string; name: string; description: string | null }>>([]);
-	let selectedItem = $state<{ id: string; name: string; description: string | null } | undefined>(
+
+
+	type Item = Awaited<ReturnType<typeof getRolesForCombobox>>;
+	let results = $state<Item>([]);
+	let selectedItem = $state<Item[number] | undefined>(
 		undefined
 	);
 

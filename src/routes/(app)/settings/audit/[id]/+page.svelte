@@ -12,7 +12,8 @@
 	const { params }: PageProps = $props();
 	const id = $derived(params.id);
 
-	const audit = $derived(await getAudit({ id }));
+	const resp = $derived(await getAudit({ id }));
+	const audit = $derived(resp.audit)
 
 	function formatTimeAgo(timestamp: string): string {
 		const date = new Date(timestamp);
@@ -82,10 +83,10 @@
 					</div>
 					<p class="text-sm">
 						<a
-							href={resolve(`/settings/users/${audit.user.id}`)}
+							href={resolve(`/settings/users/${audit.user!.id}`)}
 							class="font-medium transition-colors hover:text-primary"
 						>
-							{audit.user.name}
+							{audit.user?.name}
 						</a>
 						attempted
 						<span class="font-medium">{audit.requestedAction}</span>

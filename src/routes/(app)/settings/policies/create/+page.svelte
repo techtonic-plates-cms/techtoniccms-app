@@ -13,7 +13,8 @@
 	import PolicyRuleBuilder from '$lib/components/policy-rule-builder.svelte';
 	import HelpTooltip from '$lib/components/help-tooltip.svelte';
 	import { policyToSentence, type RuleValue } from '$lib/components/policy-rule-utils';
-
+	import { BaseResource, PermissionAction, PermissionEffect } from 'techtonic-client-gql';
+	
 	await requireAuth();
 
 	const nameField = createPolicy.fields.name.as('text');
@@ -209,13 +210,12 @@
 				}))
 		)
 	);
-
-	const preflight = v.object({
-		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
-		actionType: v.pipe(v.string(), v.nonEmpty('Action type is required')),
-		effect: v.pipe(v.string(), v.nonEmpty('Effect is required')),
-		resourceType: v.pipe(v.string(), v.nonEmpty('Resource type is required'))
-	});
+const preflight = v.object({
+    name: v.pipe(v.string(), v.nonEmpty('Name is required')),
+    actionType: v.enum(PermissionAction),
+    effect: v.enum(PermissionEffect),
+    resourceType: v.enum(BaseResource)
+});
 </script>
 
 <div class="mx-auto max-w-3xl space-y-8 px-4 py-8">

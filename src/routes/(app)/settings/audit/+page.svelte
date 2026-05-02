@@ -21,7 +21,7 @@
 	const auditsData = $derived(
 		await getAudits({ search, decision, resourceType, requestedAction, after })
 	);
-	const audits = $derived(auditsData.nodes);
+	const audits = $derived(auditsData.nodes!);
 
 	const DECISION_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
 		ALLOW: 'default',
@@ -278,12 +278,16 @@
 								<p class="text-[10px] text-muted-foreground">{formatTimeAgo(audit.timestamp)}</p>
 							</td>
 							<td class="px-4 py-3">
-								<a
+								{#if audit.user}
+									<a
 									href={resolve('/(app)/settings/users/[id]', { id: audit.user.id })}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{audit.user.name}
 								</a>
+								{:else} 
+									No User
+								{/if}
 							</td>
 							<td class="hidden px-4 py-3 text-muted-foreground md:table-cell">
 								{formatAction(audit.requestedAction, audit.resourceType)}

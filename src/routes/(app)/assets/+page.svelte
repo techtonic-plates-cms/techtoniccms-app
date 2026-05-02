@@ -10,12 +10,13 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import { getAssets, updateAsset, deleteAsset, type Asset } from '@/remotes/assets.remote';
+	import { getAssets, updateAsset, deleteAsset } from '@/remotes/assets.remote';
+	import type { Asset } from 'techtonic-client-gql';
 
 	const after = $derived(page.url.searchParams.get('after') ?? undefined);
 
 	const assetsData = $derived(await getAssets({ after }));
-	const assets = $derived(assetsData.nodes);
+	const assets = $derived(assetsData.nodes!);
 
 	let editingAsset = $state<Asset | null>(null);
 
@@ -95,7 +96,7 @@
 						<button
 							type="button"
 							class="rounded bg-background/80 p-1 shadow backdrop-blur-sm hover:bg-background"
-							onclick={() => (editingAsset = asset)}
+							onclick={() => (editingAsset = asset as Asset)}
 						>
 							<PencilIcon class="size-3" />
 						</button>

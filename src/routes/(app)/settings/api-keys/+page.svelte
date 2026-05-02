@@ -67,7 +67,7 @@
 						</td>
 					</tr>
 				{/each}
-				{#if apiKeys.nodes.length === 0}
+				{#if apiKeys?.nodes?.length === 0}
 					<tr>
 						<td colspan="5" class="px-4 py-8 text-center text-muted-foreground italic">
 							No API keys yet

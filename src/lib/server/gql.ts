@@ -1,4 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { env } from '$env/dynamic/private';
 import { error, invalid, redirect } from '@sveltejs/kit';
 
@@ -11,7 +12,7 @@ export function createClient(token?: string | null): GraphQLClient {
 }
 
 export async function gqlFetch<TResult, TVariables extends Record<string, unknown>>(
-	document: unknown,
+	document: TypedDocumentNode<TResult, TVariables> | string,
 	variables?: TVariables,
 	options?: { token?: string | null }
 ): Promise<TResult> {

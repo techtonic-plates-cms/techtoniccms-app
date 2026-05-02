@@ -2,41 +2,11 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
-import type { Role } from './roles.remote';
+import { graphql, UserStatus, type ActivateUserMutation, type ActivateUserMutationVariables, type AssignPolicyToUserMutation, type AssignPolicyToUserMutationVariables, type AssignRoleMutation, type AssignRoleMutationVariables, type ChangePasswordMutation, type ChangePasswordMutationVariables, type CreateUserMutation, type CreateUserMutationVariables, type DeactivateUserMutation, type DeactivateUserMutationVariables, type DeleteUserMutation, type DeleteUserMutationVariables, type UnassignPolicyFromUserMutation, type UnassignPolicyFromUserMutationVariables, type UnassignRoleMutation, type UnassignRoleMutationVariables, type UpdateUserMutation, type UpdateUserMutationVariables, type GetUserQuery, type GetUserQueryVariables, type GetUsersQuery, type GetUsersQueryVariables } from 'techtonic-client-gql';
 
-export type UserRole = {
-	role: Role;
-	assignedAt?: string | null;
-	expiresAt?: string | null;
-};
 
-export type UserPolicy = {
-	id: string;
-	assignedAt?: string | null;
-	expiresAt?: string | null;
-	reason?: string | null;
-	policy: {
-		id: string;
-		name: string;
-		effect: string;
-		actionType: string;
-		resourceType: string;
-	};
-};
-
-export type User = {
-	id: string;
-	name: string;
-	status: 'ACTIVE' | 'INACTIVE';
-	creationTime: string | null;
-	lastLoginTime: string | null;
-	lastEditTime: string | null;
-	roles: UserRole[];
-	policies: UserPolicy[];
-};
-
-const USERS_QUERY = `
-	query Users($first: Int, $after: String, $where: UserFilterInput) {
+const USERS_QUERY = graphql(`
+	query GetUsers($first: Int, $after: String, $where: UserFilterInput) {
 		users {
 			users(first: $first, after: $after, where: $where) {
 				nodes {
@@ -48,10 +18,10 @@ const USERS_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const USER_QUERY = `
-	query User($id: UUID) {
+const USER_QUERY = graphql(`
+	query GetUser($id: UUID) {
 		users {
 			user(id: $id) {
 				id name status creationTime lastLoginTime lastEditTime
@@ -60,65 +30,65 @@ const USER_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const CREATE_USER_MUTATION = `
+const CREATE_USER_MUTATION = graphql(`
 	mutation CreateUser($input: CreateUserInput!) {
 		users {
 			create(input: $input) { id name }
 		}
 	}
-`;
+`);
 
-const UPDATE_USER_MUTATION = `
+const UPDATE_USER_MUTATION = graphql(`
 	mutation UpdateUser($input: UpdateUserInput!) {
 		users {
 			update(input: $input) { id name }
 		}
 	}
-`;
+`);
 
-const DELETE_USER_MUTATION = `
+const DELETE_USER_MUTATION = graphql(`
 	mutation DeleteUser($id: UUID!) {
 		users { delete(id: $id) }
 	}
-`;
+`);
 
-const ASSIGN_ROLE_MUTATION = `
+const ASSIGN_ROLE_MUTATION = graphql(`
 	mutation AssignRole($input: AssignRoleInput!) {
 		users { assignRole(input: $input) }
 	}
-`;
+`);
 
-const UNASSIGN_ROLE_MUTATION = `
+const UNASSIGN_ROLE_MUTATION = graphql(`
 	mutation UnassignRole($userId: UUID!, $roleId: UUID!) {
 		users { unassignRole(userId: $userId, roleId: $roleId) }
 	}
-`;
+`);
 
-const ACTIVATE_MUTATION = `
+const ACTIVATE_MUTATION = graphql(`
 	mutation ActivateUser($id: UUID!) { users { activate(id: $id) { id status } } }
-`;
-const DEACTIVATE_MUTATION = `
+`);
+const DEACTIVATE_MUTATION = graphql(`
 	mutation DeactivateUser($id: UUID!) { users { deactivate(id: $id) { id status } } }
-`;
-const CHANGE_PASSWORD_MUTATION = `
+`);
+const CHANGE_PASSWORD_MUTATION = graphql(`
 	mutation ChangePassword($input: ChangePasswordInput!) {
 		users { changePassword(input: $input) }
 	}
-`;
+`);
 
-const ASSIGN_POLICY_MUTATION = `
+const ASSIGN_POLICY_MUTATION = graphql(`
 	mutation AssignPolicyToUser($input: AssignPolicyToUserInput!) {
 		users { assignPolicy(input: $input) }
 	}
-`;
+`);
 
-const UNASSIGN_POLICY_MUTATION = `
+const UNASSIGN_POLICY_MUTATION = graphql(`
 	mutation UnassignPolicyFromUser($policyId: UUID!, $userId: UUID!) {
 		users { unassignPolicy(policyId: $policyId, userId: $userId) }
 	}
-`;
+`);
 
 export const getUsers = query(
 	v.object({
@@ -132,13 +102,7 @@ export const getUsers = query(
 		if (search) where.name = { contains: search };
 		if (status) where.status = { eq: status };
 		try {
-			const result = await gqlFetch<
-				{
-					users: {
-						users: { nodes: User[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
-					};
-				},
-				Record<string, unknown>
+			const result = await gqlFetch<GetUsersQuery, GetUsersQueryVariables
 			>(
 				USERS_QUERY,
 				{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
@@ -158,12 +122,12 @@ export const getUser = query(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<{ users: { user: User | null } }, { id: string }>(
+			const result = await gqlFetch<GetUserQuery, GetUserQueryVariables>(
 				USER_QUERY,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
 			);
-			return result.users.user;
+			return result.users.user!;
 		} catch (err) {
 			handleGraphQLError(err);
 		}
@@ -174,23 +138,21 @@ export const createUser = form(
 	v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		_password: v.pipe(v.string(), v.nonEmpty('Password is required')),
-		status: v.optional(v.string()),
+		status: v.optional(v.enum(UserStatus)),
 		roleIds: v.optional(v.string()),
 		policyIds: v.optional(v.string())
 	}),
 	async ({ name, _password, status, roleIds, policyIds }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<
-				{ users: { create: { id: string } } },
-				{ input: Record<string, unknown> }
+			const result = await gqlFetch<CreateUserMutation, CreateUserMutationVariables
 			>(
 				CREATE_USER_MUTATION,
 				{
 					input: {
 						name,
 						password: _password,
-						status: status || 'ACTIVE',
+						status: status || UserStatus.Active,
 						roles: roleIds ? { ids: roleIds.split(',').filter(Boolean) } : undefined,
 						policies: policyIds ? { ids: policyIds.split(',').filter(Boolean) } : undefined
 					}
@@ -209,12 +171,12 @@ export const updateUser = form(
 	v.object({
 		id: v.pipe(v.string(), v.nonEmpty()),
 		name: v.optional(v.string()),
-		status: v.optional(v.string())
+		status: v.optional(v.enum(UserStatus))
 	}),
 	async ({ id, name, status }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdateUserMutation, UpdateUserMutationVariables>(
 				UPDATE_USER_MUTATION,
 				{ input: { id, name: name || undefined, status: status || undefined } },
 				{ token: locals.accessToken?.tokenValue }
@@ -232,7 +194,7 @@ export const deleteUser = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<DeleteUserMutation, DeleteUserMutationVariables>(
 				DELETE_USER_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
@@ -254,7 +216,7 @@ export const assignRole = form(
 	async ({ userId, roleId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<AssignRoleMutation, AssignRoleMutationVariables>(
 				ASSIGN_ROLE_MUTATION,
 				{ input: { userId, roleId, expiresAt: expiresAt || undefined } },
 				{ token: locals.accessToken?.tokenValue }
@@ -275,7 +237,7 @@ export const unassignRole = form(
 	async ({ userId, roleId }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { userId: string; roleId: string }>(
+			await gqlFetch<UnassignRoleMutation, UnassignRoleMutationVariables>(
 				UNASSIGN_ROLE_MUTATION,
 				{ userId, roleId },
 				{ token: locals.accessToken?.tokenValue }
@@ -293,7 +255,7 @@ export const activateUser = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<ActivateUserMutation, ActivateUserMutationVariables>(
 				ACTIVATE_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
@@ -311,7 +273,7 @@ export const deactivateUser = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<DeactivateUserMutation, DeactivateUserMutationVariables>(
 				DEACTIVATE_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
@@ -332,7 +294,7 @@ export const changePassword = form(
 	async ({ userId, _newPassword }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<ChangePasswordMutation, ChangePasswordMutationVariables>(
 				CHANGE_PASSWORD_MUTATION,
 				{ input: { userId, newPassword: _newPassword } },
 				{ token: locals.accessToken?.tokenValue }
@@ -354,7 +316,7 @@ export const assignPolicyToUser = form(
 	async ({ userId, policyId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<AssignPolicyToUserMutation, AssignPolicyToUserMutationVariables>(
 				ASSIGN_POLICY_MUTATION,
 				{ input: { userId, policyId, expiresAt: expiresAt || undefined } },
 				{ token: locals.accessToken?.tokenValue }
@@ -375,7 +337,7 @@ export const unassignPolicyFromUser = form(
 	async ({ userId, policyId }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { policyId: string; userId: string }>(
+			await gqlFetch<UnassignPolicyFromUserMutation, UnassignPolicyFromUserMutationVariables>(
 				UNASSIGN_POLICY_MUTATION,
 				{ policyId, userId },
 				{ token: locals.accessToken?.tokenValue }

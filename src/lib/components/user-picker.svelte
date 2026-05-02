@@ -21,7 +21,7 @@
 	async function loadUsers() {
 		try {
 			const result = await getUsers({}).run();
-			users = result.nodes;
+			users = (result.nodes ?? []) as typeof users;
 		} catch (err) {
 			if (isHttpError(err, 403)) {
 				users = [];

@@ -5,7 +5,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import type { Collection } from '$lib/remotes/collections.remote';
 	import type { EntryNode } from '$lib/remotes/entries.remote';
 	import {
 		createEntry,
@@ -19,9 +18,12 @@
 	import AssetCombobox from '$lib/components/asset-combobox.svelte';
 	import EntriesCombobox from '$lib/components/entries-combobox.svelte';
 	import { resolve } from '$app/paths';
+	import type { GetCollectionQuery } from 'techtonic-client-gql';
+
+	type CollectionData = NonNullable<GetCollectionQuery['collections']['collectionData']>;
 
 	interface Props {
-		collection: Collection;
+		collection: CollectionData;
 		entry?: EntryNode | null;
 	}
 

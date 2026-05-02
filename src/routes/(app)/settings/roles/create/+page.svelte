@@ -53,7 +53,7 @@
 				ruleConnector: string;
 			}>
 		> = {};
-		for (const policy of policies) {
+		for (const policy of policies || []) {
 			const rt = policy.resourceType;
 			if (!groups[rt]) groups[rt] = [];
 			groups[rt].push(policy as (typeof groups)[string][number]);
@@ -143,7 +143,7 @@
 			</div>
 			<Separator />
 
-			{#if policies.length === 0}
+			{#if policies?.length === 0}
 				<p class="text-sm text-muted-foreground italic">No policies available</p>
 			{:else}
 				<div class="space-y-6">

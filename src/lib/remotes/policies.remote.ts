@@ -2,97 +2,83 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import {
+	graphql,
+	AttributePath,
+	OperatorType,
+	PermissionAction,
+	PermissionEffect,
+	BaseResource,
+	LogicalOperator,
+	type AbacPolicyFilterInput,
+	type CreatePolicyMutation,
+	type CreatePolicyMutationVariables,
+	type CreatePolicyRuleInput,
+	type DeletePolicyMutation,
+	type DeletePolicyMutationVariables,
+	type PoliciesForComboboxQuery,
+	type PoliciesForComboboxQueryVariables,
+	type GetPoliciesQuery,
+	type GetPoliciesQueryVariables,
+	type GetPolicyQuery,
+	type GetPolicyQueryVariables,
+	type PolicyRule,
+	type PolicyRuleValueInput,
+	type UpdatePolicyMutation,
+	type UpdatePolicyMutationVariables
+} from 'techtonic-client-gql';
 
-export type PolicyRuleValue = {
-	stringValue?: string;
-	numberValue?: number;
-	booleanValue?: boolean;
-	uuidValue?: string;
-	dateTimeValue?: string;
-	arrayValue?: string[];
-	contextReferencePath?: string;
-};
-
-export type PolicyRule = {
-	id: string;
-	attributePath: string;
-	operator: string;
-	value: PolicyRuleValue;
-	contextReferencePath?: string | null;
-	isActive: boolean;
-	order: number;
-	description: string | null;
-};
-
-export type Policy = {
-	id: string;
-	name: string;
-	description: string | null;
-	actionType: string;
-	effect: string;
-	resourceType: string;
-	isActive: boolean;
-	priority: number;
-	ruleConnector: string;
-	createdAt: string | null;
-	updatedAt: string | null;
-	rules: PolicyRule[];
-};
-
-const RULE_VALUE_FRAGMENT = `
-	expectedStringValue expectedNumberValue expectedBooleanValue expectedDateTimeValue expectedUuidValue expectedArrayValue
-	contextReferencePath
-`;
-
-const POLICIES_QUERY = `
-	query Policies($first: Int, $after: String, $where: AbacPolicyFilterInput) {
+const POLICIES_QUERY = graphql(`
+	query GetPolicies($first: Int, $after: String, $where: AbacPolicyFilterInput) {
 		policy {
 			policies(first: $first, after: $after, where: $where) {
 				nodes {
 					id name description actionType effect resourceType isActive priority ruleConnector createdAt
-					rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order description }
+					rules { id attributePath operator 	expectedStringValue expectedNumberValue expectedBooleanValue expectedDateTimeValue expectedUuidValue expectedArrayValue
+	contextReferencePath isActive order description }
 				}
 				pageInfo { hasNextPage endCursor }
 			}
 		}
 	}
-`;
+`);
 
-const POLICY_QUERY = `
-	query Policy($id: UUID) {
+const POLICY_QUERY = graphql(`
+	query GetPolicy($id: UUID) {
 		policy {
 			policy(id: $id) {
 				id name description actionType effect resourceType
 				isActive priority ruleConnector createdAt updatedAt
-				rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order description }
+				rules { id attributePath operator 	expectedStringValue expectedNumberValue expectedBooleanValue expectedDateTimeValue expectedUuidValue expectedArrayValue
+	contextReferencePath isActive order description }
 			}
 		}
 	}
-`;
+`);
 
-const CREATE_POLICY_MUTATION = `
+const CREATE_POLICY_MUTATION = graphql(`
 	mutation CreatePolicy($input: CreatePolicyInput!) {
 		policy {
 			create(input: $input) { id name }
 		}
 	}
-`;
+`);
 
-const UPDATE_POLICY_MUTATION = `
+const UPDATE_POLICY_MUTATION = graphql(`
 	mutation UpdatePolicy($input: UpdatePolicyInput!) {
 		policy {
 			update(input: $input) { id name }
 		}
 	}
-`;
+`);
 
-const DELETE_POLICY_MUTATION = `
+const DELETE_POLICY_MUTATION = graphql(`
 	mutation DeletePolicy($id: UUID!) {
 		policy { delete(id: $id) }
 	}
-`;
+`);
 
-const POLICIES_COMBOBOX_QUERY = `
+const POLICIES_COMBOBOX_QUERY = graphql(`
 	query PoliciesForCombobox($first: Int, $where: AbacPolicyFilterInput) {
 		policy {
 			policies(first: $first, where: $where) {
@@ -100,30 +86,17 @@ const POLICIES_COMBOBOX_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
 export const getPoliciesForCombobox = query(
 	v.object({ search: v.optional(v.string()) }),
 	async ({ search }) => {
 		const { locals } = getRequestEvent();
-		const where: Record<string, unknown> = {};
+		const where: AbacPolicyFilterInput = {};
 		if (search) where.name = { contains: search };
 		try {
 			const result = await gqlFetch<
-				{
-					policy: {
-						policies: {
-							nodes: Array<{
-								id: string;
-								name: string;
-								effect: string;
-								resourceType: string;
-								actionType: string;
-							}>;
-						};
-					};
-				},
-				{ first: number; where?: Record<string, unknown> }
+				PoliciesForComboboxQuery, PoliciesForComboboxQueryVariables
 			>(
 				POLICIES_COMBOBOX_QUERY,
 				{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
@@ -139,15 +112,15 @@ export const getPoliciesForCombobox = query(
 export const getPolicies = query(
 	v.object({
 		search: v.optional(v.string()),
-		resourceType: v.optional(v.string()),
-		actionType: v.optional(v.string()),
-		effect: v.optional(v.string()),
+		resourceType: v.optional(v.enum(BaseResource)),
+		actionType: v.optional(v.enum(PermissionAction)),
+		effect: v.optional(v.enum(PermissionEffect)),
 		isActive: v.optional(v.string()),
 		after: v.optional(v.string())
 	}),
 	async ({ search, resourceType, actionType, effect, isActive, after }) => {
 		const { locals } = getRequestEvent();
-		const where: Record<string, unknown> = {};
+		const where: AbacPolicyFilterInput = {};
 		if (search) where.name = { contains: search };
 		if (resourceType) where.resourceType = { eq: resourceType };
 		if (actionType) where.actionType = { eq: actionType };
@@ -155,15 +128,7 @@ export const getPolicies = query(
 		if (isActive !== undefined && isActive !== null) where.isActive = { eq: isActive === 'true' };
 		try {
 			const result = await gqlFetch<
-				{
-					policy: {
-						policies: {
-							nodes: Policy[];
-							pageInfo: { hasNextPage: boolean; endCursor: string | null };
-						};
-					};
-				},
-				Record<string, unknown>
+				GetPoliciesQuery, GetPoliciesQueryVariables
 			>(
 				POLICIES_QUERY,
 				{
@@ -189,12 +154,12 @@ export const getPolicy = query(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
+			const result = await gqlFetch<GetPolicyQuery, GetPolicyQueryVariables>(
 				POLICY_QUERY,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
 			);
-			return result.policy.policy;
+			return result.policy;
 		} catch (err) {
 			handleGraphQLError(err);
 		}
@@ -205,12 +170,12 @@ export const createPolicy = form(
 	v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
 		description: v.optional(v.string()),
-		actionType: v.pipe(v.string(), v.nonEmpty('Action type is required')),
-		effect: v.pipe(v.string(), v.nonEmpty('Effect is required')),
-		resourceType: v.pipe(v.string(), v.nonEmpty('Resource type is required')),
+		actionType: v.enum(PermissionAction),
+		effect: v.enum(PermissionEffect),
+		resourceType: v.enum(BaseResource),
 		isActive: v.optional(v.string()),
 		priority: v.optional(v.string()),
-		ruleConnector: v.optional(v.string()),
+		ruleConnector: v.optional(v.enum(LogicalOperator)),
 		rulesJson: v.optional(v.string())
 	}),
 	async ({
@@ -226,10 +191,9 @@ export const createPolicy = form(
 	}) => {
 		const { locals } = getRequestEvent();
 		try {
-			const rules = rulesJson ? JSON.parse(rulesJson) : [];
+			const rules = rulesJson ? JSON.parse(rulesJson) as CreatePolicyRuleInput[] : [];
 			const result = await gqlFetch<
-				{ policy: { create: { id: string } } },
-				{ input: Record<string, unknown> }
+				CreatePolicyMutation, CreatePolicyMutationVariables
 			>(
 				CREATE_POLICY_MUTATION,
 				{
@@ -241,7 +205,7 @@ export const createPolicy = form(
 						resourceType,
 						isActive: isActive === 'on',
 						priority: priority ? parseInt(priority, 10) : 0,
-						ruleConnector: ruleConnector || 'AND',
+						ruleConnector: ruleConnector ?? LogicalOperator.And,
 						rules
 					}
 				},
@@ -262,13 +226,13 @@ export const updatePolicy = form(
 		description: v.optional(v.string()),
 		isActive: v.optional(v.string()),
 		priority: v.optional(v.string()),
-		effect: v.optional(v.string()),
-		ruleConnector: v.optional(v.string())
+		effect: v.optional(v.enum(PermissionEffect)),
+		ruleConnector: v.optional(v.enum(LogicalOperator))
 	}),
 	async ({ id, name, description, isActive, priority, effect, ruleConnector }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdatePolicyMutation, UpdatePolicyMutationVariables>(
 				UPDATE_POLICY_MUTATION,
 				{
 					input: {
@@ -277,8 +241,8 @@ export const updatePolicy = form(
 						description: description || undefined,
 						isActive: isActive === 'on',
 						priority: priority ? parseInt(priority, 10) : undefined,
-						effect: effect || undefined,
-						ruleConnector: ruleConnector || undefined
+						effect,
+						ruleConnector
 					}
 				},
 				{ token: locals.accessToken?.tokenValue }
@@ -296,7 +260,7 @@ export const deletePolicy = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<DeletePolicyMutation, DeletePolicyMutationVariables>(
 				DELETE_POLICY_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
@@ -312,8 +276,8 @@ export const deletePolicy = form(
 export const addPolicyRule = form(
 	v.object({
 		policyId: v.pipe(v.string(), v.nonEmpty()),
-		attributePath: v.pipe(v.string(), v.nonEmpty('Attribute path is required')),
-		operator: v.pipe(v.string(), v.nonEmpty('Operator is required')),
+		attributePath: v.enum(AttributePath),
+		operator: v.enum(OperatorType),
 		valueJson: v.optional(v.string()),
 		isActive: v.optional(v.string()),
 		description: v.optional(v.string())
@@ -321,8 +285,8 @@ export const addPolicyRule = form(
 	async ({ policyId, attributePath, operator, valueJson, isActive, description }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const value = valueJson ? JSON.parse(valueJson) : undefined;
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			const value = valueJson ? JSON.parse(valueJson) as PolicyRuleValueInput : undefined;
+			await gqlFetch<UpdatePolicyMutation, UpdatePolicyMutationVariables>(
 				UPDATE_POLICY_MUTATION,
 				{
 					input: {
@@ -357,7 +321,7 @@ export const deletePolicyRule = form(
 	async ({ policyId, ruleId }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdatePolicyMutation, UpdatePolicyMutationVariables>(
 				UPDATE_POLICY_MUTATION,
 				{ input: { id: policyId, deleteRuleIds: [ruleId] } },
 				{ token: locals.accessToken?.tokenValue }
@@ -375,18 +339,17 @@ export const duplicatePolicy = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const policy = await gqlFetch<{ policy: { policy: Policy | null } }, { id: string }>(
+			const policy = await gqlFetch<GetPolicyQuery, GetPolicyQueryVariables>(
 				POLICY_QUERY,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
 			);
-			if (!policy.policy?.policy) {
+			if (!policy.policy!) {
 				redirect(303, '/settings/policies');
 			}
-			const p = policy.policy.policy;
+			const p = policy.policy.policy!;
 			const result = await gqlFetch<
-				{ policy: { create: { id: string } } },
-				{ input: Record<string, unknown> }
+				CreatePolicyMutation, CreatePolicyMutationVariables
 			>(
 				CREATE_POLICY_MUTATION,
 				{
@@ -400,16 +363,8 @@ export const duplicatePolicy = form(
 						priority: p.priority,
 						ruleConnector: p.ruleConnector,
 						rules: p.rules.map((r, i) => {
-							const raw = r as unknown as {
-								expectedStringValue?: string | null;
-								expectedNumberValue?: number | null;
-								expectedBooleanValue?: boolean | null;
-								expectedDateTimeValue?: string | null;
-								expectedUuidValue?: string | null;
-								expectedArrayValue?: string[] | null;
-								contextReferencePath?: string | null;
-							};
-							const value: Record<string, unknown> = {};
+							const raw = r as PolicyRule;
+							const value: PolicyRuleValueInput = {};
 							if (raw.expectedStringValue != null) value.stringValue = raw.expectedStringValue;
 							if (raw.expectedNumberValue != null) value.numberValue = raw.expectedNumberValue;
 							if (raw.expectedBooleanValue != null) value.booleanValue = raw.expectedBooleanValue;

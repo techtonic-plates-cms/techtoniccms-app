@@ -14,11 +14,9 @@
 	}
 
 	let { value, onValueChange, class: className }: Props = $props();
-
-	let results = $state<Array<{ id: string; filename: string; caption: string | null }>>([]);
-	let selectedItem = $state<{ id: string; filename: string; caption: string | null } | undefined>(
-		undefined
-	);
+	type AssetItem = Awaited<ReturnType<typeof getAssetsForCombobox>>;
+	let results = $state<AssetItem>([]);
+	let selectedItem = $state<AssetItem[number] | undefined>(undefined);
 
 	let search = $state('');
 	let open = $state(false);

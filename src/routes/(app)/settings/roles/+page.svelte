@@ -22,10 +22,10 @@
 	};
 
 	const metrics = $derived({
-		total: roles.nodes.length,
-		totalUsers: roles.nodes.reduce((sum, r) => sum + r.users.length, 0),
-		totalPolicies: roles.nodes.reduce((sum, r) => sum + r.policies.length, 0),
-		unused: roles.nodes.filter((r) => r.users.length === 0).length
+		total: roles.nodes!.length,
+		totalUsers: roles.nodes!.reduce((sum, r) => sum + r.users.length, 0),
+		totalPolicies: roles.nodes!.reduce((sum, r) => sum + r.policies.length, 0),
+		unused: roles.nodes!.filter((r) => r.users.length === 0).length
 	});
 
 	let searchInput = $state(page.url.searchParams.get('search') ?? '');
@@ -107,7 +107,7 @@
 		{/if}
 	</div>
 
-	{#if roles.nodes.length === 0}
+	{#if roles.nodes!.length === 0}
 		<div class="rounded-lg border border-dashed p-12 text-center">
 			<div class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
 				<UsersIcon class="size-6 text-muted-foreground" />

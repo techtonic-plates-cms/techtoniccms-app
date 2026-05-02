@@ -23,15 +23,18 @@
 		valueToDisplayString,
 		getAttributeLabel,
 		getOperatorLabel,
-		policyToSentence
+		policyToSentence,
+
+		type RuleValue
+
 	} from '$lib/components/policy-rule-utils';
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
 	const id = $derived(params.id);
 
-	const policy = $derived(await getPolicy({ id }));
-
+	const resp = $derived(await getPolicy({ id }));
+	const policy = $derived(resp.policy);
 	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
 		ALLOW: 'default',
 		DENY: 'destructive'
@@ -183,11 +186,20 @@
 			{#if policy.rules.length > 0}
 				<div class="space-y-3">
 					{#each policy.rules as rule (rule.id)}
+						{@const value: RuleValue = {
+							stringValue: rule.expectedStringValue || undefined,
+							numberValue: rule.expectedNumberValue || undefined,
+							booleanValue: rule.expectedBooleanValue || undefined,
+							dateTimeValue: rule.expectedDateTimeValue || undefined,
+							uuidValue: rule.expectedUuidValue || undefined,
+							arrayValue: rule.expectedArrayValue || undefined,
+							contextReferencePath: rule.contextReferencePath || undefined
+						}}
 						<div class="rounded-md border p-4 transition-colors hover:bg-muted/30">
 							<div class="flex items-start justify-between gap-3">
 								<div class="min-w-0 flex-1">
 									<p class="text-sm leading-relaxed">
-										{ruleToSentence(rule.attributePath, rule.operator, rule.value)}
+										{ruleToSentence(rule.attributePath, rule.operator, value)}
 									</p>
 									{#if rule.description}
 										<p class="mt-1 text-xs text-muted-foreground">{rule.description}</p>
@@ -219,9 +231,9 @@
 								>
 								<span class="rounded bg-muted px-1.5 py-0.5">{getOperatorLabel(rule.operator)}</span
 								>
-								{#if rule.value}
+								{#if value}
 									<span class="rounded bg-muted px-1.5 py-0.5">
-										{valueToDisplayString(rule.value)}
+										{valueToDisplayString(value)}
 									</span>
 								{/if}
 							</div>

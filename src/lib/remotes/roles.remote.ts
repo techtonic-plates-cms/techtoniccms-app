@@ -2,44 +2,11 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import { graphql, type AssignPolicyToRoleMutation, type AssignPolicyToRoleMutationVariables, type CreateRoleMutation, type CreateRoleMutationVariables, type GetRoleQuery, type GetRoleQueryVariables, type RolesForComboboxQuery, type RolesForComboboxQueryVariables, type GetRolesQuery, type GetRolesQueryVariables, type UnassignPolicyFromRoleMutation, type UnassignPolicyFromRoleMutationVariables, type UpdateRoleMutation, type UpdateRoleMutationVariables } from 'techtonic-client-gql';
 
-export type PolicyRef = {
-	id: string;
-	assignedAt: string;
-	expiresAt: string | null;
-	reason: string | null;
-	policy: {
-		id: string;
-		name: string;
-		actionType: string;
-		effect: string;
-		resourceType: string;
-		description: string | null;
-	};
-};
 
-export type UserRef = {
-	id: string;
-	assignedAt: string;
-	expiresAt: string | null;
-	role: {
-		id: string;
-		name: string;
-	};
-};
-
-export type Role = {
-	id: string;
-	name: string;
-	description: string | null;
-	creationTime: string | null;
-	lastEditTime: string | null;
-	policies: PolicyRef[];
-	users: UserRef[];
-};
-
-const ROLES_QUERY = `
-	query Roles($first: Int, $after: String, $where: RoleFilterInput) {
+const ROLES_QUERY = graphql(`
+	query GetRoles($first: Int, $after: String, $where: RoleFilterInput) {
 		roles {
 			roles(first: $first, after: $after, where: $where) {
 				nodes {
@@ -51,10 +18,10 @@ const ROLES_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const ROLE_QUERY = `
-	query Role($id: UUID) {
+const ROLE_QUERY = graphql(`
+	query GetRole($id: UUID) {
 		roles {
 			role(id: $id) {
 				id name description creationTime lastEditTime
@@ -63,39 +30,39 @@ const ROLE_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const CREATE_ROLE_MUTATION = `
+const CREATE_ROLE_MUTATION = graphql(`
 	mutation CreateRole($input: CreateRoleInput!) {
 		roles { create(input: $input) { id name } }
 	}
-`;
+`);
 
-const UPDATE_ROLE_MUTATION = `
+const UPDATE_ROLE_MUTATION = graphql(`
 	mutation UpdateRole($input: UpdateRoleInput!) {
 		roles { update(input: $input) { id name } }
 	}
-`;
+`);
 
-const DELETE_ROLE_MUTATION = `
+const DELETE_ROLE_MUTATION = graphql(`
 	mutation DeleteRole($id: UUID!) {
 		roles { delete(id: $id) }
 	}
-`;
+`);
 
-const ASSIGN_POLICY_MUTATION = `
+const ASSIGN_POLICY_MUTATION = graphql(`
 	mutation AssignPolicyToRole($input: AssignPolicyToRoleInput!) {
 		roles { assignPolicy(input: $input) }
 	}
-`;
+`);
 
-const UNASSIGN_POLICY_MUTATION = `
+const UNASSIGN_POLICY_MUTATION = graphql(`
 	mutation UnassignPolicyFromRole($policyId: UUID!, $roleId: UUID!) {
 		roles { unassignPolicy(policyId: $policyId, roleId: $roleId) }
 	}
-`;
+`);
 
-const ROLES_COMBOBOX_QUERY = `
+const ROLES_COMBOBOX_QUERY = graphql(`
 	query RolesForCombobox($first: Int, $where: RoleFilterInput) {
 		roles {
 			roles(first: $first, where: $where) {
@@ -103,7 +70,7 @@ const ROLES_COMBOBOX_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
 export const getRolesForCombobox = query(
 	v.object({ search: v.optional(v.string()) }),
@@ -113,12 +80,7 @@ export const getRolesForCombobox = query(
 		if (search) where.name = { contains: search };
 		try {
 			const result = await gqlFetch<
-				{
-					roles: {
-						roles: { nodes: Array<{ id: string; name: string; description: string | null }> };
-					};
-				},
-				{ first: number; where?: Record<string, unknown> }
+				RolesForComboboxQuery, RolesForComboboxQueryVariables
 			>(
 				ROLES_COMBOBOX_QUERY,
 				{ first: 20, where: Object.keys(where).length > 0 ? where : undefined },
@@ -142,12 +104,7 @@ export const getRoles = query(
 		if (search) where.name = { contains: search };
 		try {
 			const result = await gqlFetch<
-				{
-					roles: {
-						roles: { nodes: Role[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
-					};
-				},
-				Record<string, unknown>
+				GetRolesQuery, GetRolesQueryVariables
 			>(
 				ROLES_QUERY,
 				{ first: 25, after, where: Object.keys(where).length > 0 ? where : undefined },
@@ -167,12 +124,12 @@ export const getRole = query(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<{ roles: { role: Role | null } }, { id: string }>(
+			const result = await gqlFetch<GetRoleQuery, GetRoleQueryVariables>(
 				ROLE_QUERY,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
 			);
-			return result.roles.role;
+			return result.roles.role!;
 		} catch (err) {
 			handleGraphQLError(err);
 		}
@@ -189,9 +146,7 @@ export const createRole = form(
 		const { locals } = getRequestEvent();
 		try {
 			const ids = policyIds ? policyIds.split(',').filter(Boolean) : [];
-			const result = await gqlFetch<
-				{ roles: { create: { id: string } } },
-				{ input: Record<string, unknown> }
+			const result = await gqlFetch<CreateRoleMutation, CreateRoleMutationVariables
 			>(
 				CREATE_ROLE_MUTATION,
 				{
@@ -220,7 +175,7 @@ export const updateRole = form(
 	async ({ id, name, description }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdateRoleMutation, UpdateRoleMutationVariables>(
 				UPDATE_ROLE_MUTATION,
 				{ input: { id, name: name || undefined, description: description || undefined } },
 				{ token: locals.accessToken?.tokenValue }
@@ -260,7 +215,7 @@ export const assignPolicyToRole = form(
 	async ({ roleId, policyId, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<AssignPolicyToRoleMutation, AssignPolicyToRoleMutationVariables>(
 				ASSIGN_POLICY_MUTATION,
 				{ input: { roleId, policyId, expiresAt: expiresAt || undefined } },
 				{ token: locals.accessToken?.tokenValue }
@@ -281,7 +236,7 @@ export const unassignPolicyFromRole = form(
 	async ({ roleId, policyId }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { policyId: string; roleId: string }>(
+			await gqlFetch<UnassignPolicyFromRoleMutation, UnassignPolicyFromRoleMutationVariables>(
 				UNASSIGN_POLICY_MUTATION,
 				{ policyId, roleId },
 				{ token: locals.accessToken?.tokenValue }

@@ -72,10 +72,10 @@
 						<UsersIcon class="size-5" />
 					</div>
 					<div>
-						<p class="text-2xl font-bold">{usersPage.nodes.length}</p>
+						<p class="text-2xl font-bold">{usersPage.nodes?.length}</p>
 						<p class="text-sm text-muted-foreground">Users</p>
 						<p class="text-xs text-muted-foreground">
-							{usersPage.nodes.filter((u) => u.status === 'ACTIVE').length} active
+							{usersPage.nodes?.filter((u) => u.status === 'ACTIVE').length} active
 						</p>
 					</div>
 				</Card.Content>

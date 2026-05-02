@@ -6,6 +6,7 @@
 	import { getPolicies } from '$lib/remotes/policies.remote';
 
 	let {
+		// eslint-disable-next-line no-useless-assignment
 		value = $bindable(''),
 		selectedIds = $bindable<string[]>([]),
 		multiple = false,
@@ -21,14 +22,12 @@
 
 	let search = $state('');
 	let open = $state(false);
-	let policies = $state<
-		Array<{ id: string; name: string; effect: string; resourceType: string; actionType: string }>
-	>([]);
+	let policies = $state<NonNullable<Awaited<ReturnType<typeof getPolicies>>['nodes']>>([]);
 
 	async function loadPolicies() {
 		try {
 			const result = await getPolicies({}).run();
-			policies = result.nodes;
+			policies = result.nodes ?? [];
 		} catch (err) {
 			if (isHttpError(err, 403)) {
 				policies = [];

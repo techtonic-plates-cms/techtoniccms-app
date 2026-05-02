@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import type { PolicyRule } from 'techtonic-client-gql';
 	import { policyToSentence } from './policy-rule-utils';
-	import type { PolicyRuleValue } from '$lib/remotes/policies.remote';
 
 	let {
 		name,
@@ -22,7 +22,7 @@
 		effect: string;
 		priority: number;
 		ruleConnector?: string;
-		rules: Array<{ attributePath: string; operator: string; value?: PolicyRuleValue }>;
+		rules: Array<PolicyRule>;
 		isActive?: boolean;
 		compact?: boolean;
 	} = $props();

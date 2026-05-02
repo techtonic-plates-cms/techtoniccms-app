@@ -12,18 +12,19 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getPolicies } from '$lib/remotes/policies.remote';
 	import { policyToSentence } from '$lib/components/policy-rule-utils';
+	import type { BaseResource, PermissionAction, PermissionEffect } from 'techtonic-client-gql';
 
 	const search = $derived(page.url.searchParams.get('search') ?? undefined);
-	const resourceType = $derived(page.url.searchParams.get('resourceType') ?? undefined);
-	const actionType = $derived(page.url.searchParams.get('actionType') ?? undefined);
-	const effect = $derived(page.url.searchParams.get('effect') ?? undefined);
+	const resourceType = $derived(page.url.searchParams.get('resourceType') as BaseResource ?? undefined);
+	const actionType = $derived(page.url.searchParams.get('actionType') as PermissionAction ?? undefined);
+	const effect = $derived(page.url.searchParams.get('effect') as PermissionEffect ?? undefined);
 	const isActive = $derived(page.url.searchParams.get('isActive') ?? undefined);
 	const after = $derived(page.url.searchParams.get('after') ?? undefined);
 
 	const policiesData = $derived(
 		await getPolicies({ search, resourceType, actionType, effect, isActive, after })
 	);
-	const policies = $derived(policiesData.nodes);
+	const policies = $derived(policiesData.nodes!);
 
 	const EFFECT_VARIANT: Record<string, 'default' | 'destructive'> = {
 		ALLOW: 'default',

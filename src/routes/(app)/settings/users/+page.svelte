@@ -25,10 +25,10 @@
 	};
 
 	const metrics = $derived({
-		total: users.nodes.length,
-		active: users.nodes.filter((u) => u.status === 'ACTIVE').length,
-		inactive: users.nodes.filter((u) => u.status === 'INACTIVE').length,
-		noRoles: users.nodes.filter((u) => u.roles.length === 0).length
+		total: users.nodes?.length,
+		active: users.nodes?.filter((u) => u.status === 'ACTIVE').length,
+		inactive: users.nodes?.filter((u) => u.status === 'INACTIVE').length,
+		noRoles: users.nodes?.filter((u) => u.roles.length === 0).length
 	});
 
 	let searchInput = $state(page.url.searchParams.get('search') ?? '');
@@ -100,7 +100,7 @@
 				<AlertCircleIcon class="size-5 text-muted-foreground" />
 				<p class="text-3xl font-bold">{metrics.noRoles}</p>
 			</div>
-			{#if metrics.noRoles > 0}
+			{#if metrics!.noRoles! > 0}
 				<p class="mt-1 text-xs text-muted-foreground">No roles assigned</p>
 			{/if}
 		</div>
@@ -140,7 +140,7 @@
 		{/if}
 	</div>
 
-	{#if users.nodes.length === 0}
+	{#if users.nodes?.length === 0}
 		<div class="rounded-lg border border-dashed p-12 text-center">
 			<div class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
 				<UsersIcon class="size-6 text-muted-foreground" />

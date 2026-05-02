@@ -19,12 +19,13 @@
 
 	let search = $state('');
 	let open = $state(false);
-	let roles = $state<Array<{ id: string; name: string; description: string | null }>>([]);
+	type Item = Awaited<ReturnType<typeof getRoles>>;
+	let roles = $state<Item["nodes"]>([]);
 
 	async function loadRoles() {
 		try {
 			const result = await getRoles({}).run();
-			roles = result.nodes;
+			roles = result.nodes ?? [];
 		} catch (err) {
 			if (isHttpError(err, 403)) {
 				roles = [];
@@ -35,7 +36,7 @@
 	}
 
 	const filtered = $derived(
-		roles
+		roles!
 			.filter((r) => {
 				const matches = r.name.toLowerCase().includes(search.toLowerCase());
 				if (!multiple) return matches;
@@ -105,7 +106,7 @@
 	{#if multiple && selectedIds.length > 0}
 		<div class="flex flex-wrap gap-1.5">
 			{#each selectedIds as roleId (roleId)}
-				{@const role = roles.find((r) => r.id === roleId)}
+				{@const role = roles!.find((r) => r.id === roleId)}
 				{#if role}
 					<Badge variant="secondary" class="gap-1 pr-1.5">
 						{role.name}

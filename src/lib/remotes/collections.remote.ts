@@ -2,45 +2,10 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import { type FieldDefinitionInput, graphql, Locale, type GetCollectionQuery, type GetCollectionQueryVariables, type GetCollectionsQuery, type GetCollectionsQueryVariables, type CreateCollectionMutation, type CreateCollectionMutationVariables, type CollectionsComboboxQuery, type CollectionsComboboxQueryVariables, type UpdateCollectionMutation, type UpdateCollectionMutationVariables, FieldDataType } from 'techtonic-client-gql';
 
-export type CollectionField = {
-	id: string;
-	name: string;
-	label: string | null;
-	dataType: string;
-	isRequired: boolean;
-	isUnique: boolean;
-	defaultValue: string | null;
-	description: string | null;
-	helpText: string | null;
-	relatedCollectionId: string | null;
-	relatedCollection: { id: string; name: string; slug: string } | null;
-};
-
-export type IconAsset = {
-	id: string;
-	url: string;
-	filename: string;
-};
-
-export type Collection = {
-	id: string;
-	name: string;
-	slug: string;
-	icon: IconAsset | null;
-	color: string | null;
-	description: string | null;
-	entryCount: number;
-	isLocalized: boolean;
-	defaultLocale: string;
-	supportedLocales: string[];
-	createdAt: string | null;
-	updatedAt: string | null;
-	fields: CollectionField[];
-};
-
-const COLLECTIONS_QUERY = `
-	query Collections {
+const COLLECTIONS_QUERY = graphql(`
+	query GetCollections {
 		collections {
 			collectionsData {
 				nodes {
@@ -52,9 +17,9 @@ const COLLECTIONS_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const COLLECTIONS_COMBOBOX_QUERY = `
+const COLLECTIONS_COMBOBOX_QUERY = graphql(`
 	query CollectionsCombobox($search: String) {
 		collections {
 			collectionsData(first: 20, where: { name: { contains: $search } }) {
@@ -62,10 +27,10 @@ const COLLECTIONS_COMBOBOX_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const COLLECTION_QUERY = `
-	query Collection($slug: String) {
+const COLLECTION_QUERY = graphql(`
+	query GetCollection($slug: String) {
 		collections {
 			collectionData(slug: $slug) {
 				id name slug color description entryCount
@@ -91,31 +56,31 @@ const COLLECTION_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const CREATE_COLLECTION_MUTATION = `
+const CREATE_COLLECTION_MUTATION = graphql(`
 	mutation CreateCollection($input: CreateCollectionInput!) {
 		collections {
 			create(input: $input) { id slug }
 		}
 	}
-`;
+`);
 
-const DELETE_COLLECTION_MUTATION = `
+const DELETE_COLLECTION_MUTATION = graphql(`
 	mutation DeleteCollection($id: UUID!) {
 		collections {
 			delete(id: $id)
 		}
 	}
-`;
+`);
 
-const UPDATE_COLLECTION_MUTATION = `
+const UPDATE_COLLECTION_MUTATION = graphql(`
 	mutation UpdateCollection($input: UpdateCollectionInput!) {
 		collections {
 			update(input: $input) { id slug }
 		}
 	}
-`;
+`);
 
 export const getCollectionsForCombobox = query(
 	v.object({ search: v.optional(v.string()) }),
@@ -124,12 +89,7 @@ export const getCollectionsForCombobox = query(
 		const token = locals.accessToken?.tokenValue;
 		try {
 			const result = await gqlFetch<
-				{
-					collections: {
-						collectionsData: { nodes: Array<{ id: string; name: string; slug: string }> };
-					};
-				},
-				{ search?: string }
+				CollectionsComboboxQuery, CollectionsComboboxQueryVariables
 			>(COLLECTIONS_COMBOBOX_QUERY, { search: search ?? '' }, { token });
 			return result.collections.collectionsData?.nodes ?? [];
 		} catch (err) {
@@ -143,18 +103,7 @@ export const getCollections = query(async () => {
 	const token = locals.accessToken?.tokenValue;
 	try {
 		const result = await gqlFetch<
-			{
-				collections: {
-					collectionsData: {
-						nodes: Array<
-							Omit<Collection, 'supportedLocales' | 'updatedAt' | 'fields'> & {
-								fields: Array<{ id: string }>;
-							}
-						>;
-					};
-				};
-			},
-			Record<string, never>
+			GetCollectionsQuery, GetCollectionsQueryVariables
 		>(COLLECTIONS_QUERY, {}, { token });
 		return result.collections.collectionsData?.nodes ?? [];
 	} catch (err) {
@@ -171,8 +120,7 @@ export const getCollection = query(
 		const token = locals.accessToken?.tokenValue;
 		try {
 			const result = await gqlFetch<
-				{ collections: { collectionData: Collection | null } },
-				{ slug: string }
+				GetCollectionQuery, GetCollectionQueryVariables
 			>(COLLECTION_QUERY, { slug }, { token });
 			return result.collections.collectionData;
 		} catch (err) {
@@ -189,9 +137,9 @@ export const createCollection = form(
 		icon: v.optional(v.string()),
 		color: v.optional(v.string()),
 		isLocalized: v.optional(v.string()),
-		defaultLocale: v.optional(v.string()),
+		defaultLocale: v.optional(v.enum(Locale)),
 		fields: v.optional(v.string()),
-		supportedLocales: v.optional(v.string())
+		supportedLocales: v.optional(v.array(v.enum(Locale)))
 	}),
 	async ({
 		name,
@@ -206,35 +154,17 @@ export const createCollection = form(
 	}) => {
 		const { locals } = getRequestEvent();
 		try {
-			let parsedFields: Array<Record<string, unknown>> = [];
+			let parsedFields: Array<FieldDefinitionInput> = [];
 			if (fields) {
 				try {
-					const draftFields = JSON.parse(fields) as Array<{
-						dataType: string;
-						relatedCollectionId?: string;
-						[key: string]: unknown;
-					}>;
-					parsedFields = draftFields.map((f) => ({
-						name: f.name,
-						label: f.label || undefined,
-						isRequired: f.isRequired,
-						isUnique: f.isUnique,
-						defaultValue: f.defaultValue || undefined,
-						description: f.description || undefined,
-						helpText: f.helpText || undefined,
-						config:
-							f.dataType === 'RELATION'
-								? { relation: { relatedCollectionId: f.relatedCollectionId } }
-								: { simple: { dataType: f.dataType } }
-					}));
+					const draftFields = JSON.parse(fields) as Array<FieldDefinitionInput>;
+					parsedFields = draftFields;
 				} catch {
 					// Silently ignore malformed JSON — collection still created without fields
 				}
 			}
 
-			const result = await gqlFetch<
-				{ collections: { create: { id: string; slug: string } } },
-				{ input: Record<string, unknown> }
+			const result = await gqlFetch<CreateCollectionMutation, CreateCollectionMutationVariables
 			>(
 				CREATE_COLLECTION_MUTATION,
 				{
@@ -245,10 +175,8 @@ export const createCollection = form(
 						iconId: icon || undefined,
 						color: color || undefined,
 						isLocalized: isLocalized === 'on',
-						defaultLocale: defaultLocale || 'EN',
-						supportedLocales: supportedLocales
-							? supportedLocales.split(',').filter(Boolean)
-							: undefined,
+						defaultLocale: defaultLocale || Locale.En,
+						supportedLocales: supportedLocales,
 						fields: parsedFields.length > 0 ? parsedFields : undefined
 					}
 				},
@@ -296,8 +224,7 @@ export const updateCollectionMeta = form(
 		const { locals } = getRequestEvent();
 		try {
 			const result = await gqlFetch<
-				{ collections: { update: { id: string; slug: string } } },
-				{ input: Record<string, unknown> }
+				UpdateCollectionMutation, UpdateCollectionMutationVariables
 			>(
 				UPDATE_COLLECTION_MUTATION,
 				{
@@ -326,7 +253,7 @@ export const addCollectionField = form(
 		collectionSlug: v.pipe(v.string(), v.nonEmpty()),
 		name: v.pipe(v.string(), v.nonEmpty('Field name is required')),
 		label: v.optional(v.string()),
-		dataType: v.pipe(v.string(), v.nonEmpty('Data type is required')),
+		dataType: v.pipe(v.enum(FieldDataType), v.nonEmpty('Data type is required')),
 		isRequired: v.optional(v.string()),
 		isUnique: v.optional(v.string()),
 		defaultValue: v.optional(v.string()),
@@ -350,7 +277,7 @@ export const addCollectionField = form(
 		const { locals } = getRequestEvent();
 		const isRelation = dataType === 'RELATION';
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdateCollectionMutation, UpdateCollectionMutationVariables>(
 				UPDATE_COLLECTION_MUTATION,
 				{
 					input: {
@@ -391,7 +318,7 @@ export const deleteCollectionField = form(
 	async ({ collectionId, collectionSlug, fieldId }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch<UpdateCollectionMutation, UpdateCollectionMutationVariables>(
 				UPDATE_COLLECTION_MUTATION,
 				{ input: { id: collectionId, deleteFieldIds: [fieldId] } },
 				{ token: locals.accessToken?.tokenValue }

@@ -2,20 +2,20 @@ import { query, form, getRequestEvent } from '$app/server';
 import { gqlFetch, handleGraphQLError, handleGraphQLErrorForm } from '$lib/server/gql';
 import * as v from 'valibot';
 import { redirect } from '@sveltejs/kit';
+import { graphql } from 'techtonic-client-gql';
+import type {GetApiKeyQuery, GetApiKeysQuery, GetApiKeyQueryVariables,  GetApiKeysQueryVariables, CreateApiKeyMutation, CreateApiKeyMutationVariables, RevokeApiKeyMutation, RevokeApiKeyMutationVariables, DeleteApiKeyMutation, DeleteApiKeyMutationVariables } from 'techtonic-client-gql';
 
-export type ApiKey = {
-	id: string;
-	name: string;
-	keyPrefix: string;
-	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
-	expiresAt?: string | null;
-	lastUsedAt?: string | null;
-};
+function toDateTime(value: string | undefined): string | undefined {
+	if (!value) return undefined;
+	// datetime-local yields YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss
+	// Append seconds and Z to form a valid ISO-8601 DateTime
+	if (value.length === 16) return value + ':00Z';
+	if (!value.endsWith('Z')) return value + 'Z';
+	return value;
+}
 
-const API_KEYS_QUERY = `
-	query ApiKeys($first: Int, $after: String) {
+const API_KEYS_QUERY = graphql(`
+	query GetApiKeys($first: Int, $after: String) {
 		apiKeys {
 			apiKeys(first: $first, after: $after) {
 				nodes {
@@ -25,19 +25,19 @@ const API_KEYS_QUERY = `
 			}
 		}
 	}
-`;
+`);
 
-const API_KEY_QUERY = `
-	query ApiKey($id: UUID!) {
+const API_KEY_QUERY = graphql(`
+	query GetApiKey($id: UUID!) {
 		apiKeys {
 			apiKey(id: $id) {
 				id name keyPrefix isActive createdAt updatedAt expiresAt lastUsedAt
 			}
 		}
 	}
-`;
+`);
 
-const CREATE_API_KEY_MUTATION = `
+const CREATE_API_KEY_MUTATION = graphql(`
 	mutation CreateApiKey($input: CreateApiKeyInput!) {
 		apiKeys {
 			createApiKey(input: $input) {
@@ -46,29 +46,29 @@ const CREATE_API_KEY_MUTATION = `
 			}
 		}
 	}
-`;
+`);
 
-const UPDATE_API_KEY_MUTATION = `
+const UPDATE_API_KEY_MUTATION = graphql(`
 	mutation UpdateApiKey($input: UpdateApiKeyInput!) {
 		apiKeys {
 			updateApiKey(input: $input) { id name isActive }
 		}
 	}
-`;
+`);
 
-const REVOKE_API_KEY_MUTATION = `
+const REVOKE_API_KEY_MUTATION = graphql(`
 	mutation RevokeApiKey($id: UUID!) {
 		apiKeys {
 			revokeApiKey(id: $id) { id isActive }
 		}
 	}
-`;
+`);
 
-const DELETE_API_KEY_MUTATION = `
+const DELETE_API_KEY_MUTATION = graphql(`
 	mutation DeleteApiKey($id: UUID!) {
 		apiKeys { deleteApiKey(id: $id) }
 	}
-`;
+`);
 
 export const getApiKeys = query(
 	v.object({
@@ -77,17 +77,11 @@ export const getApiKeys = query(
 	async ({ after }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<
-				{
-					apiKeys: {
-						apiKeys: {
-							nodes: ApiKey[];
-							pageInfo: { hasNextPage: boolean; endCursor: string | null };
-						};
-					};
-				},
-				Record<string, unknown>
-			>(API_KEYS_QUERY, { first: 25, after }, { token: locals.accessToken?.tokenValue });
+			const result = await gqlFetch<GetApiKeysQuery, GetApiKeysQueryVariables>(
+				API_KEYS_QUERY,
+				{ first: 25, after },
+				{ token: locals.accessToken?.tokenValue }
+			);
 			return (
 				result.apiKeys.apiKeys ?? { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
 			);
@@ -104,12 +98,8 @@ export const getApiKey = query(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<{ apiKeys: { apiKey: ApiKey | null } }, { id: string }>(
-				API_KEY_QUERY,
-				{ id },
-				{ token: locals.accessToken?.tokenValue }
-			);
-			return result.apiKeys.apiKey;
+			const result = await gqlFetch<GetApiKeyQuery, GetApiKeyQueryVariables>(API_KEY_QUERY, { id }, { token: locals.accessToken?.tokenValue });
+			return result?.apiKeys.apiKey;
 		} catch (err) {
 			handleGraphQLError(err);
 		}
@@ -124,21 +114,13 @@ export const createApiKey = form(
 	async ({ name, expiresAt }) => {
 		const { locals } = getRequestEvent();
 		try {
-			const result = await gqlFetch<
-				{ apiKeys: { createApiKey: { apiKey: { id: string }; key: string } } },
-				{ input: Record<string, unknown> }
-			>(
+			const result = await gqlFetch<CreateApiKeyMutation, CreateApiKeyMutationVariables>(
 				CREATE_API_KEY_MUTATION,
-				{
-					input: {
-						name,
-						expiresAt: expiresAt || undefined
-					}
-				},
+				{ input: { name, expiresAt: toDateTime(expiresAt) } },
 				{ token: locals.accessToken?.tokenValue }
 			);
 			const { apiKey, key } = result.apiKeys.createApiKey;
-			redirect(303, `/settings/api-keys/${apiKey.id}?key=${encodeURIComponent(key)}`);
+			redirect(303, `/settings/api-keys/${apiKey!.id}?key=${encodeURIComponent(key)}`);
 		} catch (err) {
 			if ((err as { status?: number }).status !== undefined) throw err;
 			handleGraphQLErrorForm(err);
@@ -156,13 +138,13 @@ export const updateApiKey = form(
 	async ({ id, name, expiresAt, isActive }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { input: Record<string, unknown> }>(
+			await gqlFetch(
 				UPDATE_API_KEY_MUTATION,
 				{
 					input: {
 						id,
 						name: name || undefined,
-						expiresAt: expiresAt || undefined,
+						expiresAt: toDateTime(expiresAt),
 						isActive: isActive !== undefined ? isActive === 'true' : undefined
 					}
 				},
@@ -181,7 +163,7 @@ export const revokeApiKey = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>(
 				REVOKE_API_KEY_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
@@ -199,7 +181,7 @@ export const deleteApiKey = form(
 	async ({ id }) => {
 		const { locals } = getRequestEvent();
 		try {
-			await gqlFetch<unknown, { id: string }>(
+			await gqlFetch<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>(
 				DELETE_API_KEY_MUTATION,
 				{ id },
 				{ token: locals.accessToken?.tokenValue }
