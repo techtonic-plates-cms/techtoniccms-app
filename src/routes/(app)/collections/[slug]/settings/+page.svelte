@@ -76,7 +76,7 @@
 					</div>
 					<div class="space-y-1.5">
 						<Label>Icon (asset)</Label>
-						<input type="hidden" name="icon" value={iconOverride ?? collection.icon?.id ?? ''} />
+						<input type="hidden" name="iconId" value={iconOverride ?? collection.icon?.id ?? ''} />
 						<AssetCombobox
 							value={iconOverride ?? collection.icon?.id ?? ''}
 							onValueChange={(id) => {

@@ -40,8 +40,9 @@ const USERS_QUERY = `
 		users {
 			users(first: $first, after: $after, where: $where) {
 				nodes {
-					id name status creationTime lastLoginTime
-					roles { role { id name } }
+					id name status creationTime lastLoginTime lastEditTime
+					roles { id role { id name } }
+					policies { id assignedAt expiresAt reason policy { id name effect resourceType actionType } }
 				}
 				pageInfo { hasNextPage endCursor }
 			}
@@ -54,7 +55,7 @@ const USER_QUERY = `
 		users {
 			user(id: $id) {
 				id name status creationTime lastLoginTime lastEditTime
-				roles { role {id name} assignedAt expiresAt }
+				roles { id role {id name} assignedAt expiresAt }
 				policies { id assignedAt expiresAt reason policy { id name effect resourceType actionType } }
 			}
 		}

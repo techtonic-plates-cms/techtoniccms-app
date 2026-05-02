@@ -19,7 +19,7 @@ const API_KEYS_QUERY = `
 		apiKeys {
 			apiKeys(first: $first, after: $after) {
 				nodes {
-					id name keyPrefix isActive createdAt expiresAt lastUsedAt
+					id name keyPrefix isActive createdAt updatedAt expiresAt lastUsedAt
 				}
 				pageInfo { hasNextPage endCursor }
 			}

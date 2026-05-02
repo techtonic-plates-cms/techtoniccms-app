@@ -36,6 +36,7 @@ export const LOGIN_MUTATION = graphql(`
 						}
 					}
 					policies {
+						id
 						expiresAt
 						policy {
 							resourceType
@@ -78,6 +79,7 @@ export const ME_QUERY = graphql(`
 					}
 				}
 				policies {
+					id
 					expiresAt
 					policy {
 						resourceType

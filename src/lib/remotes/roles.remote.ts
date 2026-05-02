@@ -43,7 +43,7 @@ const ROLES_QUERY = `
 		roles {
 			roles(first: $first, after: $after, where: $where) {
 				nodes {
-					id name description creationTime
+					id name description creationTime lastEditTime
 					policies { id assignedAt expiresAt reason policy { id name actionType effect resourceType description } }
 					users { id assignedAt expiresAt role { id name } }
 				}

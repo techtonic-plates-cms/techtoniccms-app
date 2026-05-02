@@ -289,10 +289,10 @@ export const updateCollectionMeta = form(
 		id: v.pipe(v.string(), v.nonEmpty()),
 		name: v.optional(v.string()),
 		description: v.optional(v.string()),
-		icon: v.optional(v.string()),
+		iconId: v.optional(v.string()),
 		color: v.optional(v.string())
 	}),
-	async ({ id, name, description, icon, color }) => {
+	async ({ id, name, description, iconId, color }) => {
 		const { locals } = getRequestEvent();
 		try {
 			const result = await gqlFetch<
@@ -305,7 +305,7 @@ export const updateCollectionMeta = form(
 						id,
 						name: name || undefined,
 						description: description || undefined,
-						icon: icon || undefined,
+						iconId: iconId || undefined,
 						color: color || undefined
 					}
 				},
@@ -349,9 +349,6 @@ export const addCollectionField = form(
 	}) => {
 		const { locals } = getRequestEvent();
 		const isRelation = dataType === 'RELATION';
-		const config = isRelation
-			? { relation: { relatedCollectionId: relatedCollectionId! } }
-			: { simple: { dataType } };
 		try {
 			await gqlFetch<unknown, { input: Record<string, unknown> }>(
 				UPDATE_COLLECTION_MUTATION,
@@ -368,8 +365,7 @@ export const addCollectionField = form(
 								defaultValue: defaultValue || undefined,
 								description: description || undefined,
 								helpText: helpText || undefined,
-								relatedCollectionId: relatedCollectionId || undefined,
-								config
+								relatedCollectionId: relatedCollectionId || undefined
 							}
 						]
 					}

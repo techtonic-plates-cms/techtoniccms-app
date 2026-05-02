@@ -70,8 +70,8 @@ const POLICIES_QUERY = `
 		policy {
 			policies(first: $first, after: $after, where: $where) {
 				nodes {
-					id name description actionType effect resourceType isActive priority createdAt
-					rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order }
+					id name description actionType effect resourceType isActive priority ruleConnector createdAt
+					rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order description }
 					assignedToRoles { id assignedAt expiresAt reason role { id name } }
 					assignedToUsers { id assignedAt expiresAt reason user { id name status } }
 				}
@@ -424,14 +424,35 @@ export const duplicatePolicy = form(
 						isActive: p.isActive,
 						priority: p.priority,
 						ruleConnector: p.ruleConnector,
-						rules: p.rules.map((r, i) => ({
-							attributePath: r.attributePath,
-							operator: r.operator,
-							value: r.value,
-							isActive: r.isActive,
-							description: r.description || undefined,
-							order: i
-						}))
+						rules: p.rules.map((r, i) => {
+							const raw = r as unknown as {
+								expectedStringValue?: string | null;
+								expectedNumberValue?: number | null;
+								expectedBooleanValue?: boolean | null;
+								expectedDateTimeValue?: string | null;
+								expectedUuidValue?: string | null;
+								expectedArrayValue?: string[] | null;
+								contextReferencePath?: string | null;
+							};
+							const value: Record<string, unknown> = {};
+							if (raw.expectedStringValue != null) value.stringValue = raw.expectedStringValue;
+							if (raw.expectedNumberValue != null) value.numberValue = raw.expectedNumberValue;
+							if (raw.expectedBooleanValue != null) value.booleanValue = raw.expectedBooleanValue;
+							if (raw.expectedDateTimeValue != null)
+								value.dateTimeValue = raw.expectedDateTimeValue;
+							if (raw.expectedUuidValue != null) value.uuidValue = raw.expectedUuidValue;
+							if (raw.expectedArrayValue != null) value.arrayValue = raw.expectedArrayValue;
+							if (raw.contextReferencePath != null)
+								value.contextReferencePath = raw.contextReferencePath;
+							return {
+								attributePath: r.attributePath,
+								operator: r.operator,
+								value: Object.keys(value).length > 0 ? value : undefined,
+								isActive: r.isActive,
+								description: r.description || undefined,
+								order: i
+							};
+						})
 					}
 				},
 				{ token: locals.accessToken?.tokenValue }
