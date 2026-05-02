@@ -67,7 +67,7 @@
 								{/if}
 								<div class="min-w-0">
 									<a
-										href={resolve('/collections/{collection.slug}')}
+										href={resolve(`/collections/${collection.slug}`)}
 										class="block truncate font-semibold transition-colors hover:text-primary"
 									>
 										{collection.name}
