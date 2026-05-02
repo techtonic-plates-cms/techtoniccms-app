@@ -53,10 +53,10 @@
 			</div>
 		</div>
 		<div class="flex items-center gap-2">
-			<a href={resolve('/collections/{collection?.slug}/settings')}>
+			<a href={resolve(`/collections/${collection?.slug}/settings`)}>
 				<Button variant="outline" size="sm">Settings</Button>
 			</a>
-			<a href={resolve('/collections/{collection?.slug}/entries/new')}>
+			<a href={resolve(`/collections/${collection?.slug}/entries/new`)}>
 				<Button size="sm">
 					<PlusIcon class="mr-2 size-4" />
 					New Entry
@@ -74,7 +74,7 @@
 			<p class="mt-1 mb-4 text-sm text-muted-foreground">
 				Create your first entry for this collection
 			</p>
-			<a href={resolve('/collections/{collection?.slug}/entries/new')}>
+			<a href={resolve(`/collections/${collection?.slug}/entries/new`)}>
 				<Button size="sm">
 					<PlusIcon class="mr-2 size-4" />
 					New Entry
@@ -104,7 +104,7 @@
 						<tr class="border-b transition-colors last:border-0 hover:bg-muted/50">
 							<td class="px-4 py-3">
 								<a
-									href={resolve('/collections/{collection?.slug}/entries/{entry.id}')}
+									href={resolve(`/collections/${collection?.slug}/entries/{entry.id}`)}
 									class="font-medium transition-colors hover:text-primary"
 								>
 									{entry.name}
