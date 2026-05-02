@@ -49,17 +49,19 @@
 
 	const allowedActions = $derived(
 		role?.policies
-			.filter((p) => p.effect === 'ALLOW')
+			.filter((p) => p.policy.effect === 'ALLOW')
 			.map(
-				(p) => `${p.actionType.toLowerCase().replace(/_/g, ' ')} ${p.resourceType.toLowerCase()}`
+				(p) =>
+					`${p.policy.actionType.toLowerCase().replace(/_/g, ' ')} ${p.policy.resourceType.toLowerCase()}`
 			) ?? []
 	);
 
 	const blockedActions = $derived(
 		role?.policies
-			.filter((p) => p.effect === 'DENY')
+			.filter((p) => p.policy.effect === 'DENY')
 			.map(
-				(p) => `${p.actionType.toLowerCase().replace(/_/g, ' ')} ${p.resourceType.toLowerCase()}`
+				(p) =>
+					`${p.policy.actionType.toLowerCase().replace(/_/g, ' ')} ${p.policy.resourceType.toLowerCase()}`
 			) ?? []
 	);
 </script>
@@ -166,18 +168,21 @@
 								<div class="flex flex-wrap items-center gap-2">
 									<a
 										href={resolve('/(app)/settings/policies/[id]', {
-											id: policy.id
+											id: policy.policy.id
 										})}
 										class="font-medium transition-colors hover:text-primary"
 									>
-										{policy.name}
+										{policy.policy.name}
 									</a>
-									<Badge variant={EFFECT_VARIANT[policy.effect] ?? 'outline'} class="text-xs">
-										{policy.effect.toLowerCase()}
+									<Badge
+										variant={EFFECT_VARIANT[policy.policy.effect] ?? 'outline'}
+										class="text-xs"
+									>
+										{policy.policy.effect.toLowerCase()}
 									</Badge>
 								</div>
 								<p class="text-xs text-muted-foreground">
-									{policy.actionType.toLowerCase()} · {policy.resourceType.toLowerCase()}
+									{policy.policy.actionType.toLowerCase()} · {policy.policy.resourceType.toLowerCase()}
 									{#if policy.expiresAt}
 										<span class:text-destructive={isExpired(policy.expiresAt)}>
 											— {isExpired(policy.expiresAt) ? 'Expired' : 'Expires'}: {formatDate(
@@ -224,25 +229,8 @@
 				<div class="divide-y rounded-md border">
 					{#each role.users as u (u.id)}
 						<div class="flex items-center justify-between px-4 py-3">
-							<a
-								href={resolve('/(app)/settings/users/[id]', {
-									id: u.id
-								})}
-								class="font-medium transition-colors hover:text-primary"
-							>
-								{u.name}
-							</a>
+							<span class="font-mono text-sm text-muted-foreground">{u.id.slice(0, 8)}</span>
 							<div class="flex items-center gap-2">
-								<Badge
-									variant={u.status === 'ACTIVE'
-										? 'default'
-										: u.status === 'BANNED'
-											? 'destructive'
-											: 'secondary'}
-									class="text-xs"
-								>
-									{u.status.toLowerCase()}
-								</Badge>
 								{#if u.expiresAt}
 									<span
 										class="text-xs text-muted-foreground"

@@ -25,8 +25,8 @@
 		priority: number;
 		ruleConnector?: string;
 		rules: Array<{ attributePath: string; operator: string; value?: PolicyRuleValue }>;
-		assignedToRoles?: Array<{ id: string; name: string }>;
-		assignedToUsers?: Array<{ id: string; name: string }>;
+		assignedToRoles?: Array<{ id: string; role: { id: string; name: string } }>;
+		assignedToUsers?: Array<{ id: string; user: { id: string; name: string } }>;
 		isActive?: boolean;
 		compact?: boolean;
 	} = $props();

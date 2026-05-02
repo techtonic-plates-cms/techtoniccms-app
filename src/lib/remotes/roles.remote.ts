@@ -5,21 +5,27 @@ import { redirect } from '@sveltejs/kit';
 
 export type PolicyRef = {
 	id: string;
-	name: string;
-	actionType: string;
-	effect: string;
-	resourceType: string;
-	description: string | null;
-	assignedAt?: string | null;
-	expiresAt?: string | null;
+	assignedAt: string;
+	expiresAt: string | null;
+	reason: string | null;
+	policy: {
+		id: string;
+		name: string;
+		actionType: string;
+		effect: string;
+		resourceType: string;
+		description: string | null;
+	};
 };
 
 export type UserRef = {
 	id: string;
-	name: string;
-	status: string;
-	assignedAt?: string | null;
-	expiresAt?: string | null;
+	assignedAt: string;
+	expiresAt: string | null;
+	role: {
+		id: string;
+		name: string;
+	};
 };
 
 export type Role = {
@@ -38,8 +44,8 @@ const ROLES_QUERY = `
 			roles(first: $first, after: $after, where: $where) {
 				nodes {
 					id name description creationTime
-					policies { id name actionType effect resourceType }
-					users { id name status }
+					policies { id assignedAt expiresAt reason policy { id name actionType effect resourceType description } }
+					users { id assignedAt expiresAt role { id name } }
 				}
 				pageInfo { hasNextPage endCursor }
 			}
@@ -52,8 +58,8 @@ const ROLE_QUERY = `
 		roles {
 			role(id: $id) {
 				id name description creationTime lastEditTime
-				policies { id name actionType effect resourceType description assignedAt expiresAt }
-				users { id name status assignedAt expiresAt }
+				policies { id assignedAt expiresAt reason policy { id name actionType effect resourceType description } }
+				users { id assignedAt expiresAt role { id name } }
 			}
 		}
 	}

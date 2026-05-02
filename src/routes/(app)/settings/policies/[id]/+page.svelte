@@ -356,10 +356,10 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToRoles as role (role.id)}
 								<a
-									href={resolve(`/(app)/settings/roles/[id]`, { id: role.id })}
+									href={resolve(`/(app)/settings/roles/[id]`, { id: role.role.id })}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
-									{role.name}
+									{role.role.name}
 									{#if role.expiresAt}
 										<span
 											class="text-xs text-muted-foreground"
@@ -380,10 +380,10 @@
 						<div class="flex flex-wrap gap-2">
 							{#each policy.assignedToUsers as u (u.id)}
 								<a
-									href={resolve('/(app)/settings/users/[id]', { id: u.id })}
+									href={resolve('/(app)/settings/users/[id]', { id: u.user.id })}
 									class="inline-flex items-center gap-1 text-sm hover:underline"
 								>
-									{u.name}
+									{u.user.name}
 									{#if u.expiresAt}
 										<span
 											class="text-xs text-muted-foreground"

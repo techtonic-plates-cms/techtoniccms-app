@@ -39,15 +39,24 @@ export type Policy = {
 	rules: PolicyRule[];
 	assignedToRoles: Array<{
 		id: string;
-		name: string;
-		assignedAt?: string | null;
-		expiresAt?: string | null;
+		assignedAt: string;
+		expiresAt: string | null;
+		reason: string | null;
+		role: {
+			id: string;
+			name: string;
+		};
 	}>;
 	assignedToUsers: Array<{
 		id: string;
-		name: string;
-		assignedAt?: string | null;
-		expiresAt?: string | null;
+		assignedAt: string;
+		expiresAt: string | null;
+		reason: string | null;
+		user: {
+			id: string;
+			name: string;
+			status: string;
+		};
 	}>;
 };
 
@@ -63,8 +72,8 @@ const POLICIES_QUERY = `
 				nodes {
 					id name description actionType effect resourceType isActive priority createdAt
 					rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order }
-					assignedToRoles { id name assignedAt expiresAt }
-					assignedToUsers { id name assignedAt expiresAt }
+					assignedToRoles { id assignedAt expiresAt reason role { id name } }
+					assignedToUsers { id assignedAt expiresAt reason user { id name status } }
 				}
 				pageInfo { hasNextPage endCursor }
 			}
@@ -79,8 +88,8 @@ const POLICY_QUERY = `
 				id name description actionType effect resourceType
 				isActive priority ruleConnector createdAt updatedAt
 				rules { id attributePath operator ${RULE_VALUE_FRAGMENT} isActive order description }
-				assignedToRoles { id name assignedAt expiresAt }
-				assignedToUsers { id name assignedAt expiresAt }
+				assignedToRoles { id assignedAt expiresAt reason role { id name } }
+				assignedToUsers { id assignedAt expiresAt reason user { id name status } }
 			}
 		}
 	}

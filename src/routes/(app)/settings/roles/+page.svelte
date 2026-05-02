@@ -161,11 +161,11 @@
 									<div class="flex flex-wrap gap-1">
 										{#each role.policies.slice(0, 3) as policy (policy.id)}
 											<Badge
-												variant={EFFECT_VARIANT[policy.effect] ?? 'outline'}
+												variant={EFFECT_VARIANT[policy.policy.effect] ?? 'outline'}
 												class="text-[10px]"
 											>
-												{policy.effect === 'ALLOW' ? 'Allow' : 'Block'}
-												{policy.resourceType.toLowerCase()}
+												{policy.policy.effect === 'ALLOW' ? 'Allow' : 'Block'}
+												{policy.policy.resourceType.toLowerCase()}
 											</Badge>
 										{/each}
 										{#if role.policies.length > 3}
@@ -185,7 +185,7 @@
 											<div
 												class="flex size-7 items-center justify-center rounded-full bg-moss text-[10px] font-medium text-white"
 											>
-												{user.name.charAt(0).toUpperCase()}
+												{user.id.slice(0, 2).toUpperCase()}
 											</div>
 										{/each}
 										{#if role.users.length > 3}
