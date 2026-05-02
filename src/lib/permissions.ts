@@ -20,6 +20,13 @@ function policyAllows(
 	);
 }
 
+function isAdmin(user: AuthUser): boolean {
+	return user.roles.some((userRole) => {
+		if (isExpired(userRole.expiresAt)) return false;
+		return userRole.role.name === 'admin';
+	});
+}
+
 /**
  * Check if a user has an ALLOW policy for a given resource and action.
  * This is a lightweight presence check based on the user's direct policies
@@ -32,6 +39,9 @@ export function hasPermission(
 	resourceType: BaseResource,
 	actionType: PermissionAction
 ): boolean {
+	// Admin role bypasses all permission checks
+	if (isAdmin(user)) return true;
+
 	// Check direct user policies
 	const directAllowed = user.policies.some((userPolicy) => {
 		if (isExpired(userPolicy.expiresAt)) return false;
