@@ -6,14 +6,12 @@
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import ShieldXIcon from '@lucide/svelte/icons/shield-x';
-	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { getPolicies } from '$lib/remotes/policies.remote';
 	import { policyToSentence } from '$lib/components/policy-rule-utils';
-	import ImpactBadge from '$lib/components/impact-badge.svelte';
 
 	const search = $derived(page.url.searchParams.get('search') ?? undefined);
 	const resourceType = $derived(page.url.searchParams.get('resourceType') ?? undefined);
@@ -35,10 +33,7 @@
 	const metrics = $derived({
 		total: policies.length,
 		allow: policies.filter((p) => p.effect === 'ALLOW').length,
-		deny: policies.filter((p) => p.effect === 'DENY').length,
-		unassigned: policies.filter(
-			(p) => p.assignedToRoles.length === 0 && p.assignedToUsers.length === 0
-		).length
+		deny: policies.filter((p) => p.effect === 'DENY').length
 	});
 
 	const RESOURCE_TYPES = ['ASSETS', 'COLLECTIONS', 'ENTRIES', 'USERS'];
@@ -86,7 +81,7 @@
 	</div>
 
 	<!-- Metrics -->
-	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 		<div class="rounded-lg border p-4">
 			<p class="text-xs tracking-wide text-muted-foreground uppercase">Total Policies</p>
 			<p class="mt-1 text-3xl font-bold">{metrics.total}</p>
@@ -104,16 +99,6 @@
 				<ShieldXIcon class="size-5 text-destructive" />
 				<p class="text-3xl font-bold">{metrics.deny}</p>
 			</div>
-		</div>
-		<div class="rounded-lg border p-4">
-			<p class="text-xs tracking-wide text-muted-foreground uppercase">Unassigned</p>
-			<div class="mt-1 flex items-center gap-2">
-				<AlertCircleIcon class="size-5 text-muted-foreground" />
-				<p class="text-3xl font-bold">{metrics.unassigned}</p>
-			</div>
-			{#if metrics.unassigned > 0}
-				<p class="mt-1 text-xs text-muted-foreground">Not linked to any role or user</p>
-			{/if}
 		</div>
 	</div>
 
@@ -249,10 +234,7 @@
 								{policy.rules.length === 1 ? 'rule' : 'rules'}
 							</td>
 							<td class="px-4 py-3">
-								<ImpactBadge
-									roleCount={policy.assignedToRoles.length}
-									userCount={policy.assignedToUsers.length}
-								/>
+								<span class="text-xs text-muted-foreground">—</span>
 							</td>
 						</tr>
 					{/each}

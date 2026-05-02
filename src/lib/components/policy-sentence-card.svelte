@@ -12,8 +12,6 @@
 		priority,
 		ruleConnector,
 		rules,
-		assignedToRoles = [],
-		assignedToUsers = [],
 		isActive = true,
 		compact = false
 	}: {
@@ -25,8 +23,6 @@
 		priority: number;
 		ruleConnector?: string;
 		rules: Array<{ attributePath: string; operator: string; value?: PolicyRuleValue }>;
-		assignedToRoles?: Array<{ id: string; role: { id: string; name: string } }>;
-		assignedToUsers?: Array<{ id: string; user: { id: string; name: string } }>;
 		isActive?: boolean;
 		compact?: boolean;
 	} = $props();
@@ -48,7 +44,6 @@
 		)
 	);
 
-	const totalAssignments = $derived(assignedToRoles.length + assignedToUsers.length);
 </script>
 
 <div
@@ -82,19 +77,6 @@
 			</span>
 			<span class="text-border">·</span>
 			<span>{rules.length} {rules.length === 1 ? 'rule' : 'rules'}</span>
-			{#if totalAssignments > 0}
-				<span class="text-border">·</span>
-				<span>
-					{assignedToRoles.length}
-					{assignedToRoles.length === 1 ? 'role' : 'roles'}
-					·
-					{assignedToUsers.length}
-					{assignedToUsers.length === 1 ? 'user' : 'users'}
-				</span>
-			{:else}
-				<span class="text-border">·</span>
-				<span class="italic">Unassigned</span>
-			{/if}
 		</div>
 	{/if}
 </div>

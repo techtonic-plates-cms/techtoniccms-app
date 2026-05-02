@@ -4,8 +4,6 @@
 	import TrashIcon from '@lucide/svelte/icons/trash-2';
 	import CopyIcon from '@lucide/svelte/icons/copy';
 	import InfoIcon from '@lucide/svelte/icons/info';
-	import UsersIcon from '@lucide/svelte/icons/users';
-	import ShieldIcon from '@lucide/svelte/icons/shield';
 	import { resolve } from '$app/paths';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -39,27 +37,7 @@
 		DENY: 'destructive'
 	};
 
-	function formatDate(dateStr: string | null | undefined): string {
-		if (!dateStr) return '';
-		try {
-			return new Date(dateStr).toLocaleDateString();
-		} catch {
-			return dateStr;
-		}
-	}
 
-	function isExpired(dateStr: string | null | undefined): boolean {
-		if (!dateStr) return false;
-		try {
-			return new Date(dateStr) < new Date();
-		} catch {
-			return false;
-		}
-	}
-
-	const totalAssignments = $derived(
-		(policy?.assignedToRoles.length ?? 0) + (policy?.assignedToUsers.length ?? 0)
-	);
 </script>
 
 {#if !policy}
@@ -118,21 +96,7 @@
 					)}
 				</p>
 			</div>
-			<div class="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-				<span class="inline-flex items-center gap-1">
-					<ShieldIcon class="size-3.5" />
-					{policy.assignedToRoles.length}
-					{policy.assignedToRoles.length === 1 ? 'role' : 'roles'}
-				</span>
-				<span class="inline-flex items-center gap-1">
-					<UsersIcon class="size-3.5" />
-					{policy.assignedToUsers.length}
-					{policy.assignedToUsers.length === 1 ? 'user' : 'users'}
-				</span>
-				{#if totalAssignments === 0}
-					<span class="text-xs italic">This policy is not assigned to anyone yet.</span>
-				{/if}
-			</div>
+
 		</div>
 
 		<!-- Metadata -->
@@ -345,61 +309,6 @@
 				</form>
 			</div>
 		</section>
-
-		<!-- Assignments -->
-		{#if policy.assignedToRoles.length > 0 || policy.assignedToUsers.length > 0}
-			<section class="space-y-3 rounded-lg border p-6">
-				<h2 class="font-semibold">Assigned to</h2>
-				{#if policy.assignedToRoles.length > 0}
-					<div>
-						<p class="mb-2 text-xs tracking-wide text-muted-foreground uppercase">Roles</p>
-						<div class="flex flex-wrap gap-2">
-							{#each policy.assignedToRoles as role (role.id)}
-								<a
-									href={resolve(`/(app)/settings/roles/[id]`, { id: role.role.id })}
-									class="inline-flex items-center gap-1 text-sm hover:underline"
-								>
-									{role.role.name}
-									{#if role.expiresAt}
-										<span
-											class="text-xs text-muted-foreground"
-											class:text-destructive={isExpired(role.expiresAt)}
-										>
-											({isExpired(role.expiresAt) ? 'expired' : 'expires'}
-											{formatDate(role.expiresAt)})
-										</span>
-									{/if}
-								</a>
-							{/each}
-						</div>
-					</div>
-				{/if}
-				{#if policy.assignedToUsers.length > 0}
-					<div>
-						<p class="mb-2 text-xs tracking-wide text-muted-foreground uppercase">Users</p>
-						<div class="flex flex-wrap gap-2">
-							{#each policy.assignedToUsers as u (u.id)}
-								<a
-									href={resolve('/(app)/settings/users/[id]', { id: u.user.id })}
-									class="inline-flex items-center gap-1 text-sm hover:underline"
-								>
-									{u.user.name}
-									{#if u.expiresAt}
-										<span
-											class="text-xs text-muted-foreground"
-											class:text-destructive={isExpired(u.expiresAt)}
-										>
-											({isExpired(u.expiresAt) ? 'expired' : 'expires'}
-											{formatDate(u.expiresAt)})
-										</span>
-									{/if}
-								</a>
-							{/each}
-						</div>
-					</div>
-				{/if}
-			</section>
-		{/if}
 
 		<!-- Danger zone -->
 		<section class="space-y-3 rounded-lg border border-destructive/30 p-6">
